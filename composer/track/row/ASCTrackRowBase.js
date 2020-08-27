@@ -46,9 +46,9 @@ export default class ASCTrackRowBase extends React.Component {
         track.setCursorOffset(this.props.cursorPosition);
         track.selectIndices([], clearSelection); // TODO: Why clear selection?
 
-        const trackState = track.getTrackState();
-        const {positionSeconds} = trackState.getPositionInfo(this.props.positionTicks);
-        this.getComposer().setSongPosition(trackState.getStartPosition() + positionSeconds)
+        // const trackState = track.getTrackState();
+        const {positionSeconds} = track.getPositionInfo(this.props.positionTicks);
+        this.getComposer().setSongPosition(track.getStartPosition() + positionSeconds)
     }
 
 

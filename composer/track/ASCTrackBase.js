@@ -1,12 +1,12 @@
 import * as React from "react";
 import PropTypes from 'prop-types';
 
-import {ASUIButton, ASUIButtonDropDown, ASUIGlobalContext} from "../../components/";
+import {ASUIButton, ASUIButtonDropDown, ASUIGlobalContext, ASUIMenuAction, ASUIMenuBreak} from "../../components/";
 import PromptManager from "../../common/prompt/PromptManager";
 import ASCTrackRowContainer from "./row-container/ASCTrackRowContainer";
-import TrackState from "./state/TrackState";
 import TrackInstructionRowIterator from "./instruction/TrackInstructionRowIterator";
 import {InstructionIterator} from "../../song";
+import Values from "../../common/values/Values";
 
 
 // TODO: ASCTrackRowContainer
@@ -56,7 +56,9 @@ export default class ASCTrackBase extends React.Component {
         // this.firstCursorRowOffset = null;
         // this.lastCursorRowOffset = null;
         this.cb = {
-            onClick: () => this.toggleViewMode()
+            onClick: () => this.toggleViewMode(),
+            renderMenuSetQuantization: () => this.renderMenuSetQuantization(),
+            renderMenuSetSegmentLength: () => this.renderMenuSetSegmentLength(),
 
             // onKeyDown: (e) => this.onKeyDown(e),
             // onWheel: e => this.onWheel(e),
@@ -93,8 +95,8 @@ export default class ASCTrackBase extends React.Component {
     getQuantizationTicks() { return this.state.quantizationTicks || this.getTimeDivision(); }
     getBeatsPerMinute() { return this.state.beatsPerMinute || this.props.composer.song.data.beatsPerMinute; }
 
-    getBeatsPerMeasure() { return this.state.beatsPerMeasure || this.props.composer.song.data.beatsPerMeasure || TrackState.DEFAULT_BEATS_PER_MEASURE; }
-    getMeasuresPerSegment() { return this.state.measuresPerSegment || TrackState.DEFAULT_MEASURES_PER_SEGMENT; }
+    getBeatsPerMeasure() { return this.state.beatsPerMeasure || this.props.composer.song.data.beatsPerMeasure || ASCTrackBase.DEFAULT_BEATS_PER_MEASURE; }
+    getMeasuresPerSegment() { return this.state.measuresPerSegment || ASCTrackBase.DEFAULT_MEASURES_PER_SEGMENT; }
     getBeatsPerSegment() { return this.getBeatsPerMeasure() * this.getMeasuresPerSegment(); }
     getSegmentLengthTicks() { return this.getBeatsPerSegment() * this.getTimeDivision(); }
 
@@ -152,71 +154,6 @@ export default class ASCTrackBase extends React.Component {
         //     );
     }
 
-
-    /** Actions **/
-
-    toggleViewMode() {
-        const viewKey = this.props.trackName;
-        if(!viewKey)
-            return console.warn("Invalid trackName prop");
-        let viewMode = this.getViewMode(viewKey);
-        viewMode = viewMode === true ? null : true;
-        this.setViewMode(viewKey, viewMode);
-    }
-
-    async changeQuantizationPrompt(quantizationTicks = null) {
-        quantizationTicks = await PromptManager.openPromptDialog(`Enter custom tracker quantization in ticks:`, quantizationTicks || this.track.quantizationTicks);
-        this.getTrackState().changeQuantization(quantizationTicks)
-    }
-
-
-    async changeRowLengthPrompt(rowLength=null) {
-        rowLength = parseInt(await PromptManager.openPromptDialog(`Enter custom tracker segment length in rows:`, rowLength || this.track.rowLength));
-        this.getTrackState().changeRowLength(rowLength);
-    }
-
-
-    setCursorOffset(cursorOffset) {
-        if(cursorOffset < 0)
-            cursorOffset = 0;
-        this.setState({cursorOffset}, () =>
-            this.focusRowContainer());
-    }
-
-    setRowOffset(rowOffset) {
-        if(rowOffset < 0)
-            rowOffset = 0;
-        // console.log('rowOffset', rowOffset);
-        this.setState({rowOffset}, () =>
-            this.focusRowContainer());
-    }
-
-    adjustRowOffset(cursorOffset=null) {
-        cursorOffset = cursorOffset === null ? this.state.cursorOffset : cursorOffset;
-        const trackState = this.getTrackState();
-        const cursorInfo = trackState.getCursorInfo(cursorOffset);
-        const rowLength = this.getRowLength();
-        if(cursorInfo.cursorRow > this.getRowOffset() + (rowLength - 1))
-            this.setRowOffset(cursorInfo.cursorRow - (rowLength - 1))
-        else if(cursorInfo.cursorRow < this.getRowOffset())
-            this.setRowOffset(cursorInfo.cursorRow)
-        // else
-        //     console.log("No adjustment: ", cursorInfo, cursorOffset);
-    }
-
-
-
-    /** Focus **/
-
-    focus() {
-        this.focusRowContainer();
-    }
-
-    focusRowContainer() {
-        // TODO: if selected?
-        // console.log('focusRowContainer');
-        this.ref.rowContainer.current.focus();
-    }
 
     /** Input **/
 
@@ -276,17 +213,16 @@ export default class ASCTrackBase extends React.Component {
 
 
     cursorGetInfo(cursorOffset=null) {
-        return this.getTrackState().getCursorInfo(cursorOffset || this.getCursorOffset());
+        return this.getCursorInfo(cursorOffset || this.getCursorOffset());
     }
 
     // getPositionInfo(positionTicks) {
     //     return this.getTrackState().getPositionInfo(positionTicks);
     // }
 
-    /** @deprecated **/
-    getTrackState() {
-        return new TrackState(this.getComposer(), this.getTrackName());
-    }
+    // getTrackState() {
+    //     return new TrackState(this.getComposer(), this.getTrackName());
+    // }
 
 
 
@@ -334,7 +270,7 @@ export default class ASCTrackBase extends React.Component {
                 props.className = 'selected';
             }
             buttons.push(props);
-            if(buttons.length > TrackState.DEFAULT_MAX_SEGMENTS) {
+            if(buttons.length > ASCTrackBase.DEFAULT_MAX_SEGMENTS) {
                 // if(buttons[0].className) {
                 //     buttons.pop();
                 // } else {
@@ -366,19 +302,19 @@ export default class ASCTrackBase extends React.Component {
             className="row-quantization"
             title={`Quantization (Duration = ${rowDeltaDuration})`}
             arrow="▼"
-            options={() => this.getComposer().renderMenuTrackerSetQuantization(this.getTrackName(), quantizationTicks)}
+            options={this.cb.renderMenuSetQuantization}
             children={rowDeltaDuration}
         />;
     }
 
-    renderSelectTrackButton() {
-        return <ASUIButton
-            className="select-track"
-            title={`Select Track: ${this.getTrackName()}`}
-            onAction={() => this.getComposer().trackSelectActive(this.getTrackName())}
-            children={`▼`}
-        />;
-    }
+    // renderSelectTrackButton() {
+    //     return <ASUIButton
+    //         className="select-track"
+    //         title={`Select Track: ${this.getTrackName()}`}
+    //         onAction={() => this.getComposer().trackSelectActive(this.getTrackName())}
+    //         children={`▼`}
+    //     />;
+    // }
 
     renderRowOptions() {
         // const composer = this.props.composer;
@@ -391,7 +327,7 @@ export default class ASCTrackBase extends React.Component {
             title={`Segment Length (${rowLength} Rows)`}
             arrow="▼"
             key="row-length"
-            options={() => this.getComposer().renderMenuTrackerSetSegmentLength(this.getTrackName())}
+            options={this.cb.renderMenuSetSegmentLength}
             children={`${rowLength} Rows`}
         />);
 
@@ -410,7 +346,60 @@ export default class ASCTrackBase extends React.Component {
         this.getComposer().trackPlay(this.getTrackName(), selectedIndices, stopPlayback)
     }
 
+
+    /** Focus **/
+
+    focus() {
+        this.focusRowContainer();
+    }
+
+    focusRowContainer() {
+        // TODO: if selected?
+        // console.log('focusRowContainer');
+        this.ref.rowContainer.current.focus();
+    }
+
+
     /** Actions **/
+
+    toggleViewMode() {
+        const viewKey = this.props.trackName;
+        if(!viewKey)
+            return console.warn("Invalid trackName prop");
+        let viewMode = this.getViewMode(viewKey);
+        viewMode = viewMode === true ? null : true;
+        this.setViewMode(viewKey, viewMode);
+    }
+
+
+    setCursorOffset(cursorOffset) {
+        if(cursorOffset < 0)
+            cursorOffset = 0;
+        this.setState({cursorOffset}, () =>
+            this.focusRowContainer());
+    }
+
+    setRowOffset(rowOffset) {
+        if(rowOffset < 0)
+            rowOffset = 0;
+        // console.log('rowOffset', rowOffset);
+        this.setState({rowOffset}, () =>
+            this.focusRowContainer());
+    }
+
+    adjustRowOffset(cursorOffset=null) {
+        cursorOffset = cursorOffset === null ? this.state.cursorOffset : cursorOffset;
+        const trackState = this.getTrackState();
+        const cursorInfo = trackState.getCursorInfo(cursorOffset);
+        const rowLength = this.getRowLength();
+        if(cursorInfo.cursorRow > this.getRowOffset() + (rowLength - 1))
+            this.setRowOffset(cursorInfo.cursorRow - (rowLength - 1))
+        else if(cursorInfo.cursorRow < this.getRowOffset())
+            this.setRowOffset(cursorInfo.cursorRow)
+        // else
+        //     console.log("No adjustment: ", cursorInfo, cursorOffset);
+    }
+
 
     instructionPasteAtCursor() {
         let {positionTicks: startPositionTicks} = this.getCursorInfo(this.getCursorOffset());
@@ -420,6 +409,209 @@ export default class ASCTrackBase extends React.Component {
     instructionInsertAtCursor(newInstructionData) {
         let {positionTicks: startPositionTicks} = this.getCursorInfo(this.getCursorOffset());
         this.getComposer().instructionInsertAtPosition(this.getTrackName(), startPositionTicks, newInstructionData);
+    }
+
+    // trackGetState(trackName) {
+    //     return new TrackState(this, trackName);
+    // }
+
+    trackUpdatePlayingIndices(trackName, playingIndices) {
+        this.trackGetState(trackName)
+            .updatePlayingIndices(playingIndices);
+    }
+
+
+    /** Selection Actions **/
+
+    trackSelectActive(trackName, trackData=null, reorderLast=false) {
+        this.setState(state => {
+            const oldTrackData = state.activeTracks[trackName];
+            if(reorderLast) {
+                delete state.activeTracks[trackName];
+            }
+            state.activeTracks[trackName] = oldTrackData || {};
+            if(trackData !== null)
+                Object.assign(state.activeTracks[trackName], trackData);
+            state.selectedComponent = ['track', trackName];
+            return state;
+        });
+
+        // TODO: parent stats
+        // trackData = this.state.activeTracks[trackName];
+        // if(trackData.destinationList)
+        //     selectedTrack = trackData.destinationList.slice(-1)[0]; // Select last track
+        // else
+        //     selectedTrack = this.getSong().getStartTrackName();
+    }
+
+    async trackSelectIndicesPrompt(trackName=null) {
+        if(trackName === null)
+            trackName = this.getSelectedTrackName();
+        let selectedIndices = this.state.selectedTrackIndices.join(', ');
+        selectedIndices = await PromptManager.openPromptDialog(`Select indices for track ${trackName}: `, selectedIndices);
+        this.trackSelectIndices(trackName, selectedIndices);
+    }
+
+
+
+    trackUnselect(trackName) {
+        this.setState(state => {
+            delete state.activeTracks[trackName];
+            state.selectedComponent = ['track', Object.keys(state.activeTracks)[0]];
+            return state;
+        });
+    }
+
+
+
+    trackSelectIndices(trackName, selectedIndices=[], clearSelection=true, playback=true) {
+        // console.log('trackSelectIndices', trackName, selectedIndices, this.state.selectedTrackIndices)
+
+        if (typeof selectedIndices === "string") {
+            switch (selectedIndices) {
+                case 'cursor':
+                    throw new Error('TODO');
+                case 'all':
+                    selectedIndices = [];
+                    const maxLength = this.getSong().instructionGetList(trackName).length;
+                    for (let i = 0; i < maxLength; i++)
+                        selectedIndices.push(i);
+                    break;
+                case 'segment':
+
+
+                    break;
+                // selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
+                case 'row':
+                    throw new Error('TODO');
+                case 'none':
+                    selectedIndices = [];
+                    break;
+                default:
+                    selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
+                // throw new Error("Invalid selection: " + selectedIndices);
+            }
+        }
+
+        selectedIndices = this.values.parseSelectedIndices(selectedIndices);
+        switch(clearSelection) {
+            case false:
+                if (this.state.selectedTrackIndices.length > 0)
+                    selectedIndices = this.values.filterAndSort(selectedIndices.concat(this.state.selectedTrackIndices));
+                break;
+
+            default:
+            case true:
+                break;
+
+            case 'toggle':
+                if (this.state.selectedTrackIndices.length > 0) {
+                    const toggledSelectedIndices = this.state.selectedTrackIndices.slice();
+                    for(const selectedIndex of selectedIndices) {
+                        const p = toggledSelectedIndices.indexOf(selectedIndex);
+                        if(p === -1) {
+                            toggledSelectedIndices.push(selectedIndex);
+                        } else {
+                            toggledSelectedIndices.splice(p, 1);
+                        }
+                    }
+                    selectedIndices = this.values.filterAndSort(toggledSelectedIndices);
+                }
+
+                break;
+        }
+
+        const state = {
+            // selectedIndices,
+            activeTracks: this.state.activeTracks,
+            selectedComponent: ['track', trackName],
+            selectedTrackIndices: selectedIndices
+        }
+        if(!state.activeTracks[trackName])
+            state.activeTracks[trackName] = {}; // TODO: hack
+        if(selectedIndices.length > 0) {
+            const instructionData = this.getSong().instructionDataGetByIndex(trackName, selectedIndices[0]);
+            state.selectedInstructionData = instructionData.slice();
+            state.selectedInstructionData[0] = 0;
+            // console.log('selectedInstructionData', state.selectedInstructionData);
+        }
+
+        if(this.state.playbackOnSelect && playback)
+            this.trackPlay(trackName, selectedIndices, false);
+
+
+        this.setState(state);
+        return selectedIndices;
+
+    }
+
+
+
+    changeQuantization(quantizationTicks) {
+        if(typeof quantizationTicks !== "number")
+            throw new Error("Invalid quantizationTicks");
+        this.setState({
+            quantizationTicks
+        })
+    }
+
+    async changeQuantizationPrompt() {
+        let quantizationTicks = await PromptManager.openPromptDialog("Enter a quantization:", Values.instance.formatDuration(this.getQuantizationTicks()));
+        if (typeof quantizationTicks === 'string')
+            quantizationTicks = Values.instance.parseDurationAsTicks(quantizationTicks, this.getTimeDivision());
+        this.changeQuantization(quantizationTicks);
+    }
+
+
+    changeSegmentLength(rowLength = null) {
+        if(typeof rowLength !== "number")
+            throw new Error("Invalid quantizationTicks");
+        this.setState({
+            rowLength
+        })
+    }
+
+    async changeSegmentLengthPrompt() {
+        const quantizationTicks = await PromptManager.openPromptDialog("Enter a new song name:", this.getQuantizationTicks());
+        this.changeQuantization(quantizationTicks);
+    }
+
+
+
+    /** Menu **/
+
+
+    renderMenuSetQuantization(title = "Select Quantization") {
+        const quantizationTicks = this.getQuantizationTicks();
+        const songValues = this.props.composer.values;
+        return songValues.renderMenuSelectDuration(
+            durationTicks => this.trackerChangeQuantization(this.getTrackName(), durationTicks),
+            this.song.data.timeDivision,
+            quantizationTicks,
+            title
+        );
+    }
+
+
+
+    renderMenuSetSegmentLength() {
+        const songValues = this.props.composer.values;
+        return (<>
+            {songValues.getTrackerSegmentLengthInRows((length, title) =>
+                <ASUIMenuAction key={length} onAction={(e) => this.changeSegmentLength(length)}>{title}</ASUIMenuAction>
+            )}
+            <ASUIMenuAction onAction={(e) => this.changeSegmentLengthPrompt()} >Custom Length</ASUIMenuAction>
+        </>);
+    }
+
+    // renderMenuSetProgramFilter() {
+    //     return this.renderMenuSelectSongProgram(programID => this.trackerChangeProgramFilter(programID));
+    // }
+
+    renderMenuKeyboardSetOctave() {
+        return this.values.getNoteOctaves(octave =>
+            <ASUIMenuAction key={octave} onAction={(e) => this.keyboardChangeOctave(octave)}>{octave}</ASUIMenuAction>
+        );
     }
 
 

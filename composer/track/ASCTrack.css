@@ -25,7 +25,7 @@ div.asc-track {
     /*display: inline-block;*/
 }
 @media only screen and (min-width: 640px) {
-    div.asc-track:not(.minimized) {
+    div.asc-track:not(.minimize) {
         min-width: 400px;
     }
 
@@ -46,7 +46,7 @@ div.asc-track > div.header {
 }
 
 
-div.asc-track.minimized > div.header {
+div.asc-track.minimize > div.header {
     border-radius: 8px;
     padding: 1em 2em;
 }

@@ -21,7 +21,7 @@ export default class ASComposerSongPanel extends React.Component {
         const panelModes = state.panelModes || {};
         // const positionString = composer.values.formatPlaybackPosition(songStats.position);
         return (
-            <ASUIPanel className="song" header="Song Information">
+            <ASUIPanel viewKey="song" header="Song Information">
                 <ASUIForm className="playback" horizontal header="Playback">
                     <ASUIButton
                         className="song-play wide"

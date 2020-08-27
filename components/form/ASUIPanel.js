@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {ASUIGlobalContext} from "../index";
+import ASUIIcon from "../icon/ASUIIcon";
+import ASUIClickableDropDown from "../clickable/ASUIClickableDropDown";
 import "./assets/ASUIPanel.css"
 
 class ASUIPanel extends React.Component {
@@ -12,6 +14,7 @@ class ASUIPanel extends React.Component {
     // setError(message)           { this.context.addLogEntry(message, 'error'); }
     getViewMode(viewKey)        { return this.context.getViewMode('panel:' + viewKey); }
     setViewMode(viewKey, mode)  { return this.context.setViewMode('panel:' + viewKey, mode); }
+    renderMenuViewMode(viewKey) { return this.context.renderMenuViewMode('panel:' + viewKey); }
 
     /** Default Properties **/
     static defaultProps = {
@@ -19,25 +22,26 @@ class ASUIPanel extends React.Component {
 
     /** Property validation **/
     static propTypes = {
-        className: PropTypes.string,
+        viewKey: PropTypes.string,
         header: PropTypes.any,
     };
 
     constructor(props) {
         super(props);
         this.cb = {
-            onClick: () => this.toggleViewMode()
+            onClick: () => this.toggleViewMode(),
+            renderMenuViewMode: () => this.renderMenuViewMode(this.props.viewKey)
         }
     }
 
     /** Actions **/
 
     toggleViewMode() {
-        const viewKey = this.props.className;
+        const viewKey = this.props.viewKey;
         if(!viewKey)
             return console.warn("Invalid className prop");
         let viewMode = this.getViewMode(viewKey);
-        viewMode = viewMode === 'minimized' ? null : 'minimized';
+        viewMode = viewMode === 'minimize' ? null : 'minimize';
         this.setViewMode(viewKey, viewMode);
     }
 
@@ -45,25 +49,37 @@ class ASUIPanel extends React.Component {
 
     render() {
         let className = 'asui-panel';
-        let viewMode = null;
-        if(this.props.className) {
+        if(this.props.className)
             className += ' ' + this.props.className;
-            viewMode = this.getViewMode(this.props.className);
-            // console.log('viewMode', this.props.className, viewMode);
-        }
 
-        if(viewMode === false)
+        let viewMode = null;
+        const viewKey = this.props.viewKey;
+        if(viewKey) {
+            viewMode = this.getViewMode(viewKey);
+            className += ' ' + viewKey;
+        }
+        if(viewMode === 'none')
             return null;
-        if(viewMode === 'minimized')
-            className += ' minimized';
+        if(viewMode)
+            className += ' ' + viewMode;
 
         return (
             <div className={`${className}`}>
                 <div className="header"
                      title={this.props.title}
-                     onClick={this.cb.onClick}
-                >{this.props.header}</div>
-                {viewMode !== 'minimized' ? <div className="container">
+                >
+                    {this.props.viewKey ? <ASUIClickableDropDown
+                        className="config"
+                        vertical
+                        options={this.cb.renderMenuViewMode}
+                        >
+                    </ASUIClickableDropDown> : null}
+                    <div
+                        className="text"
+                        onClick={this.cb.onClick}
+                    >{this.props.header}</div>
+                </div>
+                {viewMode !== 'minimize' ? <div className="container">
                     {this.props.children}
                 </div> : null}
             </div>

@@ -22,7 +22,7 @@ export default class ASComposerSongProgramsPanel extends React.Component {
         // setTimeout(() => console.log('activePrograms', activePrograms), 100);
         return (
             <ASUIPanel
-                className="song-programs"
+                viewKey="programs"
                 header="Song Programs"
                 title="Song Programs (Instruments & Effects)">
                {composer.getSong().programEach((programID, programClass, programConfig) => {

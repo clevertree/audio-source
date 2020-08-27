@@ -34,7 +34,7 @@ export default class ASComposerTrackPanel extends React.Component {
 
         return (
             <ASUIPanel
-                className="track"
+                viewKey="tracks"
                 header={`Selected Track`}>
                 <ASUIForm className="track-name" header="Current">
                     <ASUIButtonDropDown

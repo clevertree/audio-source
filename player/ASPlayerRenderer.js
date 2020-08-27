@@ -47,7 +47,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
                             />
                     </ASUIDiv>
                     <ASUIDiv className="asp-forms-container">
-                        <ASUIPanel className="song" header="Song">
+                        <ASUIPanel viewKey="song" header="Song">
                             <ASUIForm className="playback" header="Playback">
                                 <ASUIButton
                                     className="song-play"
@@ -157,7 +157,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
                                 </ASUIButton>
                             </ASUIForm>
                         </ASUIPanel>
-                        <ASUIPanel className="playlist" header="Playlist" styleContainer={{}}>
+                        <ASUIPanel viewKey="playlist" header="Playlist" styleContainer={{}}>
                             <ASPPlaylist
                                 player={this}
                                 ref={ref => this.playlist = ref}

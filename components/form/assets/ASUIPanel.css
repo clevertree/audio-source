@@ -9,36 +9,81 @@ div.asui-panel {
     /*display: inline-block;*/
     margin: 1px;
     /*width: 100%;*/
-
 }
 
+div.asui-panel:not(.minimize) > div.container {
+
+    animation: slideOpen 0.4s ease-in;
+}
+
+/** Transition **/
+
+
+@keyframes slideOpen {
+    0% {
+        max-height: 20px;
+        /*max-width: 250px;*/
+        overflow: hidden;
+    }
+    99% {
+        max-height: 300px;
+        /*max-width: 300px;*/
+    }
+    100% {
+        max-height: inherit;
+        /*max-width: inherit;*/
+        overflow: inherit;
+    }
+}
+
+
 div.asui-panel > div.header {
-    cursor: pointer;
     background-color: #333;
     color: #FFF;
     font-size: 11px;
     font-weight: bold;
     text-align: center;
-    padding: 3px 6px 0px 6px;
     margin: 0;
     border-radius: 8px 8px 0 0;
     border-bottom: 1px solid #BBB;
 }
 
-/** Minimized **/
-div.asui-panel.minimized {
-    /*display: block !important;*/
+div.asui-panel > div.header > div.text {
+    cursor: pointer;
+    padding: 3px 6px 0px 6px;
+
+}
+div.asui-panel > div.header > div.config {
+    float: right;
+    padding-right: 4px;
 }
 
-div.asui-panel.minimized > div.header {
-    border-radius: 8px;
-    padding: 1em 2em;
-}
-
-
+/** Container **/
 div.asui-panel > div.container {
-    /*overflow-y: auto;*/
+        /*overflow-y: auto;*/
     display: flex;
     flex-wrap: wrap;
     min-height: 1.4em;
 }
+
+
+
+
+/** Minimize **/
+div.asui-panel.minimize {
+    /*display: block !important;*/
+}
+
+div.asui-panel.minimize > div.header {
+    border-radius: 8px;
+}
+div.asui-panel.minimize > div.header > div.text {
+    padding: 1em 2em;
+}
+
+
+/** Float **/
+div.asui-panel.float {
+    float: right;
+}
+

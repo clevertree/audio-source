@@ -79,6 +79,7 @@ class ASComposerBase extends React.Component {
                 addLogEntry: (text, type) => this.setStatus(text, type),
                 setViewMode: (viewKey, mode) => this.setViewMode(viewKey, mode),
                 getViewMode: (viewKey) => this.getViewMode(viewKey),
+                renderMenuViewMode: (viewKey) => this.renderMenuViewOptions(viewKey)
                 // getGlobalKey: key => this.globalState.getKey(key),
                 // setGlobalKey: (key,  value) => this.globalState.setKey(key,  value),
             },

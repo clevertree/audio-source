@@ -7,7 +7,7 @@ export default class ASComposerKeyboardPanel extends React.Component {
         const composer = this.props.composer;
         return (
             <ASUIPanel
-                className="keyboard"
+                viewKey="keyboard"
                 header="Keyboard">
                 {/*<ASUIForm className="keyboard-octave" header="Octave">*/}
                 {/*    <ASUIButtonDropDown*/}

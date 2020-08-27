@@ -341,46 +341,17 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
 
-    /** ASCTrack Menu **/
-
-    renderMenuTrackerSetQuantization(trackName, quantizationTicks, title = "Select Quantization") {
-        return this.values.renderMenuSelectDuration(
-            durationTicks => this.trackerChangeQuantization(trackName, durationTicks),
-            this.song.data.timeDivision,
-            quantizationTicks,
-            title);
-    }
-
-
-
-    renderMenuTrackerSetSegmentLength(trackName) {
-        return (<>
-            {this.values.getTrackerSegmentLengthInRows((length, title) =>
-                <ASUIMenuAction key={length} onAction={(e) => this.trackerChangeSegmentLength(trackName, length)}>{title}</ASUIMenuAction>
-            )}
-            <ASUIMenuAction onAction={(e) => this.trackerChangeSegmentLength(trackName)} >Custom Length</ASUIMenuAction>
-        </>);
-    }
-
-    // renderMenuTrackerSetProgramFilter() {
-    //     return this.renderMenuSelectSongProgram(programID => this.trackerChangeProgramFilter(programID));
-    // }
-
-    renderMenuKeyboardSetOctave() {
-        return this.values.getNoteOctaves(octave =>
-            <ASUIMenuAction key={octave} onAction={(e) => this.keyboardChangeOctave(octave)}>{octave}</ASUIMenuAction>
-        );
-    }
-
     /** View Menu **/
+
     renderMenuView() {
+        const viewModes = this.state.viewModes;
         return (<>
             <ASUIMenuAction onAction={e => this.toggleFullscreen(e)}                >{this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.toggleSongPanel()}                  >{this.state.showPanelSong ? 'Hide' : 'Show'} Song Panel</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.toggleTrackPanel()}                 >{this.state.showPanelTrack ? 'Hide' : 'Show'} Track Panel</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.toggleInstructionPanel()}           >{this.state.showPanelInstruction ? 'Hide' : 'Show'} Instruction Panel</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.toggleProgramPanel()}               >{this.state.showPanelProgram ? 'Hide' : 'Show'} Program Panel</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.togglePresetBrowserPanel()}         >{this.state.showPanelPresetBrowser ? 'Hide' : 'Show'} Preset Browser Panel</ASUIMenuAction>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown options={e => this.renderMenuViewOptions('panel:song')}>Song Panel</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={e => this.renderMenuViewOptions('panel:tracks')}>Track Panel</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={e => this.renderMenuViewOptions('panel:instruction')}>Instruction Panel</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={e => this.renderMenuViewOptions('panel:programs')}>Program Panel</ASUIMenuDropDown>
             <ASUIMenuBreak />
             <ASUIMenuAction onAction={e => this.toggleTrackRowPositionInTicks()}    >Track Position {this.state.showTrackRowPositionInTicks ? 'Formatted' : 'as Ticks'}</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.toggleTrackRowDurationInTicks()}    >Track Duration {this.state.showTrackRowDurationInTicks ? 'Formatted' : 'as Ticks'}</ASUIMenuAction>
@@ -388,6 +359,16 @@ class ASComposerMenu extends ASComposerRenderer {
 
     }
 
+    renderMenuViewOptions(viewKey) {
+        const viewMode = this.state.viewModes[viewKey];
+        return (<>
+            <ASUIMenuAction disabled={typeof viewMode === "undefined"} onAction={e => this.setViewMode(viewKey, null)} >Show</ASUIMenuAction>
+            <ASUIMenuAction disabled={viewMode === 'minimize'} onAction={e => this.setViewMode(viewKey, 'minimize')} >Minimize</ASUIMenuAction>
+            <ASUIMenuAction disabled={viewMode === 'none'} onAction={e => this.setViewMode(viewKey, 'none')} >Hide</ASUIMenuAction>
+            <ASUIMenuAction disabled={viewMode === 'float'} onAction={e => this.setViewMode(viewKey, 'float')} >Float Right</ASUIMenuAction>
+        </>);
+
+    }
 
     /** Playback Menu **/
 

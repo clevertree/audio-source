@@ -2,7 +2,6 @@ import {Instruction, LibraryProcessor, ProgramLoader, Song, ClientStorage, FileS
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
 import {InstructionProcessor} from "../common";
-import TrackState from "./track/state/TrackState";
 import Values from "../common/values/Values";
 
 // import {TrackInfo} from "./track/";
@@ -580,164 +579,6 @@ class ASComposerActions extends ASComposerMenu {
         return trackRef.current;
     }
 
-    trackGetState(trackName) {
-        return new TrackState(this, trackName);
-    }
-
-    trackUpdatePlayingIndices(trackName, playingIndices) {
-        this.trackGetState(trackName)
-            .updatePlayingIndices(playingIndices);
-    }
-
-
-    /** Track Selection **/
-
-    trackSelectActive(trackName, trackData=null, reorderLast=false) {
-        this.setState(state => {
-            const oldTrackData = state.activeTracks[trackName];
-            if(reorderLast) {
-                delete state.activeTracks[trackName];
-            }
-            state.activeTracks[trackName] = oldTrackData || {};
-            if(trackData !== null)
-                Object.assign(state.activeTracks[trackName], trackData);
-            state.selectedComponent = ['track', trackName];
-            return state;
-        });
-
-        // TODO: parent stats
-        // trackData = this.state.activeTracks[trackName];
-        // if(trackData.destinationList)
-        //     selectedTrack = trackData.destinationList.slice(-1)[0]; // Select last track
-        // else
-        //     selectedTrack = this.getSong().getStartTrackName();
-    }
-
-    async trackSelectIndicesPrompt(trackName=null) {
-        if(trackName === null)
-            trackName = this.getSelectedTrackName();
-        let selectedIndices = this.state.selectedTrackIndices.join(', ');
-        selectedIndices = await PromptManager.openPromptDialog(`Select indices for track ${trackName}: `, selectedIndices);
-        this.trackSelectIndices(trackName, selectedIndices);
-    }
-
-
-
-    trackUnselect(trackName) {
-        this.setState(state => {
-            delete state.activeTracks[trackName];
-            state.selectedComponent = ['track', Object.keys(state.activeTracks)[0]];
-            return state;
-        });
-    }
-
-
-
-    trackSelectIndices(trackName, selectedIndices=[], clearSelection=true, playback=true) {
-        // console.log('trackSelectIndices', trackName, selectedIndices, this.state.selectedTrackIndices)
-
-        if (typeof selectedIndices === "string") {
-            switch (selectedIndices) {
-                case 'cursor':
-                    throw new Error('TODO');
-                case 'all':
-                    selectedIndices = [];
-                    const maxLength = this.getSong().instructionGetList(trackName).length;
-                    for (let i = 0; i < maxLength; i++)
-                        selectedIndices.push(i);
-                    break;
-                case 'segment':
-
-
-                    break;
-                // selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
-                case 'row':
-                    throw new Error('TODO');
-                case 'none':
-                    selectedIndices = [];
-                    break;
-                default:
-                    selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
-                // throw new Error("Invalid selection: " + selectedIndices);
-            }
-        }
-
-        selectedIndices = this.values.parseSelectedIndices(selectedIndices);
-        switch(clearSelection) {
-            case false:
-                if (this.state.selectedTrackIndices.length > 0)
-                    selectedIndices = this.values.filterAndSort(selectedIndices.concat(this.state.selectedTrackIndices));
-                break;
-
-            default:
-            case true:
-                break;
-
-            case 'toggle':
-                if (this.state.selectedTrackIndices.length > 0) {
-                    const toggledSelectedIndices = this.state.selectedTrackIndices.slice();
-                    for(const selectedIndex of selectedIndices) {
-                        const p = toggledSelectedIndices.indexOf(selectedIndex);
-                        if(p === -1) {
-                            toggledSelectedIndices.push(selectedIndex);
-                        } else {
-                            toggledSelectedIndices.splice(p, 1);
-                        }
-                    }
-                    selectedIndices = this.values.filterAndSort(toggledSelectedIndices);
-                }
-
-                break;
-        }
-
-        const state = {
-            // selectedIndices,
-            activeTracks: this.state.activeTracks,
-            selectedComponent: ['track', trackName],
-            selectedTrackIndices: selectedIndices
-        }
-        if(!state.activeTracks[trackName])
-            state.activeTracks[trackName] = {}; // TODO: hack
-        if(selectedIndices.length > 0) {
-            const instructionData = this.getSong().instructionDataGetByIndex(trackName, selectedIndices[0]);
-            state.selectedInstructionData = instructionData.slice();
-            state.selectedInstructionData[0] = 0;
-            // console.log('selectedInstructionData', state.selectedInstructionData);
-        }
-
-        if(this.state.playbackOnSelect && playback)
-            this.trackPlay(trackName, selectedIndices, false);
-
-
-        this.setState(state);
-        return selectedIndices;
-
-    }
-
-
-
-    trackerChangeQuantization(trackName=null, trackerQuantizationTicks) {
-        return this.trackGetState(trackName || this.getSelectedTrackName())
-            .changeQuantization(trackerQuantizationTicks)
-    }
-
-    async trackerChangeQuantizationPrompt(trackName) {
-        return this.trackGetState(trackName || this.getSelectedTrackName())
-            .changeQuantizationPrompt();
-    }
-
-
-    trackerChangeSegmentLength(trackName, rowLength = null) {
-        return this.trackGetState(trackName || this.getSelectedTrackName())
-            .changeRowLength(rowLength)
-    }
-
-    async trackerChangeSegmentLengthPrompt(trackName) {
-        return this.trackGetState(trackName || this.getSelectedTrackName())
-            .changeRowLengthPrompt()
-    }
-
-
 
     /** Current Instruction Args **/
 
@@ -1016,11 +857,11 @@ class ASComposerActions extends ASComposerMenu {
         return this.state.viewModes[viewKey];
     }
 
-    toggleSongPanel()                   { return this.toggleSetting('showPanelSong'); }
-    toggleProgramPanel()                { return this.toggleSetting('showPanelProgram'); }
-    toggleInstructionPanel()            { return this.toggleSetting('showPanelInstruction'); }
-    toggleTrackPanel()                  { return this.toggleSetting('showPanelTrack'); }
-    togglePresetBrowserPanel()          { return this.toggleSetting('showPanelPresetBrowser'); }
+    // toggleSongPanel()                   { return this.toggleSetting('showPanelSong'); }
+    // toggleProgramPanel()                { return this.toggleSetting('showPanelProgram'); }
+    // toggleInstructionPanel()            { return this.toggleSetting('showPanelInstruction'); }
+    // toggleTrackPanel()                  { return this.toggleSetting('showPanelTrack'); }
+    // togglePresetBrowserPanel()          { return this.toggleSetting('showPanelPresetBrowser'); }
 
     toggleFullscreen() {
         this.toggleSetting('fullscreen', () => {

@@ -15,8 +15,8 @@ export default class ASCTrack extends ASCTrackBase {
             case false:
                 return null;
             default:
-            case 'minimized':
-                className += ' minimized';
+            case 'minimize':
+                className += ' minimize';
                 break;
             case true:
                 content = this.renderContent();
