@@ -49,6 +49,7 @@ export default class ASCTrackRowBase extends React.Component {
         // const trackState = track.getTrackState();
         const {positionSeconds} = track.getPositionInfo(this.props.positionTicks);
         this.getComposer().setSongPosition(track.getStartPosition() + positionSeconds)
+        // TODO: double composer state update
     }
 
 

@@ -64,11 +64,13 @@ export default class ASComposerInstructionPanel extends React.Component {
             <ASUIInputRange
                 // className="velocity"
                 onChange={(newVelocity) => {
-                    composer.instructionReplaceArgByType(composer.getSelectedTrackName(), composer.state.selectedTrackIndices, argType, newVelocity);
+                    composer.instructionReplaceArgByType(composer.getSelectedTrackName(), composer.state.selectedIndices, argType, newVelocity);
                 }}
                 value={paramValue || 0}
                 min={1}
                 max={127}
+                format={ASUIInputRange.formats.percent}
+
                 // ref={ref => this.fieldProgramVelocity = ref}
                 title={title}
                 // disabled={selectedIndices.length === 0}

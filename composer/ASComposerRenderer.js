@@ -12,7 +12,7 @@ import ASUIGlobalContext from "../components/context/ASUIGlobalContext";
 export default class ASComposerRenderer extends ASComposerBase {
 
     render() {
-//         console.log('ASComposerRenderer.render()');
+        console.log('ASComposerRenderer.render()');
         return (
             <ASUIGlobalContext.Provider
                 value={this.cb.global}>
@@ -20,15 +20,8 @@ export default class ASComposerRenderer extends ASComposerBase {
                     ref={this.ref.container}
                     composer={this}
                     >
-                    {/*<div className="asui-panel-container">*/}
-                    <ASComposerSongPanel composer={this} ref={this.ref.panelSong} />
-                    <div className="asui-panel-container-horizontal">
-                        <ASComposerInstructionPanel composer={this} />
-                        <ASComposerTrackPanel composer={this} />
-                    </div>
+                    {this.state.portrait ? this.renderSongPanelPortrait() : this.renderSongPanelLandscape()}
                     <ASComposerSongProgramsPanel composer={this} />
-                    {/*</div>*/}
-                    {/*{this.state.showPanelKeyboard ? <ASComposerKeyboardPanel composer={this} /> : null}*/}
 
                     <ASCTracksContainer
                         composer={this}
@@ -40,5 +33,24 @@ export default class ASComposerRenderer extends ASComposerBase {
     }
 //                         {this.state.showPanelPresetBrowser ? <ASComposerPresetBrowserPanel composer={this} /> : null}
 
+    renderSongPanelPortrait() {
+        return <div className="asui-song-panel-container">
+            <ASComposerSongPanel composer={this} ref={this.ref.panelSong} />
+            <div className="asui-panel-container-horizontal">
+                <ASComposerTrackPanel composer={this} />
+                <ASComposerInstructionPanel composer={this} />
+            </div>
+        </div>
+    }
+
+    renderSongPanelLandscape() {
+        return <div className="asui-song-panel-container">
+            <ASComposerSongPanel composer={this} ref={this.ref.panelSong} />
+            <br/>
+            <ASComposerTrackPanel composer={this} />
+            <ASComposerInstructionPanel composer={this} />
+        </div>
+
+    }
 }
 

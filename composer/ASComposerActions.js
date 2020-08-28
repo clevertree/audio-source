@@ -50,16 +50,12 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
-    getSelectedViewKey() {
-        return this.state.selectedViewKey;
-    }
+    // getSelectedViewKey() {
+    //     return this.state.selectedViewKey;
+    // }
 
-    /** @deprecated **/
     getSelectedTrackName() {
-        const [type, name] = this.state.selectedComponent;
-        if(type === 'track')
-            return name;
-        return null;
+        return this.state.selectedTrack;
     }
 
     /** Song rendering **/
@@ -130,17 +126,7 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
-    /** Focus **/
 
-    focusActiveTrack() {
-        const trackName = this.getSelectedTrackName();
-        if(trackName) try {
-            const trackRef = this.trackGetRef(trackName);
-            trackRef.focus();
-        } catch (e) {
-            console.warn(e);
-        }
-    }
 
     /** State **/
 
@@ -168,6 +154,15 @@ class ASComposerActions extends ASComposerMenu {
                 Values.recentFrequencies = recentValues.recentFrequencies || [];
                 LibraryProcessor.recentSampleURLs = recentValues.recentLibrarySampleURLs || [];
             }
+
+            for(let key in state.activeTracks) {
+                if(state.activeTracks.hasOwnProperty(key)) try {
+                    const trackState = state.activeTracks[key];
+                    this.ref.activeTracks[key].current.setState(trackState);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
         } else {
             await this.loadDefaultSong();
         }
@@ -182,14 +177,14 @@ class ASComposerActions extends ASComposerMenu {
     saveState() {
         const storage = new ClientStorage();
         const state = Object.assign({}, this.state, {
-            // activeTracks: {}
+            activeTracks: {}
         });
         for(let key in this.ref.activeTracks) {
-            if(this.ref.activeTracks.hasOwnProperty(key)) {
+            if(this.ref.activeTracks.hasOwnProperty(key)) try {
                 const activeTrack = this.ref.activeTracks[key];
-                if(activeTrack.current) {
-                    Object.assign(state.activeTracks[key], activeTrack.current.state);
-                }
+                state.activeTracks[key] = activeTrack.current.getStorageState();
+            } catch (e) {
+                console.error(e);
             }
         }
 
@@ -207,7 +202,7 @@ class ASComposerActions extends ASComposerMenu {
         delete state.version;
         delete state.portrait;
         state.songUUID = this.song.data.uuid;
-        console.log('Saving State: ', state);
+        console.log('Saving State: ', state, this.ref.activeTracks);
         storage.saveState(state, 'audio-source-composer-state');
     }
 
@@ -498,7 +493,7 @@ class ASComposerActions extends ASComposerMenu {
 
 
     trackPlaySelected(stopPlayback=true) {
-        return this.trackPlay(this.state.selectedTrack, this.state.selectedTrackIndices, stopPlayback);
+        return this.trackPlay(this.state.selectedTrack, this.state.selectedIndices, stopPlayback);
     }
 
     trackPlay(trackName, selectedIndices, stopPlayback=true) {
@@ -528,6 +523,22 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Track Commands **/
 
+    trackSelect(selectedTrack, selectedIndices=[]) {
+        const state = {
+            selectedTrack,
+            selectedIndices
+        }
+
+        if(selectedIndices.length > 0) {
+            const instructionData = this.getSong().instructionDataGetByIndex(selectedTrack, selectedIndices[0]);
+            state.selectedInstructionData = instructionData.slice();
+            state.selectedInstructionData[0] = 0;
+            // console.log('selectedInstructionData', state.selectedInstructionData);
+        }
+        console.log('selectTrack', state);
+        this.setState(state)
+    }
+
     async trackAdd(newTrackName = null, promptUser = true) {
         const song = this.song;
 
@@ -536,7 +547,7 @@ class ASComposerActions extends ASComposerMenu {
             newTrackName = await PromptManager.openPromptDialog("Create new instruction group?", newTrackName);
         if (newTrackName) {
             song.trackAdd(newTrackName, []);
-            await this.trackSelectIndices(newTrackName);
+            await this.trackSelect(newTrackName);
         } else {
             this.setError("Create instruction group canceled");
         }
@@ -549,8 +560,8 @@ class ASComposerActions extends ASComposerMenu {
             newTrackName = await PromptManager.openPromptDialog(`Rename instruction group (${oldTrackName})?`, oldTrackName);
         if (newTrackName !== oldTrackName) {
             song.trackRename(oldTrackName, newTrackName);
-            this.trackSelectIndices(newTrackName);
-            this.trackSelectIndices(oldTrackName);
+            this.trackSelect(newTrackName);
+            this.trackSelect(oldTrackName);
         } else {
             this.setError("Rename instruction group canceled");
         }
@@ -625,7 +636,7 @@ class ASComposerActions extends ASComposerMenu {
         newInstructionData[0] = 0;
 
         const index = this.song.instructionInsertAtPosition(trackName, positionTicks, newInstructionData);
-        // if(select)      this.trackSelectIndices(trackName, index);
+        // if(select)      this.trackSelect(trackName, index);
         // if(playback)    this.trackPlay(trackName, index);
         this.updateCurrentSong();
         return index;
@@ -670,14 +681,13 @@ class ASComposerActions extends ASComposerMenu {
 
     instructionDeleteIndices(trackName=null, selectedIndices=null) {
         trackName = trackName || this.getSelectedTrackName();
-        selectedIndices = selectedIndices || this.state.selectedTrackIndices;
+        selectedIndices = selectedIndices || this.state.selectedIndices;
         selectedIndices = this.values.parseSelectedIndices(selectedIndices);
 
         selectedIndices.sort((a, b) => a - b);
         for (let i=selectedIndices.length-1; i>=0; i--)
             this.song.instructionDeleteAtIndex(trackName, selectedIndices[i]);
 
-        this.trackSelectIndices(trackName, 'none');
         this.updateCurrentSong();
     }
 
@@ -685,7 +695,7 @@ class ASComposerActions extends ASComposerMenu {
 
     instructionCopySelected() {
         const trackName = this.getSelectedTrackName();
-        const selectedIndices = this.state.selectedTrackIndices;
+        const selectedIndices = this.state.selectedIndices;
         const iterator = this.instructionGetIterator(trackName);
         let startPosition = null, lastPosition=null, copyTrack=[];
         iterator.seekToEnd((instructionData) => {
@@ -737,7 +747,7 @@ class ASComposerActions extends ASComposerMenu {
         }
 
         // console.log('pastedIndices', selectedIndices);
-        this.trackSelectIndices(trackName, selectedIndices);
+        this.trackSelect(trackName, selectedIndices);
     }
 
 

@@ -18,7 +18,6 @@ export default class ASComposerSongPanel extends React.Component {
         const cb = composer.cb;
         const state = composer.state;
         const songStats = composer.songStats;
-        const panelModes = state.panelModes || {};
         // const positionString = composer.values.formatPlaybackPosition(songStats.position);
         return (
             <ASUIPanel viewKey="song" header="Song Information">

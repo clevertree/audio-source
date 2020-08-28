@@ -57,7 +57,7 @@ export default class EnvelopeEffectRendererBase extends React.Component {
     /** Parameters **/
 
     getParameters() {
-        const config = this.props.config;
+        // const config = this.props.config;
         return [
             // {
             //     label:      'Mixer',

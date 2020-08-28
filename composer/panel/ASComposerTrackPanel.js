@@ -18,7 +18,7 @@ export default class ASComposerTrackPanel extends React.Component {
 
     getSelectedIndicesString() {
         const composer = this.props.composer;
-        const selectedIndices = composer.state.selectedTrackIndices;
+        const selectedIndices = composer.state.selectedIndices;
         if(selectedIndices.length <= 8) {
             return selectedIndices.join(',');
         }
@@ -27,7 +27,7 @@ export default class ASComposerTrackPanel extends React.Component {
 
     render() {
         const composer = this.props.composer;
-        const selectedIndices = composer.state.selectedTrackIndices;
+        const selectedIndices = composer.state.selectedIndices;
         // const activeTrack = composer.trackHasActive(selectedTrackName) ? composer.trackGetState(selectedTrackName) : null;
         // const selectedIndices = activeTrack ? activeTrack.getSelectedIndices() : [];
 
@@ -89,7 +89,7 @@ export default class ASComposerTrackPanel extends React.Component {
     renderMenuSelectTrack() {
         const composer = this.props.composer;
         return composer.values.renderMenuSelectTrack(trackName => {
-            composer.trackSelectActive(trackName)
+            composer.trackSelect(trackName)
         }, null, composer.getSelectedTrackName())
     }
 }

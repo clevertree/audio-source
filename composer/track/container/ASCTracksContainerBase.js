@@ -14,9 +14,11 @@ export default class ASCTracksContainerBase extends React.Component {
     renderTracks() {
         const composer = this.props.composer;
         const songData = composer.getSong().getProxiedData();
-        composer.ref.activeTracks = {};
+        // composer.ref.activeTracks = {};
+        const activeTracks = composer.ref.activeTracks;
 
-        const selectedViewKey = composer.getSelectedViewKey();
+        const selectedTrack = composer.state.selectedTrack;
+        const selectedIndices = composer.state.selectedIndices;
         let trackList = Object.keys(songData.tracks);
         // let collapsed = false;
         // if(composer.state.portrait) {
@@ -28,13 +30,15 @@ export default class ASCTracksContainerBase extends React.Component {
         return trackList.map((trackName) => {
             // if(!songData.tracks[trackName])
             //     return null;
-            composer.ref.activeTracks[trackName] = React.createRef(); // TODO: flaw?
-            const selected = 'track:' + trackName === selectedViewKey;
+            if(!activeTracks[trackName])
+                activeTracks[trackName] = React.createRef(); // TODO: flaw?
+            const selected = trackName === selectedTrack;
             return <ASCTrack
-                ref={composer.ref.activeTracks[trackName]}
+                ref={activeTracks[trackName]}
                 key={trackName}
                 trackName={trackName}
-                trackState={composer.state.activeTracks[trackName]}
+                selectedIndices={selected ? selectedIndices : []}
+                // trackState={composer.state.activeTracks[trackName]}
                 selected={selected}
                 composer={composer}
                 // collapsed={collapsed && !selected}

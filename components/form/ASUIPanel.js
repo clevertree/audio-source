@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {ASUIGlobalContext} from "../index";
-import ASUIIcon from "../icon/ASUIIcon";
 import ASUIClickableDropDown from "../clickable/ASUIClickableDropDown";
 import "./assets/ASUIPanel.css"
 
@@ -9,12 +8,13 @@ class ASUIPanel extends React.Component {
 
     /** Global Context **/
     static contextType = ASUIGlobalContext;
-    getGlobalContext()          { return this.context; }
+    getGlobalContext()              { return this.context; }
     // setStatus(message)          { this.context.addLogEntry(message); }
     // setError(message)           { this.context.addLogEntry(message, 'error'); }
-    getViewMode(viewKey)        { return this.context.getViewMode('panel:' + viewKey); }
-    setViewMode(viewKey, mode)  { return this.context.setViewMode('panel:' + viewKey, mode); }
-    renderMenuViewMode(viewKey) { return this.context.renderMenuViewMode('panel:' + viewKey); }
+    getViewMode(viewKey)            { return this.context.getViewMode('panel:' + viewKey); }
+    setViewMode(viewKey, mode)      { return this.context.setViewMode('panel:' + viewKey, mode); }
+    renderMenuViewOptions(viewKey)  { return this.context.renderMenuViewOptions('panel:' + viewKey); }
+    isPortraitMode()                { return this.context.isPortraitMode(); }
 
     /** Default Properties **/
     static defaultProps = {
@@ -30,7 +30,7 @@ class ASUIPanel extends React.Component {
         super(props);
         this.cb = {
             onClick: () => this.toggleViewMode(),
-            renderMenuViewMode: () => this.renderMenuViewMode(this.props.viewKey)
+            renderMenuViewOptions: () => this.renderMenuViewOptions(this.props.viewKey)
         }
     }
 
@@ -48,6 +48,7 @@ class ASUIPanel extends React.Component {
     /** Render **/
 
     render() {
+        const portrait = this.isPortraitMode();
         let className = 'asui-panel';
         if(this.props.className)
             className += ' ' + this.props.className;
@@ -58,22 +59,28 @@ class ASUIPanel extends React.Component {
             viewMode = this.getViewMode(viewKey);
             className += ' ' + viewKey;
         }
-        if(viewMode === 'none')
-            return null;
-        if(viewMode)
-            className += ' ' + viewMode;
+        switch(viewMode) {
+            case false:
+            case 'hide':
+                return null;
+            default:
+                if(viewMode && !portrait)
+                    className += ' ' + viewMode;
+                break;
+            case 'minimize':
+                className += ' ' + viewMode;
+        }
 
         return (
             <div className={`${className}`}>
                 <div className="header"
                      title={this.props.title}
                 >
-                    {this.props.viewKey ? <ASUIClickableDropDown
+                    {this.props.viewKey && !portrait ? <ASUIClickableDropDown
                         className="config"
                         vertical
-                        options={this.cb.renderMenuViewMode}
-                        >
-                    </ASUIClickableDropDown> : null}
+                        options={this.cb.renderMenuViewOptions}
+                    /> : null}
                     <div
                         className="text"
                         onClick={this.cb.onClick}

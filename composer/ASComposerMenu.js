@@ -161,7 +161,7 @@ class ASComposerMenu extends ASComposerRenderer {
         // const selectedTrackName = this.state.selectedTrack;
         // const activeTrack = this.trackGetState(selectedTrackName);
         if(selectedIndices === null)
-            selectedIndices = this.state.selectedTrackIndices;
+            selectedIndices = this.state.selectedIndices;
         let firstInstructionData = null, trackName=null;
         if(selectedIndices.length > 0) {
             firstInstructionData = this.getSong().instructionDataGetByIndex(this.getSelectedTrackName(), selectedIndices[0]);
@@ -171,7 +171,7 @@ class ASComposerMenu extends ASComposerRenderer {
         return (<>
             {trackName ?
                 <>
-                    <ASUIMenuAction onAction={() => this.trackSelectActive(trackName, null, true)}>{`Select Track '${trackName}'`}</ASUIMenuAction>
+                    <ASUIMenuAction onAction={() => this.trackSelect(trackName)}>{`Select Track '${trackName}'`}</ASUIMenuAction>
                     <ASUIMenuBreak />
                 </>
             : null}
@@ -219,7 +219,7 @@ class ASComposerMenu extends ASComposerRenderer {
         // console.log('renderMenuEditInstruction', selectedIndices);
 
         // if(selectedIndices === null)
-        //     selectedIndices = this.state.selectedTrackIndices;
+        //     selectedIndices = this.state.selectedIndices;
         // if(!selectedIndices || selectedIndices.length === 0)
         //     throw new Error(`No indices selected: ${selectedIndices === null ? 'null' : typeof selectedIndices}`);
 
@@ -265,8 +265,8 @@ class ASComposerMenu extends ASComposerRenderer {
     renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue, onSelectValue=null) {
         if(onSelectValue === null) {
             onSelectValue = (newArgValue) => {
-                // this.instructionReplaceArg(this.getSelectedTrackName(), this.state.selectedTrackIndices, argIndex, newArgValue);
-                this.instructionReplaceArgByType(this.getSelectedTrackName(), this.state.selectedTrackIndices, argType, newArgValue);
+                // this.instructionReplaceArg(this.getSelectedTrackName(), this.state.selectedIndices, argIndex, newArgValue);
+                this.instructionReplaceArgByType(this.getSelectedTrackName(), this.state.selectedIndices, argType, newArgValue);
             }
         }
         return this.values.renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue, onSelectValue);
@@ -275,7 +275,7 @@ class ASComposerMenu extends ASComposerRenderer {
     renderMenuEditInstructionCommand() {
         const instructionData = this.state.selectedInstructionData;
         return this.values.renderMenuSelectCommand(selectedCommand => {
-            this.instructionReplaceArg(this.getSelectedTrackName(), this.state.selectedTrackIndices, 1, selectedCommand);
+            this.instructionReplaceArg(this.getSelectedTrackName(), this.state.selectedIndices, 1, selectedCommand);
         }, instructionData[1])
     }
 
@@ -344,14 +344,16 @@ class ASComposerMenu extends ASComposerRenderer {
     /** View Menu **/
 
     renderMenuView() {
-        const viewModes = this.state.viewModes;
+        const renderMenuViewOptions = viewKey => {
+            this.renderMenuViewOptions(viewKey);
+        }
         return (<>
             <ASUIMenuAction onAction={e => this.toggleFullscreen(e)}                >{this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen</ASUIMenuAction>
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={e => this.renderMenuViewOptions('panel:song')}>Song Panel</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={e => this.renderMenuViewOptions('panel:tracks')}>Track Panel</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={e => this.renderMenuViewOptions('panel:instruction')}>Instruction Panel</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={e => this.renderMenuViewOptions('panel:programs')}>Program Panel</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:song')}>Song Panel</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:tracks')}>Track Panel</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:instruction')}>Instruction Panel</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:programs')}>Program Panel</ASUIMenuDropDown>
             <ASUIMenuBreak />
             <ASUIMenuAction onAction={e => this.toggleTrackRowPositionInTicks()}    >Track Position {this.state.showTrackRowPositionInTicks ? 'Formatted' : 'as Ticks'}</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.toggleTrackRowDurationInTicks()}    >Track Duration {this.state.showTrackRowDurationInTicks ? 'Formatted' : 'as Ticks'}</ASUIMenuAction>
@@ -359,13 +361,17 @@ class ASComposerMenu extends ASComposerRenderer {
 
     }
 
-    renderMenuViewOptions(viewKey) {
-        const viewMode = this.state.viewModes[viewKey];
+    renderMenuViewOptions(viewKey, onAction=null) {
+        const oldViewMode = this.state.viewModes[viewKey];
+        if(!onAction)
+            onAction = (newViewMode) => {
+                this.setViewMode(viewKey, newViewMode)
+            }
         return (<>
-            <ASUIMenuAction disabled={typeof viewMode === "undefined"} onAction={e => this.setViewMode(viewKey, null)} >Show</ASUIMenuAction>
-            <ASUIMenuAction disabled={viewMode === 'minimize'} onAction={e => this.setViewMode(viewKey, 'minimize')} >Minimize</ASUIMenuAction>
-            <ASUIMenuAction disabled={viewMode === 'none'} onAction={e => this.setViewMode(viewKey, 'none')} >Hide</ASUIMenuAction>
-            <ASUIMenuAction disabled={viewMode === 'float'} onAction={e => this.setViewMode(viewKey, 'float')} >Float Right</ASUIMenuAction>
+            <ASUIMenuAction disabled={!oldViewMode} onAction={e => onAction(null)} >Default</ASUIMenuAction>
+            <ASUIMenuAction disabled={oldViewMode === 'minimize'} onAction={e => onAction('minimize')} >Minimize</ASUIMenuAction>
+            <ASUIMenuAction disabled={oldViewMode === 'none'} onAction={e => onAction('none')} >Hide</ASUIMenuAction>
+            <ASUIMenuAction disabled={oldViewMode === 'float'} onAction={e => onAction('float')} >Float Right</ASUIMenuAction>
         </>);
 
     }
@@ -442,7 +448,7 @@ class ASComposerMenu extends ASComposerRenderer {
         // const trackName = menuParam;
         return (<>
             <ASUIMenuItem>{`Track: '${trackName}'`}</ASUIMenuItem><ASUIMenuBreak />
-            <ASUIMenuAction onAction={e => this.trackSelectActive(trackName)}   >Select Track</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackSelect(trackName)}   >Select Track</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.trackRename(trackName)}         >Rename Track</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.trackRemove(trackName)}         >Delete Track</ASUIMenuAction>
         </>);

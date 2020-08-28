@@ -15,7 +15,7 @@ div.asct-container {
 
 
 
-/** ASCTrack **/
+/** Track **/
 div.asc-track {
     margin: 1px;
     position: relative;
@@ -31,6 +31,7 @@ div.asc-track {
 
 }
 
+/** Header **/
 
 div.asc-track > div.header {
     cursor: pointer;
@@ -39,22 +40,30 @@ div.asc-track > div.header {
     font-size: 11px;
     font-weight: bold;
     text-align: center;
-    padding: 2px 6px 0px 6px;
     margin: 0;
     border-radius: 8px 8px 0 0;
     border-bottom: 1px solid #BBB;
 }
 
+div.asc-track > div.header > div.text {
+    cursor: pointer;
+    padding: 3px 6px 0px 6px;
+    white-space: nowrap;
 
-div.asc-track.minimize > div.header {
-    border-radius: 8px;
-    padding: 1em 2em;
+}
+div.asc-track > div.header > div.config {
+    float: right;
+    padding-right: 4px;
 }
 
 
 div.asc-track:not(.selected) > div.header {
     background-color: #777;
 }
+
+
+/** Selected Track **/
+
 div.asc-track:not(.selected) {
     color: #777;
 }
@@ -65,7 +74,23 @@ div.asc-track.selected {
 
 
 
-/** ASCTrack Segments **/
+/** Minimize **/
+div.asc-track.minimize > div.header {
+    border-radius: 8px;
+}
+div.asc-track.minimize > div.header > div.text {
+    padding: 1em 2em;
+}
+
+
+/** Float **/
+div.asc-track.float {
+    float: right;
+}
+
+
+
+/** Track Segments **/
 
 div.asc-track > div.buttons {
     display: flex;

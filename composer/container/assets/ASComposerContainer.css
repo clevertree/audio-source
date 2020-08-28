@@ -135,19 +135,26 @@ div.audio-source-composer.landscape div.asc-content-container > div {
 div.audio-source-composer.landscape div.asui-panel {
     /*display: inline-block;*/
 }
-div.audio-source-composer.landscape div.asui-panel > div.container {
-    /*overflow-y: visible;*/
-}
 
-div.audio-source-composer.landscape div.asui-panel-container-horizontal {
-    display: block;
+div.audio-source-composer.landscape div.asui-song-panel-container {
 }
-div.audio-source-composer.landscape div.asui-panel-container-horizontal > div.asui-panel {
+div.audio-source-composer.landscape div.asui-song-panel-container > div.asui-panel {
     display: inline-block;
 }
 
 
 /** Portrait **/
+
+div.audio-source-composer.portrait div.asc-container {
+    width: 100%;
+}
+
+
+div.audio-source-composer.portrait div.asui-panel > div.container {
+    flex-wrap: nowrap;
+    /*overflow-y: visible;*/
+}
+
 
 div.audio-source-composer.portrait div.asc-content-container {
     /*display: flex;*/
@@ -165,7 +172,7 @@ div.audio-source-composer.portrait div.asc-content-container > div.asc-tracks-co
 
 
 
-@media only screen and (min-width: 480px) {
+@media only screen and (min-width: 580px) {
     div.audio-source-composer.portrait div.asui-panel-container-horizontal {
         display: flex;
     }

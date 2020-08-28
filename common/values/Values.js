@@ -515,6 +515,7 @@ class Values {
                 min={0}
                 max={127}
                 value={currentVelocity || 0}
+                format={ASUIInputRange.formats.percent}
                 onChange={(mixerValue) => onSelectValue(mixerValue)}
             />
             <ASUIMenuBreak/>

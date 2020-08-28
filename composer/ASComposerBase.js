@@ -1,6 +1,5 @@
 import React from "react";
 import {Keyboard, LibraryProcessor, Song, SongValues} from "../song";
-import {ASUIStateManager} from "../components";
 
 class ASComposerBase extends React.Component {
     constructor(props) {
@@ -39,10 +38,8 @@ class ASComposerBase extends React.Component {
 
             // Tracks
             activeTracks: {},
-            // selectedTrack: 'root',
-
-            // Track instruction selection
-            selectedTrackIndices: [],
+            selectedTrack: 'root',
+            selectedIndices: [],
             selectedInstructionData: [0, 'C4', '1B'],
 
 
@@ -56,7 +53,7 @@ class ASComposerBase extends React.Component {
 
             // View Modes
             viewModes: {},
-            selectedViewKey: null,
+            // selectedViewKey: null,
 
             /** UI **/
 
@@ -80,7 +77,8 @@ class ASComposerBase extends React.Component {
                 addLogEntry: (text, type) => this.setStatus(text, type),
                 setViewMode: (viewKey, mode) => this.setViewMode(viewKey, mode),
                 getViewMode: (viewKey) => this.getViewMode(viewKey),
-                renderMenuViewMode: (viewKey) => this.renderMenuViewOptions(viewKey)
+                renderMenuViewOptions: (viewKey) => this.renderMenuViewOptions(viewKey),
+                isPortraitMode: () => this.state.portrait
                 // getGlobalKey: key => this.globalState.getKey(key),
                 // setGlobalKey: (key,  value) => this.globalState.setKey(key,  value),
             },
