@@ -18,9 +18,10 @@ export default class ASComposerEvents extends ASComposerInput {
             case 'instruction:start':
             case 'instruction:end':
                 // console.log(e.type, e.playingIndices);
-                if(this.trackHasActive(e.trackName)) {
-                    this.trackUpdatePlayingIndices(e.trackName, e.playingIndices);
-                }
+                const track = this.trackGetRef(e.trackName, false);
+                if(track)
+                    track.updatePlayingIndices(e.playingIndices);
+
                 // this.forceUpdate();
                 break;
 

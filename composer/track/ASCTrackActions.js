@@ -219,10 +219,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
     //     return new TrackState(this, trackName);
     // }
 
-    trackUpdatePlayingIndices(trackName, playingIndices) {
-        this.trackGetState(trackName)
-            .updatePlayingIndices(playingIndices);
-    }
+
 
     /** Selection **/
 
@@ -337,12 +334,20 @@ export default class ASCTrackActions extends ASCTrackRenderer {
 
 
 
+    updatePlayingIndices(playingIndices) {
+        this.setState({
+            playingIndices
+        });
+    }
+
 
     changeQuantization(quantizationTicks) {
         if(typeof quantizationTicks !== "number")
-            throw new Error("Invalid quantizationTicks");
+            throw new Error("Invalid quantizationTicks: " + quantizationTicks);
         this.setState({
             quantizationTicks
+        }, () => {
+            this.updateRenderingProps();
         })
     }
 
@@ -354,7 +359,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
     }
 
 
-    changeSegmentLength(rowLength = null) {
+    changeRowLength(rowLength = null) {
         if(typeof rowLength !== "number")
             throw new Error("Invalid quantizationTicks");
         this.setState({
@@ -362,9 +367,9 @@ export default class ASCTrackActions extends ASCTrackRenderer {
         })
     }
 
-    async changeSegmentLengthPrompt() {
-        const quantizationTicks = await PromptManager.openPromptDialog("Enter a new song name:", this.getQuantizationTicks());
-        this.changeQuantization(quantizationTicks);
+    async changeRowLengthPrompt() {
+        const rowLength = await PromptManager.openPromptDialog("Enter a length in rows:", this.state.rowLength);
+        this.changeRowLength(Number.parseInt(rowLength));
     }
 
 
@@ -394,13 +399,13 @@ export default class ASCTrackActions extends ASCTrackRenderer {
 
 
 
-    renderMenuSetSegmentLength() {
+    renderMenuSetRowLength() {
         const songValues = this.props.composer.values;
         return (<>
-            {songValues.getTrackerSegmentLengthInRows((length, title) =>
-                <ASUIMenuAction key={length} onAction={(e) => this.changeSegmentLength(length)}>{title}</ASUIMenuAction>
+            {songValues.getTrackerLengthInRows((length, title) =>
+                <ASUIMenuAction key={length} onAction={(e) => this.changeRowLength(length)}>{title}</ASUIMenuAction>
             )}
-            <ASUIMenuAction onAction={(e) => this.changeSegmentLengthPrompt()} >Custom Length</ASUIMenuAction>
+            <ASUIMenuAction onAction={(e) => this.changeRowLengthPrompt()} >Custom Length</ASUIMenuAction>
         </>);
     }
 

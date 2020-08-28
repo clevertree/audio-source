@@ -100,7 +100,7 @@ class Values {
         return results;
     }
 
-    getTrackerSegmentLengthInRows(callback = (lengthInTicks, lengthString) => [lengthInTicks, lengthString]) {
+    getTrackerLengthInRows(callback = (lengthInTicks, lengthString) => [lengthInTicks, lengthString]) {
         const results = [];
         [0, 4, 5, 6, 7, 8, 10, 12, 16, 24, 32, 48, 64, 96, 128]
             .forEach(i => {
@@ -459,8 +459,9 @@ class Values {
 
     renderMenuSelectDuration(onSelectDuration, timeDivision, currentDuration = null, title=null) {
         const oldCallback = onSelectDuration;
-        onSelectDuration = function(selectedDuration, selectedDurationString) {
+        onSelectDuration = (selectedDuration, selectedDurationString) => {
             addRecent(selectedDurationString, Values.recentDurations);
+            selectedDuration = this.parseDurationAsTicks(selectedDuration)
             return oldCallback(selectedDuration);
         }
         return (<>

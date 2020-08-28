@@ -580,19 +580,21 @@ class ASComposerActions extends ASComposerMenu {
 
     }
 
-    /** Track State **/
+    /** Track Reference **/
 
 
-    trackHasActive(trackName) {
-        return !!this.state.activeTracks[trackName]
-    }
-
-    trackGetRef(trackName) {
+    trackGetRef(trackName, throwException = true) {
         const trackRef = this.ref.activeTracks[trackName];
-        if(!trackRef)
-            throw new Error("Invalid Track ref: " + trackName);
-        if(!trackRef.current)
-            throw new Error("Track ref is not rendered: " + trackName);
+        if(!trackRef) {
+            if(throwException)
+                throw new Error("Invalid Track ref: " + trackName);
+            return null;
+        }
+        if(!trackRef.current) {
+            if(throwException)
+                throw new Error("Track ref is not rendered: " + trackName);
+            return null;
+        }
         return trackRef.current;
     }
 

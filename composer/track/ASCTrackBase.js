@@ -59,7 +59,7 @@ export default class ASCTrackBase extends React.Component {
             toggleViewMode: e => this.toggleViewMode(e),
             renderMenuViewOptions: () => this.renderMenuViewOptions(),
             renderMenuSetQuantization: () => this.renderMenuSetQuantization(),
-            renderMenuSetSegmentLength: () => this.renderMenuSetSegmentLength(),
+            renderMenuSetRowLength: () => this.renderMenuSetRowLength(),
 
             onKeyDown: (e) => this.onKeyDown(e),
             onContextMenu: e => this.onContextMenu(e),
@@ -80,6 +80,9 @@ export default class ASCTrackBase extends React.Component {
         this.updateRenderingProps();
     }
 
+    // componentDidUpdate(prevProps, prevState, snapshot) {
+    //     console.log('componentDidUpdate', prevProps.selectedIndices, this.props.selectedIndices);
+    // }
 
 }
 

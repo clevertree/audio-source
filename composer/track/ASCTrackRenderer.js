@@ -236,10 +236,10 @@ export default class ASCTrackRenderer extends ASCTrackBase {
         const rowLength = this.getRowLength();
         buttons.push(<ASUIButtonDropDown
             className="row-length"
-            title={`Segment Length (${rowLength} Rows)`}
+            title={`Show ${rowLength} Rows`}
             arrow="▼"
             key="row-length"
-            options={this.cb.renderMenuSetSegmentLength}
+            options={this.cb.renderMenuSetRowLength}
             children={`${rowLength} Rows`}
         />);
 
