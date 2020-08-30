@@ -112,6 +112,9 @@ class SongValues extends Values {
             case ArgType.velocity:
                 return this.renderMenuSelectVelocity(onSelectValue, paramValue);
 
+            case ArgType.program:
+                return this.renderMenuSelectProgramID(onSelectValue, paramValue);
+
         }
 
     }
@@ -149,11 +152,25 @@ class SongValues extends Values {
     /** Program Commands **/
 
     renderMenuSelectCommandByProgram(onSelectValue, onTrackAdd=null, selectedTrack=null) {
-        return this.renderMenuSelectProgram(
+        return this.renderMenuSelectProgramID(
             programID => onSelectValue('!p', programID),
             onTrackAdd,
             selectedTrack);
     }
+
+    renderMenuSelectProgramID(onSelectValue, selectedProgramID=null, onProgramAdd=null) {
+        return (<>
+            {this.getSongPrograms((programID, programClass, programConfig) =>
+                <ASUIMenuAction
+                    key={programID}
+                    selected={programID === selectedProgramID}
+                    onAction={e => onSelectValue(programID)}
+                >{`${programID}: ${programConfig.title || programClass}`}</ASUIMenuAction>
+            )}
+            {onProgramAdd ? <ASUIMenuAction onAction={onProgramAdd} hasBreak  >Create New Program</ASUIMenuAction> : null}
+        </>);
+    }
+
 
 
     /** Duration Menu **/
@@ -182,20 +199,6 @@ class SongValues extends Values {
         </>);
     }
 
-    /** Program menu **/
-
-    renderMenuSelectProgram(onSelectValue, onProgramAdd=null, selectedProgramID=null) {
-        return (<>
-            {this.getSongPrograms((programID, programClass, programConfig) =>
-                <ASUIMenuAction
-                    key={programID}
-                    selected={programID === selectedProgramID}
-                    onAction={e => onSelectValue(programID)}
-                >{`${programID}: ${programConfig.title || programClass}`}</ASUIMenuAction>
-            )}
-            {onProgramAdd ? <ASUIMenuAction onAction={onProgramAdd} hasBreak  >Create New Program</ASUIMenuAction> : null}
-        </>);
-    }
 
     // renderMenuSelectCommandByCurrentOctave(onSelectValue, octave=null) {
     //     octave = octave !== null ? octave : this.state.keyboardOctave;

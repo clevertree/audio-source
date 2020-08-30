@@ -14,9 +14,9 @@ export default class ASUIMenuOptionList extends ASUIMenuOptionListBase {
     componentDidUpdate(prevProps, prevState, snapshot) {
         super.componentDidUpdate(prevProps, prevState, snapshot);
 
-        let forceUpdate = prevProps.options !== this.props.options;
+        // let forceUpdate = prevProps.options !== this.props.options;
         if(this.props.floating !== false)
-            this.updateScreenPosition(forceUpdate);
+            this.updateScreenPosition();
 
         // if(this.state.optionArray)
         //     this.focus(); // Dangerous
@@ -44,16 +44,10 @@ export default class ASUIMenuOptionList extends ASUIMenuOptionListBase {
             className += ' floating';
             if (this.props.x || this.props.y) {
                 if (typeof this.props.x !== "undefined") {
-                    if(this.state.overflowRight)
-                        style.right = '0';
-                    else
-                        style.left = this.props.x;
+                    style.left = this.props.x;
                 }
                 if (typeof this.props.y !== "undefined") {
-                    if(this.state.overflowBottom)
-                        style.bottom = '0';
-                    else
-                        style.top = this.props.y;
+                    style.top = this.props.y;
                 }
             }
         }
@@ -79,17 +73,14 @@ export default class ASUIMenuOptionList extends ASUIMenuOptionListBase {
 
     /** Actions **/
 
-    updateScreenPosition(forceUpdate=false) {
+    updateScreenPosition() {
         if(!this.ref.container.current)
             return;
         const div = this.ref.container.current;
+        div.classList.remove('overflow-right', 'overflow-bottom');
         const rect = div.getBoundingClientRect();
-        // console.log(rect, this.props.clientPosition);
-        if(forceUpdate || (!this.state.overflowRight && rect.right > window.innerWidth))
-            this.setState({overflowRight: rect.right > window.innerWidth})
-        if(forceUpdate || (!this.state.overflowBottom && rect.bottom > window.innerHeight))
-            this.setState({overflowBottom: rect.bottom > window.innerHeight})
-        // console.log(rect.right, window.innerWidth, rect.bottom, window.innerHeight)
+        div.classList.toggle('overflow-right', rect.right > window.innerWidth);
+        div.classList.toggle('overflow-bottom', rect.bottom > window.innerHeight);
     }
 
 

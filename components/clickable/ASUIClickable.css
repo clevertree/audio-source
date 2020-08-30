@@ -23,8 +23,8 @@ div.asui-clickable > div.arrow {
 
 /** Selected **/
 div.asui-clickable.selected {
-    border-style: inset;
-    background-color: #CAA !important;
+    background-color: #999;
+    /*border: 1px inset #AAA;*/
 }
 
 /** Loading **/

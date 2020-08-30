@@ -71,9 +71,9 @@ class Values {
 
     getNoteVelocities(callback = (velocity) => velocity) {
         const results = [];
-        const result = callback(127, 'Max');
+        const result = callback(100, 'Max'); // 127
         if(!addResult(results, result)) return results;
-        for (let vi = 120; vi >= 0; vi -= 10) {
+        for (let vi = 90; vi >= 0; vi -= 10) {
             const result = callback(vi, vi);
             if(!addResult(results, result)) return results;
         }
@@ -529,19 +529,25 @@ class Values {
         return (<>
             {title ? <ASUIMenuItem>{title}</ASUIMenuItem> : null}
             {title ? <ASUIMenuBreak /> : null}
-            <ASUIInputRange
-                min={0}
-                max={127}
-                value={currentVelocity || 0}
-                format={ASUIInputRange.formats.percent}
-                onChange={(mixerValue) => onSelectValue(mixerValue)}
-            />
+            {this.renderInputVelocity(onSelectValue, currentVelocity, title)}
             <ASUIMenuBreak/>
             {this.getNoteVelocities((velocity, velocityTitle) =>
                 <ASUIMenuAction key={velocity} onAction={() => onSelectValue(velocity)}  >{velocityTitle}</ASUIMenuAction>)}
             <ASUIMenuAction onAction={customAction} hasBreak >Custom</ASUIMenuAction>
         </>);
     }
+
+    renderInputVelocity(onChange, currentVelocity=null, title=null) {
+        return <ASUIInputRange
+            min={0}
+            max={100}
+            title={title}
+            value={currentVelocity || 100}
+            format={ASUIInputRange.formats.percent}
+            onChange={onChange}
+        />;
+    }
+
 
     /** @deprecated moved to Library **/
     renderMenuSelectAvailableProgram(onSelectValue, menuTitle=null) {

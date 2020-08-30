@@ -119,6 +119,7 @@ export default class ASUIContextMenuContainerBase extends React.Component {
             menuHistory.push(this.state.slidingMenu);
             props.onClose = this.state.slidingMenu.onClose; // Hack?
         }
+        delete props.vertical;
         // this.closeAllMenuButtons();
         this.setState({
             openMenus: [],

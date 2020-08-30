@@ -128,7 +128,7 @@ class DummyProgram {
     static argTypes = {
         playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
         playTrack: [ArgType.trackName, ArgType.duration, ArgType.offset, ArgType.frequency, ArgType.velocity],
-        program: [ArgType.command, ArgType.program]
+        program: [ArgType.program]
     }
 
 

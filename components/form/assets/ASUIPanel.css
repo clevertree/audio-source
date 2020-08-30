@@ -49,8 +49,9 @@ div.asui-panel > div.header {
 }
 
 div.asui-panel > div.header > div.text {
+    white-space: nowrap;
     cursor: pointer;
-    padding: 3px 6px 0px 6px;
+    padding: 3px 2em 0px 2em;
 
 }
 div.asui-panel > div.header > div.config {

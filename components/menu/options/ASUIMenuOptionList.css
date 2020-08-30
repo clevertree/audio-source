@@ -27,6 +27,7 @@ div.asui-menu-option-list > div > div.asui-menu-item {
 }
 div.asui-menu-option-list > div.selected {
     background-color: #AAA;
+
 }
 
 div.asui-menu-option-list > div > div.asui-menu-item:hover {
@@ -53,10 +54,11 @@ div.asui-menu-option-list.vertical {
 
 div.asui-menu-option-list.overflow-right {
     left: inherit !important;
-    right: 100%;
+    right: 0 !important;
 }
 div.asui-menu-option-list.overflow-bottom {
-    /*top: inherit;*/
+    top: inherit !important;
+    bottom: 0 !important;
     /*bottom: -50vh;*/
     /*bottom: 100%;*/
 }

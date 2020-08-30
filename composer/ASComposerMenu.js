@@ -203,7 +203,6 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
     renderMenuEditInstruction(title='Edit Instruction') {
-        // console.log('renderMenuEditInstruction', selectedIndices);
 
         // if(selectedIndices === null)
         //     selectedIndices = this.state.selectedIndices;
@@ -224,7 +223,7 @@ class ASComposerMenu extends ASComposerRenderer {
             )
         }
         content.push(
-            <ASUIMenuDropDown key={0} options={() => this.renderMenuEditInstructionCommand()}>Edit Command</ASUIMenuDropDown>,
+            <ASUIMenuDropDown key={0} options={() => this.renderMenuEditInstructionCommand()}>Change Command</ASUIMenuDropDown>,
         );
 
         argTypeList.forEach((argType, i) => {
@@ -236,6 +235,7 @@ class ASComposerMenu extends ASComposerRenderer {
                 this.renderMenuEditInstructionArg(instructionData, argType, argIndex, paramValue)
             );
         });
+        console.log('renderMenuEditInstruction', argTypeList);
         return content;
     }
 

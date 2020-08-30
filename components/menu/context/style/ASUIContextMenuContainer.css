@@ -37,22 +37,17 @@ div.asui-contextmenu-container > div.overlay.open {
 /** Drop Down **/
 div.asui-contextmenu-container > div.sliding-menu {
     z-index: 3;
-    transition: width 0.4s ease-out;
-    opacity: 0;
-    width: 0;
-    /*overflow: hidden;*/
+    animation: slideRightClose 0.2s ease-out;
 }
 div.asui-contextmenu-container > div.sliding-menu.open {
-    width: 35vw;
-    opacity: 1;
-    transition: width 0.1s ease-in;
-    /*overflow-x: hidden;*/
+    animation: slideRightOpen 0.6s ease-out;
+
 }
 @media only screen and (min-width: 800px) {
-    div.asui-contextmenu-container > div.sliding-menu.open {
-        width: 30vw;
-        /*width: 25%;*/
-    }
+    /*div.asui-contextmenu-container > div.sliding-menu.open {*/
+    /*    width: 30vw;*/
+    /*    width: 25%;*/
+    /*}*/
 }
 
 
@@ -60,6 +55,29 @@ div.asui-contextmenu-container > div.sliding-menu div.asui-menu-item {
     padding: 0.5em 1em;
     border: 1px outset #DDD;
     z-index: 4;
-    /*white-space: nowrap;*/
+    white-space: nowrap;
 }
 
+
+
+@keyframes slideRightOpen {
+    0% {
+        width: 0;
+        opacity: 0;
+    }
+    100% {
+        width: 300px;
+        opacity: 1;
+    }
+}
+
+@keyframes slideRightClose {
+    100% {
+        min-width: 0;
+        opacity: 0;
+    }
+    0% {
+        min-width: 100px;
+        opacity: 1;
+    }
+}

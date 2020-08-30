@@ -1,7 +1,7 @@
 import React from "react";
 
 import {ASUIForm, ASUIPanel, ASUIInputRange, ASUIButtonDropDown} from "../../components";
-import {ArgType, InstructionProcessor} from "../../common";
+import {Values, ArgType, InstructionProcessor} from "../../common";
 
 export default class ASComposerInstructionPanel extends React.Component {
 
@@ -61,20 +61,9 @@ export default class ASComposerInstructionPanel extends React.Component {
         const composer = this.props.composer;
 
         return <ASUIForm key={argIndex} header={header}>
-            <ASUIInputRange
-                // className="velocity"
-                onChange={(newVelocity) => {
-                    composer.instructionReplaceArgByType(composer.getSelectedTrackName(), composer.state.selectedIndices, argType, newVelocity);
-                }}
-                value={paramValue || 0}
-                min={1}
-                max={127}
-                format={ASUIInputRange.formats.percent}
-
-                // ref={ref => this.fieldProgramVelocity = ref}
-                title={title}
-                // disabled={selectedIndices.length === 0}
-            />
+            {Values.instance.renderInputVelocity((newVelocity) => {
+                composer.instructionReplaceArgByType(composer.getSelectedTrackName(), composer.state.selectedIndices, argType, newVelocity);
+            }, paramValue, title)}
         </ASUIForm>;
     }
 

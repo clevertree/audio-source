@@ -152,8 +152,8 @@ export default class ASUIMenuOptionListBase extends React.Component {
             .filter(option => option.type !== React.Fragment)
             .map((option, i) => {
 
-            if(positionSelected === null && option.props.selected)
-                positionSelected = currentPosition;
+            // if(positionSelected === null && option.props.selected)
+            //     positionSelected = currentPosition;
 
             const props = {
                 key: i,

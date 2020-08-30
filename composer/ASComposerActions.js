@@ -553,7 +553,7 @@ class ASComposerActions extends ASComposerMenu {
             newTrackName = await PromptManager.openPromptDialog("Create new instruction group?", newTrackName);
         if (newTrackName) {
             song.trackAdd(newTrackName, []);
-            await this.trackSelect(newTrackName);
+            this.trackSelect(newTrackName);
         } else {
             this.setError("Create instruction group canceled");
         }
