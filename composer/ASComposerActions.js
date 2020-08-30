@@ -497,6 +497,10 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     trackPlay(trackName, selectedIndices, stopPlayback=true) {
+        if(typeof selectedIndices === "number")
+            selectedIndices = [selectedIndices];
+        if(!Array.isArray(selectedIndices))
+            throw new Error("Invalid selectedIndices: " + typeof selectedIndices);
         // const trackState = new ActiveTrackState(this, trackName);
 
 
@@ -509,8 +513,6 @@ class ASComposerActions extends ASComposerMenu {
 
 
         // destination = destination || this.getDestination();
-        if(!Array.isArray(selectedIndices))
-            selectedIndices = [selectedIndices];
         // console.log('playInstructions', selectedIndices);
         // const programID = typeof trackState.programID !== "undefined" ? trackState.programID : 0;
 
@@ -524,6 +526,10 @@ class ASComposerActions extends ASComposerMenu {
     /** Track Commands **/
 
     trackSelect(selectedTrack, selectedIndices=[]) {
+        if(typeof selectedIndices === "number")
+            selectedIndices = [selectedIndices];
+        if(!Array.isArray(selectedIndices))
+            throw new Error("Invalid selectedIndices: " + typeof selectedIndices);
         const state = {
             selectedTrack,
             selectedIndices
@@ -535,8 +541,8 @@ class ASComposerActions extends ASComposerMenu {
             state.selectedInstructionData[0] = 0;
             // console.log('selectedInstructionData', state.selectedInstructionData);
         }
-        console.log('selectTrack', state);
-        this.setState(state)
+        // console.log('selectTrack', state);
+        this.setState(state);
     }
 
     async trackAdd(newTrackName = null, promptUser = true) {
@@ -603,43 +609,42 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Instruction Modification **/
 
-    async instructionInsertAtCursorPrompt(trackName = null, newCommand = null, promptUser = false, select=true, playback=true) {
-        if(promptUser)
-            newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
-        return this.instructionInsertAtCursor(trackName, newCommand, select, playback);
-    }
+    // async instructionInsertAtCursorPrompt(trackName = null, newInstructionData = null) {
+    //     newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
+    //     return this.instructionInsertAtCursor(trackName, newInstructionData);
+    // }
 
-    instructionInsertBeforeCursor(trackName = null, newCommand = null, select=true, playback=true) {
+    // instructionInsertBeforeCursor(trackName = null, newCommand = null, select=true, playback=true) {
+    //
+    // }
 
-    }
-
-
-    instructionInsertAtCursor(trackName = null, newInstructionData = null) {
+    instructionInsertAtSelectedTrackCursor(trackName = null, commandString = null, parameters=null) {
         trackName = trackName || this.getSelectedTrackName();
-        // newCommand = newCommand || this.state.currentCommand;
-        const trackRef = this.trackGetRef(trackName);
-        trackRef.instructionInsertAtCursor(newInstructionData);
+        this.trackGetRef(trackName).instructionInsertAtCursor(commandString, parameters);
     }
 
-    instructionInsertAtPosition(trackName, positionTicks, newInstructionData = null) {
+    instructionInsertAtPosition(trackName, positionTicks, commandString, parameters = null, select=true) {
+        console.log('instructionInsertAtPosition', trackName, positionTicks, commandString, parameters);
         //: TODO: check for recursive group
 
-        if (newInstructionData === null)
-            newInstructionData = this.state.selectedInstructionData.slice();
-        if (!Array.isArray(newInstructionData)) {
-            const commandString = newInstructionData;
+        let newInstructionData;
+        if (Array.isArray(commandString)) {
+            newInstructionData = commandString;
+        } else if(parameters) {
+            newInstructionData = [commandString].concat(parameters);
+        } else {
             newInstructionData = this.state.selectedInstructionData.slice();
             newInstructionData.splice(1, 1, commandString);
         }
-        if (!newInstructionData)
-            throw new Error("Invalid Instruction command");
 
         newInstructionData = Instruction.parseInstructionData(newInstructionData);
         newInstructionData[0] = 0;
 
         const index = this.song.instructionInsertAtPosition(trackName, positionTicks, newInstructionData);
-        // if(select)      this.trackSelect(trackName, index);
-        // if(playback)    this.trackPlay(trackName, index);
+        if(select)
+            this.trackSelect(trackName, index);
+        if(this.state.playbackOnChange)
+            this.trackPlay(trackName, index);
         this.updateCurrentSong();
         return index;
     }
@@ -775,7 +780,7 @@ class ASComposerActions extends ASComposerMenu {
 
 
     instructionGetIterator(trackName, timeDivision=null, beatsPerMinute=null) {
-        return this.trackGetState(trackName)
+        return this.trackGetRef(trackName)
             .getIterator(timeDivision, beatsPerMinute);
     }
 

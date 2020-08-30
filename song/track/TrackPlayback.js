@@ -41,7 +41,12 @@ export default class TrackPlayback extends TrackIterator {
 
     onExecuteProgram(trackStats, commandString, params) {
         const program = trackStats.program;
-        program[commandString].apply(program, params);
+        if(!program) {
+            console.warn("Failed to execute command on empty program: ", commandString, params, trackStats);
+            // TODO: error state
+        } else {
+            program[commandString].apply(program, params);
+        }
     }
 
 

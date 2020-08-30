@@ -277,6 +277,8 @@ class Song {
             throw new Error("Invalid integer: " + typeof insertPositionInTicks);
         if (!insertInstructionData)
             throw new Error("Invalid insert instruction");
+        if(typeof insertInstructionData[1] !== "string")
+            throw new Error("Invalid instruction command string: " + typeof insertInstructionData[1])
         insertInstructionData = Instruction.parseInstructionData(insertInstructionData);
         let instructionList = this.data.tracks[trackName];
 

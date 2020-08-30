@@ -112,24 +112,16 @@ class ASComposerMenu extends ASComposerRenderer {
     //     );
     // }
 
-    /** @deprecated **/
-    renderMenuSelectCommand(onSelectValue, currentCommand=null, title= null, additionalMenuItems=null) {
-        return this.values.renderMenuSelectCommand(onSelectValue, currentCommand || this.state.currentCommand, title, additionalMenuItems)
-    }
-
-    /** @deprecated **/
-    renderMenuSelectFrequency(onSelectValue, currentCommand=null) {
-        return this.values.renderMenuSelectFrequency(onSelectValue, currentCommand || this.state.currentCommand);
-    }
-
-    // renderMenuSelectFrequencyOctave(onSelectValue, noteName) {
-    //     return this.values.renderMenuSelectFrequencyOctave(onSelectValue, noteName);
+    // /** @deprecated **/
+    // renderMenuSelectCommand(onSelectValue, currentCommand=null, title= null, additionalMenuItems=null) {
+    //     return this.values.renderMenuSelectCommand(onSelectValue, currentCommand || this.state.currentCommand, title, additionalMenuItems)
     // }
 
-    /** @deprecated **/
-    renderMenuSelectFrequencyByOctave(onSelectValue, currentCommand=null) {
-        return this.values.renderMenuSelectFrequencyByOctave(onSelectValue, currentCommand || this.state.currentCommand);
-    }
+
+
+    // renderMenuSelectFrequencyByOctave(onSelectValue, currentCommand=null) {
+    //     return this.values.renderMenuSelectFrequencyByOctave(onSelectValue, currentCommand || this.state.currentCommand);
+    // }
 
     // renderMenuSelectFrequencyByOctaveFrequency(onSelectValue, octave) {
     //     return this.values.renderMenuSelectFrequencyByOctaveFrequency(onSelectValue, octave);
@@ -138,12 +130,12 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
 
-    /** @deprecated **/
-    renderMenuSelectSongProgram(onSelectValue) {
-        return this.values.getSongPrograms((programID, programClass, programInfo) =>
-            <ASUIMenuAction key={programID} onAction={() => onSelectValue(programID)}  >{programID}: {programInfo.title || programClass}</ASUIMenuAction>
-        );
-    }
+    // /** @deprecated **/
+    // renderMenuSelectSongProgram(onSelectValue) {
+    //     return this.values.getSongPrograms((programID, programClass, programInfo) =>
+    //         <ASUIMenuAction key={programID} onAction={() => onSelectValue(programID)}  >{programID}: {programInfo.title || programClass}</ASUIMenuAction>
+    //     );
+    // }
 
 
 
@@ -203,15 +195,10 @@ class ASComposerMenu extends ASComposerRenderer {
 /*<ASUIMenuDropDown options={() => this.renderMenuEditBatch()}   >Batch</ASUIMenuDropDown>*/
 
 
-    renderMenuEditInsert(trackName=null, before=false) {
-        return this.values.renderMenuSelectCommand(async newCommand => {
-                // before
-                //     ? this.instructionInsertAtCursor(trackName, newCommand)
-                    this.instructionInsertAtCursor(trackName, newCommand);
-            },
-            // this.state.selectedInstructionData[1],
-            // "New Command"
-        );
+    renderMenuEditInsert(trackName=null) {
+        return this.values.renderMenuSelectCommand((commandString, params) => {
+            this.instructionInsertAtSelectedTrackCursor(trackName, commandString, params);
+        });
     }
 
 
@@ -285,18 +272,15 @@ class ASComposerMenu extends ASComposerRenderer {
     renderMenuEditTrackSelectIndices() {
         const selectedTrack = this.getSelectedTrackName();
         let cursorIndex = null;
-        if(!this.trackHasActive(selectedTrack))
-            return <ASUIMenuItem>{`Track is not active: ${selectedTrack}`}</ASUIMenuItem>
-        const activeTrack = this.trackGetState(selectedTrack);
         // const cursorInfo = activeTrack.getCursorInfo(); // TODO: move?
         // console.log('cursorInfo', cursorInfo)
         cursorIndex = null; // cursorInfo.cursorIndex;
         return (<>
-            <ASUIMenuAction onAction={e => activeTrack.selectIndices('segment')}      >Select Segment</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => activeTrack.selectIndices('row')}       >Select Row</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => activeTrack.selectIndices('all')}       >Select Track</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => activeTrack.selectIndices('cursor')} disabled={cursorIndex === null}>Select Cursor</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => activeTrack.selectIndices('none')}       >Clear Selection</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackGetRef(selectedTrack).selectIndices('segment')}      >Select Segment</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackGetRef(selectedTrack).selectIndices('row')}       >Select Row</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackGetRef(selectedTrack).selectIndices('all')}       >Select Track</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackGetRef(selectedTrack).selectIndices('cursor')} disabled={cursorIndex === null}>Select Cursor</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackGetRef(selectedTrack).selectIndices('none')}       >Clear Selection</ASUIMenuAction>
             <ASUIMenuBreak />
             <ASUIMenuDropDown disabled options={() => this.renderMenuEditTrackSelectIndicesBatch()}                        >Batch Select</ASUIMenuDropDown>
         </>);
@@ -434,7 +418,7 @@ class ASComposerMenu extends ASComposerRenderer {
         return (<>
             <ASUIMenuAction onAction={e => this.trackAdd()}     >Add new track</ASUIMenuAction>
             <ASUIMenuBreak />
-            {this.values.getAllSongTracks((trackName) =>
+            {this.values.getSongTracks((trackName) =>
                 <ASUIMenuDropDown
                     key={trackName}
                     // disabled={trackName === this.getSelectedTrackName()}

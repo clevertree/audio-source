@@ -44,7 +44,10 @@ export default class ProgramLoader {
     }
 
     loadInstanceFromID(programID) {
-        const [className, config] = this.getData(programID, false);
+        const program = this.getData(programID, false);
+        if(!program)
+            throw new Error("Invalid Program ID: " + programID + ` (${typeof programID})`)
+        const [className, config] = program;
         return ProgramLoader.loadInstance(className, config);
     }
 

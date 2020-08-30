@@ -10,7 +10,7 @@ export default class ASComposerTrackPanel extends React.Component {
         this.cb = {
             renderMenuSelectTrack: () => this.renderMenuSelectTrack(),
             trackSelectIndicesPrompt: () => composer.trackSelectIndicesPrompt(),
-            instructionInsertAtCursor: () => composer.instructionInsertAtCursor(),
+            instructionInsertAtSelectedTrackCursor: () => composer.instructionInsertAtSelectedTrackCursor(),
             instructionDeleteSelected: () => composer.instructionDeleteIndices(),
             renderMenuKeyboardSetOctave: () => composer.renderMenuKeyboardSetOctave(),
         }
@@ -56,7 +56,7 @@ export default class ASComposerTrackPanel extends React.Component {
                 <ASUIForm className="track-insert" header="Add">
                     <ASUIButton
                         // className="instruction-insert"
-                        onAction={this.cb.instructionInsertAtCursor}
+                        onAction={this.cb.instructionInsertAtSelectedTrackCursor}
                         title="Insert Instruction"
                         // disabled={selectedIndices.length > 0}
                     >

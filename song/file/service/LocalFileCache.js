@@ -65,6 +65,8 @@ export default class LocalFileCache {
     }
 
     async tryFile(fileName) {
+        if(!fileName)
+            throw new Error("Invalid fileName");
         const db = await this.getDB();
         const transaction = db.transaction(dbName, 'readonly')
 

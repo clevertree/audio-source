@@ -118,14 +118,18 @@ class AudioBufferInstrument {
 
         // Load Sample
         const service = new AudioBufferLoader();
-        let buffer = service.tryCache(config.url);
-        if(buffer) {
-            this.setBuffer(source, buffer);
+        if(config.url) {
+            let buffer = service.tryCache(config.url);
+            if (buffer) {
+                this.setBuffer(source, buffer);
+            } else {
+                service.loadAudioBufferFromURL(config.url)
+                    .then(audioBuffer => {
+                        this.setBuffer(source, audioBuffer);
+                    });
+            }
         } else {
-            service.loadAudioBufferFromURL(config.url)
-                .then(audioBuffer => {
-                    this.setBuffer(source, audioBuffer);
-                });
+            console.warn("No config.url is set", this);
         }
 
 

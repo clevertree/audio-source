@@ -27,7 +27,7 @@ class SongValues extends Values {
         return results;
     }
 
-    getAllSongTracks(callback = (trackName) => trackName) {
+    getSongTracks(callback = (trackName) => trackName) {
         const song = this.song;
         const results = [];
         const instructionList = song.data.tracks;
@@ -103,7 +103,7 @@ class SongValues extends Values {
                 return this.renderMenuSelectCommand(onSelectValue, paramValue);
 
             case ArgType.frequency:
-                return this.renderMenuSelectFrequency(onSelectValue, paramValue);
+                return this.renderMenuSelectFrequencyWithRecent(onSelectValue, paramValue);
 
             case ArgType.offset:
             case ArgType.duration:
@@ -119,9 +119,11 @@ class SongValues extends Values {
 
     renderMenuSelectCommand(onSelectValue, currentCommand=null, title= null) {
         return super.renderMenuSelectCommand(onSelectValue, currentCommand, title, (<>
-            <ASUIMenuBreak />
             {/*<ASUIMenuDropDown disabled options={() => this.renderMenuSelectCommandByNamed(onSelectValue)}               >By Alias</ASUIMenuDropDown>*/}
             <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByTrack(onSelectValue)}               >By Track</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByProgram(onSelectValue)}               >By Program</ASUIMenuDropDown>
+            <ASUIMenuBreak />
         </>));
     }
 
@@ -135,12 +137,24 @@ class SongValues extends Values {
         );
     }
 
+    /** Track Commands **/
+
     renderMenuSelectCommandByTrack(onSelectValue, onTrackAdd=null, selectedTrack=null) {
         return this.renderMenuSelectTrack(
             trackName => onSelectValue('@' + trackName),
             onTrackAdd,
             selectedTrack);
     }
+
+    /** Program Commands **/
+
+    renderMenuSelectCommandByProgram(onSelectValue, onTrackAdd=null, selectedTrack=null) {
+        return this.renderMenuSelectProgram(
+            programID => onSelectValue('!p', programID),
+            onTrackAdd,
+            selectedTrack);
+    }
+
 
     /** Duration Menu **/
 
@@ -157,7 +171,7 @@ class SongValues extends Values {
 
     renderMenuSelectTrack(onSelectValue, onTrackAdd=null, selectedTrack=null) {
         return (<>
-            {this.getAllSongTracks((trackName) =>
+            {this.getSongTracks((trackName) =>
                 <ASUIMenuAction
                     key={trackName}
                     selected={trackName === selectedTrack}
@@ -165,6 +179,21 @@ class SongValues extends Values {
                 >{trackName}</ASUIMenuAction>
             )}
             {onTrackAdd ? <ASUIMenuAction onAction={onTrackAdd} hasBreak  >Create New Track</ASUIMenuAction> : null}
+        </>);
+    }
+
+    /** Program menu **/
+
+    renderMenuSelectProgram(onSelectValue, onProgramAdd=null, selectedProgramID=null) {
+        return (<>
+            {this.getSongPrograms((programID, programClass, programConfig) =>
+                <ASUIMenuAction
+                    key={programID}
+                    selected={programID === selectedProgramID}
+                    onAction={e => onSelectValue(programID)}
+                >{`${programID}: ${programConfig.title || programClass}`}</ASUIMenuAction>
+            )}
+            {onProgramAdd ? <ASUIMenuAction onAction={onProgramAdd} hasBreak  >Create New Program</ASUIMenuAction> : null}
         </>);
     }
 

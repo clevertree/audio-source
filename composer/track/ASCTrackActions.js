@@ -224,9 +224,9 @@ export default class ASCTrackActions extends ASCTrackRenderer {
         this.getComposer().instructionPasteAtPosition(this.getTrackName(), startPositionTicks);
     }
 
-    instructionInsertAtCursor(newInstructionData) {
+    instructionInsertAtCursor(newCommandString, newCommandParams) {
         let {positionTicks: startPositionTicks} = this.getCursorInfo(this.getCursorOffset());
-        this.getComposer().instructionInsertAtPosition(this.getTrackName(), startPositionTicks, newInstructionData);
+        this.getComposer().instructionInsertAtPosition(this.getTrackName(), startPositionTicks, newCommandString, newCommandParams);
     }
 
     // trackGetState(trackName) {

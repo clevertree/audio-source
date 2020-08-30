@@ -202,7 +202,7 @@ export default class ASCTrackInput extends ASCTrackActions {
                         }
 
                     } else {
-                        composer.instructionInsertAtCursor(this.getTrackName(), keyboardCommand);
+                        this.instructionInsertAtCursor(keyboardCommand);
                     }
                     // console.log('TODO: keyboardCommand', keyboardCommand, selectedIndices, cursorOffset);
                     return;

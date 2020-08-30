@@ -62,8 +62,8 @@ export default class ASUIClickableDropDown extends ASUIClickable {
     openDropDownMenu(e) {
         if(this.props.disabled)
             return console.error("Clickable is disabled");
-        // console.log('ASUIClickableDropDown.openDropDownMenu')
         const rect = e.target.getBoundingClientRect();
+        console.log('ASUIClickableDropDown.openDropDownMenu', rect, e.target)
         let x = rect.right;
         let y = rect.top;
         if(this.props.vertical) {

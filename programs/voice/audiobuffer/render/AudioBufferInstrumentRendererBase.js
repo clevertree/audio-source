@@ -375,7 +375,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
 
     renderMenuChangeKeyRoot() {
         return (<>
-            {new Values().renderMenuSelectFrequency(noteNameOctave => {
+            {Values.instance.renderMenuSelectFrequencyWithRecent(noteNameOctave => {
                 this.changeParam('root', noteNameOctave)
             }, this.props.config.root, "Change Root Key")}
             <ASUIMenuBreak/>
@@ -384,7 +384,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
     }
     renderMenuChangeKeyAlias() {
         return (<>
-            {new Values().renderMenuSelectFrequency(noteNameOctave => {
+            {Values.instance.renderMenuSelectFrequencyWithRecent(noteNameOctave => {
                 this.changeParam('alias', noteNameOctave)
             }, this.props.config.alias, "Change Alias")}
             <ASUIMenuBreak/>
@@ -407,7 +407,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
     }
     renderMenuChangeKeyRangeStart() {
         return (<>
-            {new Values().renderMenuSelectFrequency(noteNameOctave => {
+            {Values.instance.renderMenuSelectFrequencyWithRecent(noteNameOctave => {
                 this.changeParam('rangeStart', noteNameOctave)
             }, this.props.config.rangeStart, "Change Range Start")}
             <ASUIMenuBreak/>
@@ -416,7 +416,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
     }
     renderMenuChangeKeyRangeEnd() {
         return (<>
-            {new Values().renderMenuSelectFrequency(noteNameOctave => {
+            {Values.instance.renderMenuSelectFrequencyWithRecent(noteNameOctave => {
                 this.changeParam('rangeEnd', noteNameOctave)
             }, this.props.config.rangeEnd, "Change Range End")}
             <ASUIMenuBreak/>
