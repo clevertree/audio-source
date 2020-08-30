@@ -1,7 +1,6 @@
 import * as React from "react";
 import PropTypes from 'prop-types';
-
-import {ASUIGlobalContext} from "../../components/";
+import {ASUIContextMenu} from "../../components";
 
 
 // TODO: ASCTrackRowContainer
@@ -12,23 +11,8 @@ export default class ASCTrackBase extends React.Component {
     static DEFAULT_MAX_SEGMENTS = 8;
     static DEFAULT_MIN_SEGMENTS = 4;
 
-    /** Global Context **/
-    // static contextType = ASUIGlobalContext;
-    // getGlobalContext()          { return this.context; }
-    // // setStatus(message)          { this.context.addLogEntry(message); }
-    // // setError(message)           { this.context.addLogEntry(message, 'error'); }
-    // getViewMode()               { return this.context.getViewMode(this.getTrackViewKey()); }
-    // setViewMode(mode)           { return this.context.setViewMode(this.getTrackViewKey(), mode); }
-    // getTrackViewKey()           { return 'track:' + this.props.trackName; }
-
     /** Default Properties **/
     static defaultProps = {
-        // cursorOffset: 0,
-        // selectedIndices: [],
-        // rowOffset: 0,
-        // rowLength: 16,
-        // quantizationTicks: null,
-        // destinationList: []
     };
 
     /** Property validation **/
@@ -36,12 +20,12 @@ export default class ASCTrackBase extends React.Component {
         selectedIndices: PropTypes.array.isRequired,
         composer: PropTypes.object.isRequired,
         trackName: PropTypes.string.isRequired,
-        // trackState: PropTypes.object.isRequired
     };
 
 
     constructor(props) {
         super(props);
+        // console.log('ASCTrackBase.constructor', props);
 
         if(!props.composer)
             throw new Error("Invalid composer");
@@ -51,28 +35,20 @@ export default class ASCTrackBase extends React.Component {
             cursorOffset:   0,
 
             menuOpen: false,
+            menuOptions: null,
             clientPosition: null,
         };
-        // this.firstCursorRowOffset = null;
-        // this.lastCursorRowOffset = null;
         this.cb = {
             toggleViewMode: e => this.toggleViewMode(e),
             renderMenuViewOptions: () => this.renderMenuViewOptions(),
             renderMenuSetQuantization: () => this.renderMenuSetQuantization(),
             renderMenuSetRowLength: () => this.renderMenuSetRowLength(),
+        }
 
-            onKeyDown: (e) => this.onKeyDown(e),
-            onContextMenu: e => this.onContextMenu(e),
-            onWheel: e => this.onWheel(e),
-            // options: () => this.renderContextMenu()
-        };
         this.ref = {
             rowContainer: React.createRef()
         }
         this.destination = null;
-        // this.cursorInstruction = React.createRef();
-        // this.trackerGetCursorInfo();
-        // console.log('ASCTrackBase.constructor', this.getTrackName(), this.state, trackState);
 
     }
 
@@ -84,5 +60,19 @@ export default class ASCTrackBase extends React.Component {
     //     console.log('componentDidUpdate', prevProps.selectedIndices, this.props.selectedIndices);
     // }
 
+
+
+    renderContextMenu() {
+        if(!this.state.menuOpen)
+            return null;
+        return <ASUIContextMenu
+                x={this.state.clientPosition[0]}
+                y={this.state.clientPosition[1]}
+                key="dropdown"
+                options={this.state.menuOptions}
+                vertical={true}
+                onClose={e => this.closeContextMenu(e)}
+            />;
+    }
 }
 

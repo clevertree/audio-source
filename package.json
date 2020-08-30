@@ -1,6 +1,6 @@
 {
   "name": "audio-source-composer",
-  "version": "0.6.12",
+  "version": "0.6.13",
   "type": "module",
   "description": "Audio Source Composer",
   "author": "Ari Asulin",

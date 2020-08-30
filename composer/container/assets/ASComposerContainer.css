@@ -132,16 +132,19 @@ div.audio-source-composer.landscape div.asc-content-container > div {
     display: inline-block;
 }
 
-div.audio-source-composer.landscape div.asui-panel {
-    /*display: inline-block;*/
+/** Track Panels **/
+
+@media only screen and (min-width: 1500px) {
+
+    div.audio-source-composer.landscape br.asui-track-panel-break {
+        display: none;
+    }
+
 }
 
-div.audio-source-composer.landscape div.asui-song-panel-container {
-}
-div.audio-source-composer.landscape div.asui-song-panel-container > div.asui-panel {
+div.audio-source-composer.landscape div.asui-track-panel-container > div.asui-panel {
     display: inline-block;
 }
-
 
 /** Portrait **/
 
@@ -181,6 +184,13 @@ div.audio-source-composer.portrait div.asc-content-container > div.asc-tracks-co
 div.audio-source-composer.portrait div.asui-panel-container-horizontal > div.asui-panel {
     flex: 1;
 }
+
+/** Instruction Panel **/
+div.audio-source-composer.landscape div.asui-panel.instruction {
+    /*min-width: 480px;*/
+}
+
+
 
 /** Program Panel **/
 @media only screen and (min-width: 1200px) {

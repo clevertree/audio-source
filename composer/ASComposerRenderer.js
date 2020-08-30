@@ -34,22 +34,26 @@ export default class ASComposerRenderer extends ASComposerBase {
 //                         {this.state.showPanelPresetBrowser ? <ASComposerPresetBrowserPanel composer={this} /> : null}
 
     renderSongPanelPortrait() {
-        return <div className="asui-song-panel-container">
+        return <>
             <ASComposerSongPanel composer={this} ref={this.ref.panelSong} />
             <div className="asui-panel-container-horizontal">
                 <ASComposerTrackPanel composer={this} />
                 <ASComposerInstructionPanel composer={this} />
             </div>
-        </div>
+        </>
     }
 
     renderSongPanelLandscape() {
-        return <div className="asui-song-panel-container">
+        return <>
             <ASComposerSongPanel composer={this} ref={this.ref.panelSong} />
-            <br/>
-            <ASComposerTrackPanel composer={this} />
-            <ASComposerInstructionPanel composer={this} />
-        </div>
+
+            <br  className="asui-track-panel-break"/>
+            <div className="asui-track-panel-container">
+                <ASComposerTrackPanel composer={this} />
+                <ASComposerInstructionPanel composer={this} />
+            </div>
+            <br  className="asui-track-panel-break"/>
+        </>
 
     }
 }

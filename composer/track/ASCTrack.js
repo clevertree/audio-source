@@ -1,11 +1,10 @@
 import * as React from "react";
 
-import {ASUIContextMenu} from "../../components";
-import ASCTrackActions from "./ASCTrackActions";
 import ASUIClickableDropDown from "../../components/clickable/ASUIClickableDropDown";
 import "./ASCTrack.css";
+import ASCTrackInput from "./ASCTrackInput";
 
-export default class ASCTrack extends ASCTrackActions {
+export default class ASCTrack extends ASCTrackInput {
 
 
 
@@ -15,6 +14,7 @@ export default class ASCTrack extends ASCTrackActions {
     render() {
         const portrait = this.getComposer().state.portrait;
         const viewMode = this.state.viewMode;
+        // console.log('ASCTrack.render', viewMode);
         let content = null;
         let className = "asc-track";
 
@@ -31,7 +31,6 @@ export default class ASCTrack extends ASCTrackActions {
                 className += ' ' + viewMode;
         }
 
-        console.log('ASCTrack.render', viewMode);
         // if(this.props.className)
         //     className += ' ' + this.props.className;
         if(this.props.selected)
@@ -88,18 +87,14 @@ export default class ASCTrack extends ASCTrackActions {
                 }}
                 tabIndex={0}
                 onKeyDown={this.cb.onKeyDown}
-                onContextMenu={this.cb.onContextMenu}
+                onTouchStart={this.cb.onTouchStart}
+                onTouchEnd={this.cb.onTouchEnd}
+
                 // onWheel={this.cb.onWheel}
             >
                 {this.renderRowContent()}
-                {this.state.menuOpen ? <ASUIContextMenu
-                    clientPosition={this.state.clientPosition}
-                    key="dropdown"
-                    ref={this.dropdown}
-                    options={this.cb.options}
-                    vertical={true}
-                    // onClose={e => this.toggleDropDownMenu(e)}
-                /> : null}
+                {this.renderContextMenu()}
+
             </div>
         ]
     }

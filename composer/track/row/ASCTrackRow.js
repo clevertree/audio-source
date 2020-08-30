@@ -10,6 +10,7 @@ class ASCTrackRow extends ASCTrackRowBase {
     constructor(props) {
         super(props);
         this.cb.onMouseDown = (e) => this.onMouseDown(e);
+
     }
 
     render() {
@@ -17,6 +18,7 @@ class ASCTrackRow extends ASCTrackRowBase {
         if (this.props.highlight)
             className += ' ' + (this.props.highlight||[]).join(' '); // ' highlight';
         const composer = this.getComposer();
+        const track = this.getTrack();
         const rowDeltaDuration = composer.state.showTrackRowDurationInTicks ? this.props.deltaDuration : composer.values.formatDuration(this.props.deltaDuration);
         const rowPosition = composer.state.showTrackRowPositionInTicks ? this.props.positionTicks : composer.values.formatDurationAsDecimal(this.props.positionTicks);
         return (
@@ -25,7 +27,7 @@ class ASCTrackRow extends ASCTrackRowBase {
                 className={className}
                 // onClick={this.cb.onMouseInput}
                 onMouseDown={this.cb.onMouseDown}
-                // onContextMenu={this.cb.onContextMenu}
+                onContextMenu={track.cb.onContextMenu}
                 // onKeyDown={this.cb.onKeyDown}
             >
                 <ASCTrackPosition position={rowPosition}/>
@@ -45,38 +47,6 @@ class ASCTrackRow extends ASCTrackRowBase {
         )
     }
 
-
-    /** User Input **/
-
-
-    onMouseDown(e) {
-        if (e.defaultPrevented)
-            return;
-        e.preventDefault();
-        // console.log('ASCTrackRow.onMouseDown', e);
-        this.selectRow();
-    }
-
-    // onContextMenu(e) {
-    //     if (e.defaultPrevented || e.shiftKey)
-    //         return;
-    //     e.preventDefault();
-    //     this.toggleMenu(e);
-    // }
-    //
-    // onKeyDown(e) {
-    //     if (e.isDefaultPrevented())
-    //         return;
-    //     switch (e.key) {
-    //         case 'ContextMenu':
-    //             e.preventDefault();
-    //             this.toggleMenu();
-    //             break;
-    //
-    //         default:
-    //             break;
-    //     }
-    // }
 
 }
 
