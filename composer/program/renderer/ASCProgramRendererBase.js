@@ -85,15 +85,6 @@ export default class ASCProgramRendererBase extends React.Component {
         />;
     }
 
-    /** Input **/
-
-    handleMIDIInput(e) {
-        // console.log('handleMIDIInput', e);
-        const destination = this.getComposer().getDestination();
-        this.getSong().playMIDIEvent(destination, this.getProgramID(), e.data);
-
-    }
-
     /** Actions **/
 
 
@@ -232,6 +223,16 @@ export default class ASCProgramRendererBase extends React.Component {
         return await library.renderMenuPresets((className, presetConfig) => {
             this.loadPreset(className, presetConfig);
         }, programClassName);
+    }
+
+
+    /** Input **/
+
+    handleMIDIInput(e) {
+        // console.log('handleMIDIInput', e);
+        const destination = this.getComposer().getDestination();
+        this.getSong().playMIDIEvent(destination, this.getProgramID(), e.data);
+
     }
 
 }

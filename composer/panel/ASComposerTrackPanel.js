@@ -19,6 +19,7 @@ export default class ASComposerTrackPanel extends React.Component {
             selectedIndices: [],
             selectedInstructionData: [0, 'C4', '1B'],
             selectedTrackName: null,
+            keyboardOctave: 4
         }
     }
 

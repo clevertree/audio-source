@@ -189,7 +189,8 @@ export default class ASCTrackInput extends ASCTrackActions {
                 break;
 
             default:
-                const keyboardCommand = composer.keyboard.getKeyboardCommand(e.key, composer.state.keyboardOctave);
+                const {keyboardOctave} = composer.getTrackPanelState();
+                const keyboardCommand = composer.keyboard.getKeyboardCommand(e.key, keyboardOctave);
                 if(keyboardCommand) {
                     // const selectedIndices = this.getSelectedIndices();
                     // const {cursorIndex} = this.cursorGetInfo()
@@ -214,17 +215,29 @@ export default class ASCTrackInput extends ASCTrackActions {
     }
 
     handleMIDIInput(e) {
+        const composer = this.getComposer();
+        const {keyboardOctave} = composer.getTrackPanelState();
         // TODO: Send to song
-        console.log('TODO handleMIDIInput', e);
-        let newMIDICommand;
         // console.log('playMIDIEvent', eventData);
         switch (e.data[0]) {
             case 144:   // Note On
-                newMIDICommand = Values.instance.getCommandFromMIDINote(e.data[1]);
+                const cursorInfo = this.cursorGetInfo();
+                let newMIDICommand = Values.instance.getCommandFromMIDINote(e.data[1]);
                 const newMIDIFrequency = Values.instance.parseFrequencyString(newMIDICommand);
                 let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
                 // const source = this.playFrequency(destination, newMIDIFrequency, null, null, newMIDIVelocity);
-                console.log(newMIDICommand, newMIDIFrequency, newMIDIVelocity);
+                console.log(newMIDICommand, newMIDIFrequency, newMIDIVelocity, keyboardOctave);
+                if(cursorInfo.cursorIndex !== null) {
+                    try {
+                        composer.instructionReplaceArgByType(this.getTrackName(), cursorInfo.cursorIndex, ArgType.frequency, newMIDICommand);
+                    } catch (e) { // Hack
+                        console.warn(e);
+                        composer.instructionReplaceArgByType(this.getTrackName(), cursorInfo.cursorIndex, ArgType.command, newMIDICommand);
+                    }
+
+                } else {
+                    this.instructionInsertAtCursor(newMIDICommand);
+                }
                 break;
                 // if(source) {
                 //     if (this.activeMIDINotes[newMIDICommand])
@@ -234,8 +247,8 @@ export default class ASCTrackInput extends ASCTrackActions {
                 // return source;
 
             case 128:   // Note Off
-                newMIDICommand = Values.instance.getCommandFromMIDINote(e.data[1]);
-                console.log(newMIDICommand)
+                // newMIDICommand = Values.instance.getCommandFromMIDINote(e.data[1]);
+                // console.log(newMIDICommand)
                 // if(this.activeMIDINotes[newMIDICommand]) {
                 //     this.activeMIDINotes[newMIDICommand].noteOff();
                 //     delete this.activeMIDINotes[newMIDICommand];
@@ -244,7 +257,6 @@ export default class ASCTrackInput extends ASCTrackActions {
                 //     return false;
                 // }
 
-            default:
                 break;
         }
     }

@@ -49,7 +49,9 @@ ArgType.frequency = new ArgType(
 ArgType.duration = new ArgType(
     "Duration",
     (durationTicks, stats) => {
-        const durationSeconds = Values.durationTicksToSeconds(durationTicks, stats.timeDivision, stats.beatsPerMinute);
+        if(typeof durationTicks === "string")
+            durationTicks = Values.instance.parseDurationAsTicks(durationTicks, stats.timeDivision);
+        const durationSeconds = Values.instance.durationTicksToSeconds(durationTicks, stats.timeDivision, stats.beatsPerMinute);
         if(stats.onInstructionEnd) {
             const startTime = stats.startTime
                 + stats.positionSeconds; // start time equals current track's start + playback times
@@ -100,7 +102,7 @@ ArgType.onended = new ArgType(
 ArgType.offset = new ArgType(
     "Offset",
     (offsetDurationTicks, stats) => {
-        return Values.durationTicksToSeconds(offsetDurationTicks, stats.timeDivision, stats.beatsPerMinute);
+        return Values.instance.durationTicksToSeconds(offsetDurationTicks, stats.timeDivision, stats.beatsPerMinute);
     },
     (offsetTicks, values) => {
         return values.formatDuration(offsetTicks);

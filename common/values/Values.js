@@ -179,11 +179,11 @@ class Values {
 
     /** Duration **/
 
-    static durationTicksToSeconds(durationTicks, timeDivision, beatsPerMinute) {
+    durationTicksToSeconds(durationTicks, timeDivision, beatsPerMinute) {
         return (durationTicks / timeDivision) / (beatsPerMinute / 60);
     }
 
-    static durationSecondsToTicks(durationSeconds, timeDivision, beatsPerMinute) {
+    durationSecondsToTicks(durationSeconds, timeDivision, beatsPerMinute) {
         return (durationSeconds * (beatsPerMinute / 60)) * timeDivision;
 
     }

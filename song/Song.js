@@ -43,7 +43,6 @@ class Song {
             programs: [ // Also called 'programs' or 'patches'
                 ['oscillator', {
                     type: 'sawtooth',
-                    mixer: 0.5,
                     envelope: ['envelope', {}],
                     lfos: [
                         ['lfo', {

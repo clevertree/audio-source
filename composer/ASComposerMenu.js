@@ -149,11 +149,10 @@ class ASComposerMenu extends ASComposerRenderer {
 
     /** Edit Menu **/
 
-    renderMenuEdit(selectedIndices=null) {
+    renderMenuEdit() {
+        const {selectedIndices} = this.getTrackPanelState()
         // const selectedTrackName = this.state.selectedTrack;
         // const activeTrack = this.trackGetState(selectedTrackName);
-        if(selectedIndices === null)
-            selectedIndices = this.state.selectedIndices;
         let firstInstructionData = null, trackName=null;
         if(selectedIndices.length > 0) {
             firstInstructionData = this.getSong().instructionDataGetByIndex(this.getSelectedTrackName(), selectedIndices[0]);
@@ -209,8 +208,8 @@ class ASComposerMenu extends ASComposerRenderer {
         // if(!selectedIndices || selectedIndices.length === 0)
         //     throw new Error(`No indices selected: ${selectedIndices === null ? 'null' : typeof selectedIndices}`);
 
-        const instructionData = this.state.selectedInstructionData;
-        const processor = new InstructionProcessor(instructionData);
+        const {selectedIndices, selectedInstructionData} = this.getTrackPanelState()
+        const processor = new InstructionProcessor(selectedInstructionData);
         // eslint-disable-next-line no-unused-vars
         const [commandString, argTypeList] = processor.processInstructionArgs();
 
@@ -230,9 +229,9 @@ class ASComposerMenu extends ASComposerRenderer {
             if(!argType.consumesArgument)
                 return null;
             argIndex++;
-            let paramValue = instructionData[argIndex];
+            let paramValue = selectedInstructionData[argIndex];
             content.push(
-                this.renderMenuEditInstructionArg(instructionData, argType, argIndex, paramValue)
+                this.renderMenuEditInstructionArg(selectedInstructionData, argType, argIndex, paramValue)
             );
         });
         console.log('renderMenuEditInstruction', argTypeList);
@@ -250,20 +249,21 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
     renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue, onSelectValue=null) {
+        const {selectedIndices} = this.getTrackPanelState()
         if(onSelectValue === null) {
             onSelectValue = (newArgValue) => {
                 // this.instructionReplaceArg(this.getSelectedTrackName(), this.state.selectedIndices, argIndex, newArgValue);
-                this.instructionReplaceArgByType(this.getSelectedTrackName(), this.state.selectedIndices, argType, newArgValue);
+                this.instructionReplaceArgByType(this.getSelectedTrackName(), selectedIndices, argType, newArgValue);
             }
         }
         return this.values.renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue, onSelectValue);
     }
 
     renderMenuEditInstructionCommand() {
-        const instructionData = this.state.selectedInstructionData;
+        const {selectedIndices, selectedInstructionData} = this.getTrackPanelState()
         return this.values.renderMenuSelectCommand(selectedCommand => {
-            this.instructionReplaceArg(this.getSelectedTrackName(), this.state.selectedIndices, 1, selectedCommand);
-        }, instructionData[1])
+            this.instructionReplaceArg(this.getSelectedTrackName(), selectedIndices, 1, selectedCommand);
+        }, selectedInstructionData[1])
     }
 
     /** Track Menu **/

@@ -496,7 +496,8 @@ class ASComposerActions extends ASComposerMenu {
 
 
     trackPlaySelected(stopPlayback=true) {
-        return this.trackPlay(this.state.selectedTrack, this.state.selectedIndices, stopPlayback);
+        const {selectedIndices, selectedTrackName} = this.getTrackPanelState()
+        return this.trackPlay(selectedTrackName, selectedIndices.selectedIndices, stopPlayback);
     }
 
     trackPlay(trackName, selectedIndices, stopPlayback=true) {
@@ -528,6 +529,13 @@ class ASComposerActions extends ASComposerMenu {
 
 
     /** Track Commands **/
+
+    getTrackPanelState() {
+        const panelTrack = this.ref.panelTrack.current;
+        if(panelTrack)
+            return panelTrack.state;
+        return {};
+    }
 
     trackSelect(selectedTrack, selectedIndices=null) {
         const [type, id] = this.state.selectedComponent;
@@ -694,10 +702,9 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Instruction Delete **/
 
-    instructionDeleteIndices(trackName=null, selectedIndices=null) {
-        trackName = trackName || this.getSelectedTrackName();
-        selectedIndices = selectedIndices || this.state.selectedIndices;
-        selectedIndices = this.values.parseSelectedIndices(selectedIndices);
+    instructionDeleteIndices() {
+        const {selectedIndices, selectedTrackName:trackName} = this.getTrackPanelState()
+        // selectedIndices = this.values.parseSelectedIndices(selectedIndices);
 
         selectedIndices.sort((a, b) => a - b);
         for (let i=selectedIndices.length-1; i>=0; i--)
@@ -709,8 +716,7 @@ class ASComposerActions extends ASComposerMenu {
     /** Tracker Clip Board **/
 
     instructionCopySelected() {
-        const trackName = this.getSelectedTrackName();
-        const selectedIndices = this.state.selectedIndices;
+        const {selectedIndices, selectedTrackName:trackName} = this.getTrackPanelState()
         const iterator = this.instructionGetIterator(trackName);
         let startPosition = null, lastPosition=null, copyTrack=[];
         iterator.seekToEnd((instructionData) => {

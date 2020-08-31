@@ -29,6 +29,8 @@ export default class EnvelopeEffect {
             throw new Error("Invalid duration: " + typeof duration);
         if(typeof this.config.release === "undefined")
             return duration;
+
+        // console.log('increaseDurationByRelease', duration, this.config.release / 1000)
         return duration + this.config.release / 1000;
     }
 
