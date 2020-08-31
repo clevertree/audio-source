@@ -17,7 +17,7 @@ export default class ASCTracksContainerBase extends React.Component {
         // composer.ref.activeTracks = {};
         const activeTracks = composer.ref.activeTracks;
 
-        const selectedTrack = composer.state.selectedTrack;
+        const selectedTrack = composer.getSelectedTrackName();
         const selectedIndices = composer.state.selectedIndices;
         let trackList = Object.keys(songData.tracks);
         // let collapsed = false;

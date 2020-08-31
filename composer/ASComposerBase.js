@@ -34,11 +34,10 @@ class ASComposerBase extends React.Component {
             songLength: 0,
 
             // Selected Component
-            selectedComponent: [null],
+            selectedComponent: ['track', 'root'],
 
             // Tracks
             activeTracks: {},
-            selectedTrack: 'root',
             selectedIndices: [],
             selectedInstructionData: [0, 'C4', '1B'],
 
@@ -83,9 +82,11 @@ class ASComposerBase extends React.Component {
                 // setGlobalKey: (key,  value) => this.globalState.setKey(key,  value),
             },
         }
+        this.onSongEventCallback = (e) => this.onSongEvent(e);
         this.ref = {
             container: React.createRef(),
             panelSong: React.createRef(),
+            panelTrack: React.createRef(),
             activeTracks: [],
             activePrograms: [],
         }
@@ -110,7 +111,6 @@ class ASComposerBase extends React.Component {
         this.audioContext = null;
         this.lastVolumeGain = null;
 
-        this.onSongEventCallback = (e) => this.onSongEvent(e);
 
 
         // setTimeout(async () => {

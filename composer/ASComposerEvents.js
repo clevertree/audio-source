@@ -53,11 +53,13 @@ export default class ASComposerEvents extends ASComposerInput {
                 break;
 
             case 'song:pause':
-                this.setState({paused: true});
+                if(this.state.playing)
+                    this.setState({paused: true});
                 break;
 
             case 'song:end':
-                this.setState({playing: false, paused: false});
+                if(this.state.playing)
+                    this.setState({playing: false, paused: false});
                 break;
 
 

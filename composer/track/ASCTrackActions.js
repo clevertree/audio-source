@@ -26,7 +26,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
     getSong()               { return this.props.composer.song; }
 
     getTrackName()          { return this.props.trackName; }
-    getSelectedIndices()    { return this.props.selectedIndices || []; }
+    getSelectedIndices()    { return this.state.selectedIndices || []; }
 
     getCursorOffset()       { return this.state.cursorOffset || 0; }
     getRowOffset()          { return this.state.rowOffset || 0; }
@@ -154,7 +154,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
 
 
     openContextMenu(e, options=null) {
-        if(e.defaultPrevented)
+        if(e.defaultPrevented || e.shiftKey)
             return;
         e.preventDefault();
         const state = {
@@ -247,6 +247,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
     // }
 
     selectIndices(selectedIndices, clearSelection=true, playback=true) {
+        // console.log('selectedIndices', selectedIndices);
         const composer = this.getComposer();
         const values = Values.instance;
         if (typeof selectedIndices === "string") {
@@ -316,12 +317,16 @@ export default class ASCTrackActions extends ASCTrackRenderer {
                 break;
         }
 
-        if(composer.state.playbackOnSelect && playback)
-            composer.trackPlay(this.getTrackName(), selectedIndices, false);
-
         // const viewKey = this.getTrackViewKey();
         composer.trackSelect(this.getTrackName(), selectedIndices);
-        // this.setState(state);
+
+        if(composer.state.playbackOnSelect && playback) {
+            composer.trackPlay(this.getTrackName(), selectedIndices, false);
+        }
+
+        this.setState({
+            selectedIndices
+        });
         return selectedIndices;
 
     }

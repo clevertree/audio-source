@@ -33,6 +33,7 @@ export default class ASCTrackBase extends React.Component {
         this.state = {
             rowOffset:      0,
             cursorOffset:   0,
+            selectedIndices: [],
 
             menuOpen: false,
             menuOptions: null,

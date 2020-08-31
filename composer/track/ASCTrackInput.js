@@ -1,4 +1,4 @@
-import {ArgType} from "../../common";
+import {ArgType, Values} from "../../common";
 import ASCTrackActions from "./ASCTrackActions";
 
 
@@ -215,7 +215,38 @@ export default class ASCTrackInput extends ASCTrackActions {
 
     handleMIDIInput(e) {
         // TODO: Send to song
-        console.log('handleMIDIInput', e);
+        console.log('TODO handleMIDIInput', e);
+        let newMIDICommand;
+        // console.log('playMIDIEvent', eventData);
+        switch (e.data[0]) {
+            case 144:   // Note On
+                newMIDICommand = Values.instance.getCommandFromMIDINote(e.data[1]);
+                const newMIDIFrequency = Values.instance.parseFrequencyString(newMIDICommand);
+                let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
+                // const source = this.playFrequency(destination, newMIDIFrequency, null, null, newMIDIVelocity);
+                console.log(newMIDICommand, newMIDIFrequency, newMIDIVelocity);
+                break;
+                // if(source) {
+                //     if (this.activeMIDINotes[newMIDICommand])
+                //         this.activeMIDINotes[newMIDICommand].noteOff();
+                //     this.activeMIDINotes[newMIDICommand] = source;
+                // }
+                // return source;
+
+            case 128:   // Note Off
+                newMIDICommand = Values.instance.getCommandFromMIDINote(e.data[1]);
+                console.log(newMIDICommand)
+                // if(this.activeMIDINotes[newMIDICommand]) {
+                //     this.activeMIDINotes[newMIDICommand].noteOff();
+                //     delete this.activeMIDINotes[newMIDICommand];
+                //     return true;
+                // } else {
+                //     return false;
+                // }
+
+            default:
+                break;
+        }
     }
 }
 

@@ -5,25 +5,25 @@ div.asct-instruction-add,
 div.asct-instruction {
   display: flex;
   /*overflow: hidden;*/
-  padding: 1px;
-  margin: 0;
-  color: #666;
-  border: 1px outset #EEE;
-  border-radius: 4px;
-  background-color: #CCC;
+  padding: 1px 2px;
+  margin: 0 1px;
+  color: white;
+  border: 1px outset #AAA;
+  border-radius: 3px;
+  background-color: #777;
 }
 
 div.asct-instruction-add,
 div.asct-instruction.cursor {
-  border-color: red;
-  box-shadow: darkred 0 0 4px;
+  border-color: #ffffff;
   position: relative;
   /*z-index: 2;*/
 }
 
 div.asct-instruction-add,
 div.asct-instruction.selected {
-  background-color: white;
+  background-color: #1e50ce;
+  box-shadow: #ffffff 0 0 4px;
   font-weight: bold;
 }
 
@@ -39,7 +39,7 @@ div.asct-instruction:last-child {
 
 /*div.asct-instruction-add,*/
 div.asct-instruction:active {
-  background-color: #EEE;
+  background-color: #004;
 }
 
 
@@ -86,16 +86,16 @@ div.asct-parameter.custom {
 
 div.asct-parameter.frequency,
 div.asct-parameter.command {
-  color: darkred;
+  color: white;
 }
 div.asct-parameter.program {
-  color: darkblue;
+  color: #6969ff;
 }
 div.asct-parameter.duration {
-  color: purple;
+  color: #ff69ff;
 }
 div.asct-parameter.velocity {
-  color: green;
+  color: #7aff7a;
 }
 
 div.asct-parameter.command,

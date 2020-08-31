@@ -55,7 +55,10 @@ class ASComposerActions extends ASComposerMenu {
     // }
 
     getSelectedTrackName() {
-        return this.state.selectedTrack;
+        const [type, id] = this.state.selectedComponent;
+        if(type === 'track')
+            return id;
+        return null;
     }
 
     /** Song rendering **/
@@ -497,6 +500,7 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     trackPlay(trackName, selectedIndices, stopPlayback=true) {
+        // console.log('trackPlay', trackName, selectedIndices)
         if(typeof selectedIndices === "number")
             selectedIndices = [selectedIndices];
         if(!Array.isArray(selectedIndices))
@@ -525,24 +529,28 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Track Commands **/
 
-    trackSelect(selectedTrack, selectedIndices=[]) {
+    trackSelect(selectedTrack, selectedIndices=null) {
+        const [type, id] = this.state.selectedComponent;
+        if(type !== 'track' || id !== selectedTrack)
+            this.setState({
+                selectedComponent: ['track', selectedTrack],
+            });
+        if(selectedIndices !== null)
+            this.trackSelectIndices(selectedTrack, selectedIndices);
+    }
+
+
+    trackSelectIndices(selectedTrack, selectedIndices=[]) {
         if(typeof selectedIndices === "number")
             selectedIndices = [selectedIndices];
         if(!Array.isArray(selectedIndices))
             throw new Error("Invalid selectedIndices: " + typeof selectedIndices);
-        const state = {
-            selectedTrack,
-            selectedIndices
-        }
 
-        if(selectedIndices.length > 0) {
-            const instructionData = this.getSong().instructionDataGetByIndex(selectedTrack, selectedIndices[0]);
-            state.selectedInstructionData = instructionData.slice();
-            state.selectedInstructionData[0] = 0;
-            // console.log('selectedInstructionData', state.selectedInstructionData);
-        }
         // console.log('selectTrack', state);
-        this.setState(state);
+        const panelTrack = this.ref.panelTrack.current;
+        if(!panelTrack)
+            throw new Error("Invalid panelTrack reference");
+        panelTrack.updateSelectedTrackIndices(selectedTrack, selectedIndices)
     }
 
     async trackAdd(newTrackName = null, promptUser = true) {

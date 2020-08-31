@@ -4,7 +4,6 @@ import ASComposerContainer from "./container/ASComposerContainer";
 import ASCTracksContainer from "./track/container/ASCTracksContainer";
 import ASComposerSongPanel from "./panel/ASComposerSongPanel";
 import ASComposerSongProgramsPanel from "./panel/ASComposerSongProgramsPanel";
-import ASComposerInstructionPanel from "./panel/ASComposerInstructionPanel";
 import ASComposerTrackPanel from "./panel/ASComposerTrackPanel";
 import ASComposerBase from "./ASComposerBase";
 import ASUIGlobalContext from "../components/context/ASUIGlobalContext";
@@ -37,8 +36,7 @@ export default class ASComposerRenderer extends ASComposerBase {
         return <>
             <ASComposerSongPanel composer={this} ref={this.ref.panelSong} />
             <div className="asui-panel-container-horizontal">
-                <ASComposerTrackPanel composer={this} />
-                <ASComposerInstructionPanel composer={this} />
+                <ASComposerTrackPanel composer={this} ref={this.ref.panelTrack} />
             </div>
         </>
     }
@@ -49,8 +47,7 @@ export default class ASComposerRenderer extends ASComposerBase {
 
             <br  className="asui-track-panel-break"/>
             <div className="asui-track-panel-container">
-                <ASComposerTrackPanel composer={this} />
-                <ASComposerInstructionPanel composer={this} />
+                <ASComposerTrackPanel composer={this} ref={this.ref.panelTrack} />
             </div>
             <br  className="asui-track-panel-break"/>
         </>
