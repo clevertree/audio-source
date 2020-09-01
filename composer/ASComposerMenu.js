@@ -427,13 +427,12 @@ class ASComposerMenu extends ASComposerRenderer {
 
         // const trackName = menuParam;
         return (<>
-            <ASUIMenuItem>{`Track: '${trackName}'`}</ASUIMenuItem><ASUIMenuBreak />
-            <ASUIMenuAction onAction={e => this.trackSelect(trackName)}   >Select Track</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.trackRename(trackName)}         >Rename Track</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.trackRemove(trackName)}         >Delete Track</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackSelect(trackName)}         >Select Track</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackRenamePrompt(trackName)}   >Rename Track</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackRemovePrompt(trackName)}   >Delete Track</ASUIMenuAction>
         </>);
     }
-
+//            <ASUIMenuItem>{`Track: '${trackName}'`}</ASUIMenuItem><ASUIMenuBreak />
 
 
 }

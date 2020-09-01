@@ -61,7 +61,7 @@ class ASUIPanel extends React.Component {
         }
         switch(viewMode) {
             case false:
-            case 'hide':
+            case 'none':
                 return null;
             default:
                 if(viewMode && !portrait)

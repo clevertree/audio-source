@@ -3,6 +3,8 @@
 
 div.asct-row {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     cursor: pointer;
     background-color: #D0D0D0;
     /*height: 1.45em;*/

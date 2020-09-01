@@ -8,11 +8,26 @@ export default class ASCTrack extends ASCTrackInput {
 
 
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if(!prevProps.selected && this.props.selected) {
+            const divContainer = this.ref.rowContainer.current;
+            if(divContainer && document.activeElement !== divContainer) {
+                // console.log('divContainer.focus()', prevProps.selected, this.props.selected, this.ref.rowContainer.current);
+                divContainer.focus();
+            }
+        }
+        // TODO: focus on select?
+    }
+
+
     /** Render **/
 
 
     render() {
-        const portrait = this.getComposer().state.portrait;
+        const composer = this.getComposer();
+        const portrait = composer.state.portrait;
+        const trackName = this.getTrackName();
+        const trackLength = composer.getSong().data.tracks[trackName].length;
         const viewMode = this.state.viewMode;
         // console.log('ASCTrack.render', viewMode);
         let content = null;
@@ -20,7 +35,7 @@ export default class ASCTrack extends ASCTrackInput {
 
         switch(viewMode) {
             case false:
-            case 'hide':
+            case 'none':
                 return null;
             default:
                 if(viewMode && !portrait)
@@ -51,7 +66,7 @@ export default class ASCTrack extends ASCTrackInput {
                     <div
                         className="text"
                         onClick={this.cb.toggleViewMode}
-                    >Track: {this.getTrackName()}</div>
+                    >{trackName} ({trackLength} note{trackLength === 1 ? '' : 's'})</div>
                 </div>
                 {content}
             </div>

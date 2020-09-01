@@ -36,6 +36,7 @@ div.audio-source-composer.fullscreen div.asc-container {
 
 /** Content **/
 div.asc-content-container {
+    overflow-y: auto;
     flex: 1;
 }
 
@@ -161,7 +162,6 @@ div.audio-source-composer.portrait div.asui-panel > div.container {
 
 
 div.audio-source-composer.portrait div.asc-content-container {
-    overflow-y: auto;
     /*display: flex;*/
     /*flex-wrap: wrap;*/
 }

@@ -154,7 +154,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
 
 
     openContextMenu(e, options=null) {
-        if(e.defaultPrevented || e.shiftKey)
+        if(e.defaultPrevented || e.altKey)
             return;
         e.preventDefault();
         const state = {
@@ -320,8 +320,10 @@ export default class ASCTrackActions extends ASCTrackRenderer {
         // const viewKey = this.getTrackViewKey();
         composer.trackSelect(this.getTrackName(), selectedIndices);
 
-        if(composer.state.playbackOnSelect && playback) {
+        if(composer.state.playbackOnSelect && playback) try {
             composer.trackPlay(this.getTrackName(), selectedIndices, false);
+        } catch (e) {
+            console.error("Error in playback: ", e);
         }
 
         this.setState({
@@ -338,15 +340,6 @@ export default class ASCTrackActions extends ASCTrackRenderer {
     }
 
 
-
-
-    trackUnselect(trackName) {
-        this.setState(state => {
-            delete state.activeTracks[trackName];
-            state.selectedComponent = ['track', Object.keys(state.activeTracks)[0]];
-            return state;
-        });
-    }
 
 
 

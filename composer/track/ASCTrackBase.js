@@ -17,7 +17,7 @@ export default class ASCTrackBase extends React.Component {
 
     /** Property validation **/
     static propTypes = {
-        selectedIndices: PropTypes.array.isRequired,
+        // selectedIndices: PropTypes.array.isRequired,
         composer: PropTypes.object.isRequired,
         trackName: PropTypes.string.isRequired,
     };
@@ -55,13 +55,7 @@ export default class ASCTrackBase extends React.Component {
 
     componentDidMount() {
         this.updateRenderingProps();
-        // TODO: focus on select?
     }
-
-    // componentDidUpdate(prevProps, prevState, snapshot) {
-    //     console.log('componentDidUpdate', prevProps.selectedIndices, this.props.selectedIndices);
-    // }
-
 
 
     renderContextMenu() {

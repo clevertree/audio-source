@@ -85,13 +85,20 @@ class ASComposerActions extends ASComposerMenu {
         this.song.addEventListener('*', this.cb.onSongEventCallback);
         this.song.programLoadAll();
 
+        let songLength = 0;
+        try {
+            songLength = song.getSongLengthInSeconds();
+        } catch (e) {
+            console.error("Error loading song length: ", e);
+        }
+
         const startTrackName = song.getStartTrackName() || 'root';
         const state = {
             statusText: "Loaded song: " + song.data.title,
             statusType: 'log',
             title: song.data.title,
             songUUID: song.data.uuid,
-            songLength: song.getSongLengthInSeconds(),
+            songLength,
             selectedComponent: ['track', startTrackName],
             activeTracks: {}
         }
@@ -106,24 +113,31 @@ class ASComposerActions extends ASComposerMenu {
             activeTracks[selectedTrack || 'root'] = {}
 
 
-        const songData = this.song.getProxiedData();
-        for(let trackName in this.state.activeTracks) {
-            if(this.state.activeTracks.hasOwnProperty(trackName)) {
-                if (songData.tracks[trackName]) {
-                    // if (this.state.activeTracks.hasOwnProperty(trackName)) {
-                        // const trackState = new TrackState(this, trackName);
-                        // trackState.updateRenderingProps();
-                    // }
-                    console.log("TODO finish")
-                } else {
-                    // delete activeTracks[trackName];
-                    console.warn("Removing unavailable active track: " + trackName);
-                }
-            }
+        // const songData = this.song.getProxiedData();
+        // for(let trackName in this.state.activeTracks) {
+        //     if(this.state.activeTracks.hasOwnProperty(trackName)) {
+        //         if (songData.tracks[trackName]) {
+        //             // if (this.state.activeTracks.hasOwnProperty(trackName)) {
+        //                 // const trackState = new TrackState(this, trackName);
+        //                 // trackState.updateRenderingProps();
+        //             // }
+        //             console.log("TODO finish")
+        //         } else {
+        //             // delete activeTracks[trackName];
+        //             console.warn("Removing unavailable active track: " + trackName);
+        //         }
+        //     }
+        // }
+
+        let songLength = 0;
+        try {
+            songLength = this.song.getSongLengthInSeconds();
+        } catch (e) {
+            console.error("Error loading song length: ", e);
         }
 
         this.setState({
-            songLength: this.song.getSongLengthInSeconds(),
+            songLength,
             activeTracks
         });
     }
@@ -149,7 +163,7 @@ class ASComposerActions extends ASComposerMenu {
             delete state.songUUID;
             delete state.recentValues;
             this.setState(state);
-            this.updateCurrentSong();
+            // this.updateCurrentSong();
             // this.setCurrentSong(this.song); // Hack: resetting current song after setting state, bad idea
 
             if(recentValues) {
@@ -185,7 +199,8 @@ class ASComposerActions extends ASComposerMenu {
         for(let key in this.ref.activeTracks) {
             if(this.ref.activeTracks.hasOwnProperty(key)) try {
                 const activeTrack = this.ref.activeTracks[key];
-                state.activeTracks[key] = activeTrack.current.getStorageState();
+                if(activeTrack.current)
+                    state.activeTracks[key] = activeTrack.current.getStorageState();
             } catch (e) {
                 console.error(e);
             }
@@ -549,13 +564,25 @@ class ASComposerActions extends ASComposerMenu {
 
     trackSelect(selectedTrack, selectedIndices=null) {
         const [type, id] = this.state.selectedComponent;
-        if(type !== 'track' || id !== selectedTrack)
+        if(type !== 'track' || id !== selectedTrack) {
             this.setState({
                 selectedComponent: ['track', selectedTrack],
             });
+            const track = this.trackGetRef(selectedTrack);
+            track.setState({viewMode: true});
+        }
         if(selectedIndices !== null)
             this.trackSelectIndices(selectedTrack, selectedIndices);
     }
+
+    trackUnselect(trackName) {
+        this.setState(state => {
+            delete state.activeTracks[trackName];
+            state.selectedComponent = ['track', Object.keys(state.activeTracks)[0]];
+            return state;
+        });
+    }
+
 
 
     trackSelectIndices(selectedTrack, selectedIndices=[]) {
@@ -566,8 +593,6 @@ class ASComposerActions extends ASComposerMenu {
 
         // console.log('selectTrack', state);
         const panelTrack = this.ref.panelTrack.current;
-        if(!panelTrack)
-            throw new Error("Invalid panelTrack reference");
         panelTrack.updateSelectedTrackIndices(selectedTrack, selectedIndices)
     }
 
@@ -585,27 +610,31 @@ class ASComposerActions extends ASComposerMenu {
         }
     }
 
-    async trackRename(oldTrackName, newTrackName = null, promptUser = true) {
+    async trackRenamePrompt(oldTrackName) {
+        const newTrackName = await PromptManager.openPromptDialog(`Rename instruction group (${oldTrackName})?`, oldTrackName);
+        this.trackRename(oldTrackName, newTrackName);
+    }
+    trackRename(oldTrackName, newTrackName) {
         const song = this.song;
 
-        if(promptUser)
-            newTrackName = await PromptManager.openPromptDialog(`Rename instruction group (${oldTrackName})?`, oldTrackName);
-        if (newTrackName !== oldTrackName) {
+        if (!newTrackName || newTrackName !== oldTrackName) {
             song.trackRename(oldTrackName, newTrackName);
             this.trackSelect(newTrackName);
-            this.trackSelect(oldTrackName);
+            // this.trackSelect(oldTrackName);
         } else {
             this.setError("Rename instruction group canceled");
         }
     }
 
-    async trackRemove(trackName, promptUser = true) {
+    trackRemove(trackName) {
         const song = this.song;
-
-        const result = promptUser ? await PromptManager.openPromptDialog(`Remove instruction group (${trackName})?`) : true;
+        song.trackRemove(trackName);
+        this.trackUnselect(trackName);
+    }
+    async trackRemovePrompt(trackName) {
+        const result = await PromptManager.openConfirmDialog(`Remove instruction group (${trackName})?`);
         if (result) {
-            song.trackRemove(trackName);
-            this.trackUnselect(trackName);
+            this.trackRemove(trackName);
         } else {
             this.setError("Remove instruction group canceled");
         }

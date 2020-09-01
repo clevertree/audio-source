@@ -18,7 +18,7 @@ export default class ASCTracksContainerBase extends React.Component {
         const activeTracks = composer.ref.activeTracks;
 
         const selectedTrack = composer.getSelectedTrackName();
-        const selectedIndices = composer.state.selectedIndices;
+        // const selectedIndices = composer.state.selectedIndices;
         let trackList = Object.keys(songData.tracks);
         // let collapsed = false;
         // if(composer.state.portrait) {
@@ -37,7 +37,7 @@ export default class ASCTracksContainerBase extends React.Component {
                 ref={activeTracks[trackName]}
                 key={trackName}
                 trackName={trackName}
-                selectedIndices={selected ? selectedIndices : []}
+                // selectedIndices={selected ? selectedIndices : []}
                 // trackState={composer.state.activeTracks[trackName]}
                 selected={selected}
                 composer={composer}

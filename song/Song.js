@@ -427,6 +427,7 @@ class Song {
         if (!this.data.tracks.hasOwnProperty(removeTrackName))
             throw new Error("Existing group not found: " + removeTrackName);
 
+        console.log("TODO: remove track commands");
         delete this.data.tracks[removeTrackName];
     }
 

@@ -36,13 +36,6 @@ class ASCTrackRow extends ASCTrackRowBase {
                     cursorPosition={this.props.cursorPosition}
                 /> : null}
                 <ASCTrackDelta duration={rowDeltaDuration}/>
-                {/*{this.state.menuOpen ? <ASUIDropDownContainer*/}
-                {/*    clientPosition={this.state.clientPosition}*/}
-                {/*    // ref={this.dropdown}*/}
-                {/*    options={() => this.renderRowMenu()}*/}
-                {/*    onClose={() => this.closeDropDownMenu()}*/}
-                {/*    vertical={true}*/}
-                {/*/> : null}*/}
             </div>
         )
     }

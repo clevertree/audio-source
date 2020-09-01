@@ -96,7 +96,7 @@ class ASCTrackInstructionParameter extends React.Component {
     // }
 
     onContextMenu(e) {
-        if(e.defaultPrevented || e.shiftKey)
+        if(e.defaultPrevented || e.altKey)
             return;
         e.preventDefault();
         if(e.button === 0)

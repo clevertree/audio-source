@@ -34,16 +34,11 @@ export default class ASComposerPlayback extends ASComposerActions {
     }
 
 
-    /** Song Proxy **/
-    /**
-     * Sets current composer song
-     * @param song
-     */
-    setCurrentSong(song) {
-        if(!song instanceof Song)
-            throw new Error("Invalid Song object");
-        return super.setCurrentSong(song);
-    }
+    // setCurrentSong(song) {
+    //     if(!song instanceof Song)
+    //         throw new Error("Invalid Song object");
+    //     return super.setCurrentSong(song);
+    // }
 
     getVolumeGain(destination) {
         if(!destination || !destination.context)
