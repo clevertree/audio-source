@@ -86,7 +86,7 @@ div.aspage-footer-links > a.selected {
 /** Page Content **/
 
 div.aspage-content {
-    position: relative;
+    /*position: relative;*/
     background-color: #444;
     min-height: 50vh;
     padding: 1vw;

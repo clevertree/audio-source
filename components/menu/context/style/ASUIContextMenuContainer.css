@@ -62,11 +62,11 @@ div.asui-contextmenu-container > div.sliding-menu div.asui-menu-item {
 
 @keyframes slideRightOpen {
     0% {
-        width: 0;
+        max-width: 0;
         opacity: 0;
     }
     100% {
-        width: 300px;
+        max-width: 300px;
         opacity: 1;
     }
 }

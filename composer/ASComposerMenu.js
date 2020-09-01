@@ -202,9 +202,6 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
     renderMenuEditInstruction(title='Edit Instruction') {
-
-        // if(selectedIndices === null)
-        //     selectedIndices = this.state.selectedIndices;
         // if(!selectedIndices || selectedIndices.length === 0)
         //     throw new Error(`No indices selected: ${selectedIndices === null ? 'null' : typeof selectedIndices}`);
 
@@ -252,7 +249,6 @@ class ASComposerMenu extends ASComposerRenderer {
         const {selectedIndices} = this.getTrackPanelState()
         if(onSelectValue === null) {
             onSelectValue = (newArgValue) => {
-                // this.instructionReplaceArg(this.getSelectedTrackName(), this.state.selectedIndices, argIndex, newArgValue);
                 this.instructionReplaceArgByType(this.getSelectedTrackName(), selectedIndices, argType, newArgValue);
             }
         }

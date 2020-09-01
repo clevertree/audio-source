@@ -30,6 +30,8 @@ export default class ASCTrackInput extends ASCTrackActions {
     }
 
     onWheel(e) {
+        if(!this.props.selected)
+            return;
         e.preventDefault();
         let rowOffset = parseInt(this.getRowOffset()) || 0; // this.getTrackState().rowOffset;
         rowOffset += e.deltaY > 0 ? 1 : -1;

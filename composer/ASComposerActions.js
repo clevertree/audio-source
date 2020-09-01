@@ -76,13 +76,13 @@ class ASComposerActions extends ASComposerMenu {
             if(this.song.isPlaying()) {
                 this.song.stopPlayback();
             }
-            this.song.removeEventListener('*', this.onSongEventCallback);
+            this.song.removeEventListener('*', this.cb.onSongEventCallback);
             this.song.unloadAll();
         }
         this.song = song;
         console.log("Current Song: ", song.getProxiedData());
 
-        this.song.addEventListener('*', this.onSongEventCallback);
+        this.song.addEventListener('*', this.cb.onSongEventCallback);
         this.song.programLoadAll();
 
         const startTrackName = song.getStartTrackName() || 'root';
@@ -209,6 +209,12 @@ class ASComposerActions extends ASComposerMenu {
         storage.saveState(state, 'audio-source-composer-state');
     }
 
+    clearUIState() {
+        this.setState({
+            viewModes: {},
+            activeTracks: {},
+        });
+    }
 
 
     /** Volume **/
@@ -267,7 +273,7 @@ class ASComposerActions extends ASComposerMenu {
 
     async openSongFromFileDialog(e, accept=null) {
         const file = await this.openFileDialog(accept);
-        this.loadSongFromFileInput(e, file);
+        await this.loadSongFromFileInput(e, file);
     }
 
 
@@ -296,6 +302,7 @@ class ASComposerActions extends ASComposerMenu {
         return false;
     }
 
+
     async loadNewSongData() {
         // const storage = new Storage();
         // const defaultProgramURL = this.getDefaultProgramClass() + '';
@@ -303,9 +310,10 @@ class ASComposerActions extends ASComposerMenu {
         // const song = Song.loadSongFromData(songData);
         const song = new Song();
         this.setCurrentSong(song);
-        // this.forceUpdate();
-        this.setStatus("Loaded new song");
         await this.saveSongToMemory();
+        // this.forceUpdate();
+        this.clearUIState();
+        this.setStatus("Loaded new song");
     }
 
 
@@ -346,6 +354,7 @@ class ASComposerActions extends ASComposerMenu {
         const fileSupport = new FileSupport();
         const song = await fileSupport.processSongFromFileBuffer(buffer, filePath);
         this.setCurrentSong(song);
+        this.clearUIState();
         return song;
     }
 
@@ -359,8 +368,9 @@ class ASComposerActions extends ASComposerMenu {
         // song.loadSongData(songData);
         song.loadSongHistory(songHistory);
         this.setCurrentSong(song);
-        this.setStatus("Song loaded from memory: " + songUUID);
         this.saveState();
+        this.setStatus("Loaded new song");
+        this.setStatus("Song loaded from memory: " + songUUID);
     }
 
 
@@ -371,8 +381,8 @@ class ASComposerActions extends ASComposerMenu {
         const storage = new ClientStorage();
         setStatus && this.setStatus("Saving song to memory...");
         await storage.saveSongToMemory(songData, songHistory);
-        setStatus && this.setStatus("Saved song to memory: " + (songData.title || songData.uuid));
         this.saveState();
+        setStatus && this.setStatus("Saved song to memory: " + (songData.title || songData.uuid));
     }
 
     saveSongToMemoryWithTimeout(autoSaveTimeout=null, setStatus=false) {

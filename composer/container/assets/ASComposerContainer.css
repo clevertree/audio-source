@@ -42,7 +42,7 @@ div.asc-content-container {
 
 /** Full Screen **/
 div.audio-source-composer.fullscreen {
-    position: fixed;
+    position: absolute;
     left: 0;
     right: 0;
     top: 0;
@@ -150,6 +150,7 @@ div.audio-source-composer.landscape div.asui-track-panel-container > div.asui-pa
 
 div.audio-source-composer.portrait div.asc-container {
     width: 100%;
+
 }
 
 
@@ -160,6 +161,7 @@ div.audio-source-composer.portrait div.asui-panel > div.container {
 
 
 div.audio-source-composer.portrait div.asc-content-container {
+    overflow-y: auto;
     /*display: flex;*/
     /*flex-wrap: wrap;*/
 }

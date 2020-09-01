@@ -38,7 +38,7 @@ class ASComposerBase extends React.Component {
 
             // Tracks
             activeTracks: {},
-            selectedIndices: [],
+            // selectedIndices: [],
             selectedInstructionData: [0, 'C4', '1B'],
 
 
@@ -68,10 +68,11 @@ class ASComposerBase extends React.Component {
             songPlay: () => this.songPlay(),
             songPause: () => this.songPause(),
             songStop: () => this.songStop(),
-            loadSongFromFileInput: this.loadSongFromFileInput.bind(this),
+            openSongFromFileDialog: this.openSongFromFileDialog.bind(this),
             saveSongToFile: this.saveSongToFile.bind(this),
             saveSongToMemory: this.saveSongToMemory.bind(this),
             onInput: e => this.onInput(e),
+            onSongEventCallback: (e) => this.onSongEvent(e),
             global: {
                 addLogEntry: (text, type) => this.setStatus(text, type),
                 setViewMode: (viewKey, mode) => this.setViewMode(viewKey, mode),
@@ -82,7 +83,6 @@ class ASComposerBase extends React.Component {
                 // setGlobalKey: (key,  value) => this.globalState.setKey(key,  value),
             },
         }
-        this.onSongEventCallback = (e) => this.onSongEvent(e);
         this.ref = {
             container: React.createRef(),
             panelSong: React.createRef(),

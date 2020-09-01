@@ -55,6 +55,7 @@ export default class ASCTrackBase extends React.Component {
 
     componentDidMount() {
         this.updateRenderingProps();
+        // TODO: focus on select?
     }
 
     // componentDidUpdate(prevProps, prevState, snapshot) {

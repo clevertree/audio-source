@@ -20,10 +20,10 @@ export default class ASUIContextMenuContainer extends ASUIContextMenuContainerBa
                     // onContextMenu={this.cb.closeAllMenus}
                 >
                 </div>
-                <div
+                {this.props.portrait ? <div
                     className={`sliding-menu${this.state.slidingMenu ? ' open' : ''}`}>
                     {this.renderSlidingMenu()}
-                </div>
+                </div> : null}
                 <div
                     className={`open-menus${this.state.openMenus.length > 0 ? ' open' : ''}`}>
                     {this.state.openMenus.map((openMenu, i) => <ASUIMenuOptionList

@@ -45,7 +45,7 @@ export default class ASComposerSongPanel extends React.Component {
                 {state.portrait ? null : <ASUIForm className="file" horizontal header="File">
                     <ASUIButton
                         className="file-load wide"
-                        onAction={cb.loadSongFromFileInput}
+                        onAction={cb.openSongFromFileDialog}
                         accept=".json,.mid,.midi"
                         title="Load Song from File"
                     >
