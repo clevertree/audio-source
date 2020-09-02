@@ -260,6 +260,8 @@ export default class ASCTrackInput extends ASCTrackActions {
                 // }
 
                 break;
+            default:
+                console.warn("Unhandled MIDI Input: ", e.data[0], e);
         }
     }
 }

@@ -1,6 +1,6 @@
 import React from "react";
 
-import {ASUIClickable, ASUIMenuAction, ASUIMenuItem} from "../../../components";
+import {ASUIClickable, ASUIGlobalContext, ASUIMenuAction, ASUIMenuItem} from "../../../components";
 import {LibraryProcessor} from "../../../song";
 
 import "./ASCPresetBrowser.css";
@@ -11,16 +11,24 @@ import PropTypes from "prop-types";
 export default class ASCPresetBrowser extends React.Component {
     static DEFAULT_TIMEOUT_MS = 10000;
 
+    /** Global Context **/
+    static contextType = ASUIGlobalContext;
+    getGlobalContext() { return this.context; }
+    setStatus(message) { this.context.addLogEntry(message); }
+    setError(message) { this.context.addLogEntry(message, 'error'); }
+    // getViewMode(viewKey)        { this.context.getViewMode(viewKey); }
+    // setViewMode(viewKey, mode)  { this.context.setViewMode(viewKey, mode); }
+
     /** Property validation **/
     static propTypes = {
-        composer: PropTypes.object.isRequired,
+        programLoad: PropTypes.func.isRequired,
         program: PropTypes.array.isRequired,
         programID: PropTypes.number.isRequired,
     };
 
     constructor(props) {
         super(props);
-        const library = props.composer.library;
+        const library = LibraryProcessor.loadDefault();
         // const [currentPresetClass, currentPresetConfig] = props.program;
         this.state = {
             // currentPresetHash: library.getTitle() + ':' + currentPresetClass + ':' + currentPresetConfig.title,
@@ -45,7 +53,7 @@ export default class ASCPresetBrowser extends React.Component {
     }
 
     getLibrary() { return this.state.library; }
-    getComposer() { return this.props.composer; }
+    // getComposer() { return this.props.composer; }
     getProgramID() { return this.props.programID; }
     getProgram() { return this.props.program; }
 
@@ -204,7 +212,7 @@ export default class ASCPresetBrowser extends React.Component {
                     const loading = loadingPresets.indexOf(currentPresetHash) !== -1;
                     content.push(<ASUIClickable
                         key={presetID}
-                        onAction={() => this.loadPreset(currentPresetHash, presetClass, presetConfig)}
+                        onAction={() => this.presetLoad(currentPresetHash, presetClass, presetConfig)}
                         selected={selected}
                         loading={loading}
                         title={presetConfig.title}
@@ -275,10 +283,9 @@ export default class ASCPresetBrowser extends React.Component {
 
     /** Actions **/
 
-    async loadPreset(presetHash, presetClassName, presetConfig) {
+    async presetLoad(presetHash, presetClassName, presetConfig) {
         const presetTitle = presetConfig.title || presetClassName;
-        const composer = this.getComposer();
-        composer.setStatus(`Loading preset: ${presetTitle}`);
+        this.setStatus(`Loading preset: ${presetTitle}`);
         this.addLoadingPreset(presetHash);
 
         const instance = ProgramLoader.loadInstance(presetClassName, presetConfig);
@@ -287,7 +294,7 @@ export default class ASCPresetBrowser extends React.Component {
             const timeout = setTimeout(() => {
                 error = true;
                 this.removeLoadingPreset(presetHash);
-                composer.setError(`Preset failed to load: ${presetTitle}. Please try again.`);
+                this.setError(`Preset failed to load: ${presetTitle}. Please try again.`);
             }, ASCPresetBrowser.DEFAULT_TIMEOUT_MS);
 
             await instance.waitForAssetLoad();
@@ -298,10 +305,8 @@ export default class ASCPresetBrowser extends React.Component {
 
         this.removeLoadingPreset(presetHash);
 
-        const song = this.getComposer().getSong();
-        const programID = this.getProgramID();
-        song.programReplace(programID, presetClassName, presetConfig);
-        composer.setStatus("Loaded preset: " + presetTitle);
+        this.props.programLoad(presetClassName, presetConfig)
+        this.setStatus("Loaded preset: " + presetTitle);
         // this.updateList();
     }
 

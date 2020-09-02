@@ -135,7 +135,7 @@ export default class LFOParameterRendererBase extends React.Component {
 
     toggleOpen() {
         const open = !this.props.open;
-        this.props.setProgramProps(this.props.programID, {open})
+        this.props.setProps(this.props.programID, {open})
     }
 
     changeParam(paramName, newValue) {

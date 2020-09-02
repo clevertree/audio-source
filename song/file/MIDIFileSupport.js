@@ -23,7 +23,7 @@ export default class MIDIFileSupport {
             let songPositionInTicks = 0;
 
 
-            let trackName = 'track' + trackID;
+            let trackName = 't' + trackID;
             let programName = trackName;
 
             songPositionInTicks = 0;
@@ -34,7 +34,7 @@ export default class MIDIFileSupport {
                 }
             }
 
-            songData.programs[trackID] = ['polyphony', {title: programName}]; // {url: defaultProgramURL + '', name: defaultProgramName};
+            songData.programs[trackID] = ['empty', {title: programName}]; // {url: defaultProgramURL + '', name: defaultProgramName};
             songData.tracks[trackName] = [
                 [0, '!p', trackID],
             ]; // {url: defaultProgramURL + '', name: defaultProgramName};

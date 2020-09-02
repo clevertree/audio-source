@@ -16,7 +16,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
     /** Property validation **/
     static propTypes = {
         parentMenu: PropTypes.func,
-        setProgramProps: PropTypes.func.isRequired,
+        setProps: PropTypes.func.isRequired,
     };
 
     /** Program Context **/
@@ -131,7 +131,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
             programID={lfoID}
             program={lfoProgram}
             parameters={this.constructor.sourceParameters}
-            setProgramProps={this.cb.setLFOProps}
+            setProps={this.cb.setLFOProps}
             {...lfoProps}
         />;
     }
@@ -140,7 +140,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
         const lfosProps = this.props.lfosProps || [];
         if(lfosProps[lfoID])   Object.assign(lfosProps[lfoID], props);
         else                   lfosProps[lfoID] = props;
-        this.props.setProgramProps(this.props.programID, {lfosProps: lfosProps});
+        this.props.setProps(this.props.programID, {lfosProps: lfosProps});
     }
 
     /** Envelope **/
@@ -154,7 +154,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
                 config={config}
                 program={envelopeProgram}
                 parameters={this.constructor.sourceParameters}
-                setProgramProps={this.cb.setEnvelopeProps}
+                setProps={this.cb.setEnvelopeProps}
                 {...envelopeProps}
             />;
         }
@@ -163,7 +163,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
     setEnvelopeProps(props) {
         const envelopeProps = this.props.envelopeProps || {};
         Object.assign(envelopeProps, props);
-        this.props.setProgramProps(this.props.programID, {envelopeProps});
+        this.props.setProps(this.props.programID, {envelopeProps});
     }
 
 
@@ -241,7 +241,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
 
     toggleOpen() {
         const open = !this.props.open;
-        this.props.setProgramProps(this.props.programID, {open})
+        this.props.setProps(this.props.programID, {open})
     }
 
     changeParam(paramName, newValue) {

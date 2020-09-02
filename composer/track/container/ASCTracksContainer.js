@@ -5,7 +5,7 @@ import "./assets/ASCTracksContainer.css"
 
 export default class ASCTracksContainer extends ASCTracksContainerBase {
     render() {
-        return <div className={`asc-tracks-container${this.props.composer.state.portrait ? ' portrait' : ''}`}>
+        return <div className={`asc-tracks-container`}>
             {super.render()}
         </div>
     }

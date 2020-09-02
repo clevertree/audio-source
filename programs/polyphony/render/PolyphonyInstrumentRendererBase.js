@@ -13,10 +13,10 @@ class PolyphonyInstrumentRendererBase extends React.Component {
     /** Property validation **/
     static propTypes = {
         parentMenu: PropTypes.func,
-        setProgramProps: PropTypes.func.isRequired,
+        setProps: PropTypes.func.isRequired,
     };
 
-    /** Program Context **/
+    /** Global Context **/
     static contextType = ASUIGlobalContext;
     getGlobalContext() { return this.context; }
     setStatus(message) { this.context.addLogEntry(message); }
@@ -27,7 +27,7 @@ class PolyphonyInstrumentRendererBase extends React.Component {
     constructor(props) {
         super(props);
         this.cb = {
-            setProgramProps: (programID, props) => this.setVoiceProps(programID, props),
+            setProps: (programID, props) => this.setVoiceProps(programID, props),
             onRemove: (voiceID) => this.removeVoice(voiceID),
             onAction: (e) => this.addVoice()
         }
@@ -39,7 +39,7 @@ class PolyphonyInstrumentRendererBase extends React.Component {
         const voiceProps = this.props.voiceProps || [];
         if(voiceProps[programID])   Object.assign(voiceProps[programID], props);
         else                        voiceProps[programID] = props;
-        this.props.setProgramProps(this.props.programID, {voiceProps});
+        this.props.setProps(this.props.programID, {voiceProps});
     }
 
     async addVoicePrompt(instrumentClassName, instrumentConfig) {
@@ -88,7 +88,7 @@ class PolyphonyInstrumentRendererBase extends React.Component {
                 programID={voiceID}
                 config={config}
                 program={voiceData}
-                setProgramProps={this.cb.setProgramProps}
+                setProps={this.cb.setProps}
                 {...voiceProp}
             />);
         // </div>

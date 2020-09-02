@@ -3,6 +3,7 @@ import {ArgType, ProgramLoader, Values} from "../../../common";
 
 let activeNotes = [];
 
+// TODO: fix envelope bug
 class AudioBufferInstrument {
     /** Command Args **/
     static argTypes = {

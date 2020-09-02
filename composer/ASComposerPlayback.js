@@ -1,4 +1,3 @@
-import {Song} from "../song";
 import ASComposerActions from "./ASComposerActions";
 
 // import {TrackInfo} from "./track/";

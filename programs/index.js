@@ -8,6 +8,9 @@ import OscillatorInstrumentRenderer from "./voice/oscillator/render/OscillatorIn
 import PolyphonyInstrument from "./polyphony/PolyphonyInstrument";
 import PolyphonyInstrumentRenderer from "./polyphony/render/PolyphonyInstrumentRenderer";
 
+import EmptyInstrument from "./voice/empty/EmptyInstrument";
+import EmptyInstrumentRenderer from "./voice/empty/render/EmptyInstrumentRenderer";
+
 /** Effects **/
 import EnvelopeEffect from "./effect/envelope/EnvelopeEffect";
 import EnvelopeEffectRenderer from "./effect/envelope/render/EnvelopeEffectRenderer";
@@ -15,9 +18,6 @@ import EnvelopeEffectRenderer from "./effect/envelope/render/EnvelopeEffectRende
 /** LFO **/
 import LFOParameter from "./parameter/lfo/LFOParameter";
 import LFOParameterRenderer from "./parameter/lfo/render/LFOParameterRenderer";
-
-/** Test **/
-import TestInstrument from "./test/TestInstrument";
 
 import ProgramLoader from "../common/program/ProgramLoader";
 
@@ -32,7 +32,6 @@ export default {
     EnvelopeEffectRenderer,
     LFOParameter,
     LFOParameterRenderer,
-    TestInstrument,
     addAllPrograms: function() {
         /** Instruments **/
         ProgramLoader.addProgramClass('Polyphony',      PolyphonyInstrument, PolyphonyInstrumentRenderer, 'Polyphony Host');
@@ -47,7 +46,7 @@ export default {
 
 
         // ProgramLoader.addProgramClass('GMEPlayerSynthesizer', GMEPlayerSynthesizer, GMEPlayerSynthesizerRenderer, 'Game Music ASPlayer Synthesizer');
-        ProgramLoader.addProgramClass('Test',           TestInstrument, null, 'Test Instrument');
+        ProgramLoader.addProgramClass('Empty',          EmptyInstrument, EmptyInstrumentRenderer, 'Empty Instrument');
     }
 }
 

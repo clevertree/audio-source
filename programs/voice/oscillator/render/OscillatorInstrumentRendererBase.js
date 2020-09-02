@@ -15,7 +15,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
     /** Property validation **/
     static propTypes = {
         parentMenu: PropTypes.func,
-        setProgramProps: PropTypes.func.isRequired,
+        setProps: PropTypes.func.isRequired,
     };
 
 
@@ -133,7 +133,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
             programID={lfoID}
             program={lfoProgram}
             parameters={this.constructor.sourceParameters}
-            setProgramProps={this.cb.setLFOProps}
+            setProps={this.cb.setLFOProps}
             {...lfoProps}
         />;
     }
@@ -142,7 +142,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
         const lfosProps = this.props.lfosProps || [];
         if(lfosProps[lfoID])   Object.assign(lfosProps[lfoID], props);
         else                   lfosProps[lfoID] = props;
-        this.props.setProgramProps(this.props.programID, {lfosProps: lfosProps});
+        this.props.setProps(this.props.programID, {lfosProps: lfosProps});
     }
 
     /** Envelope **/
@@ -156,7 +156,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
                 config={config}
                 program={envelopeProgram}
                 parameters={this.constructor.sourceParameters}
-                setProgramProps={this.cb.setEnvelopeProps}
+                setProps={this.cb.setEnvelopeProps}
                 {...envelopeProps}
             />;
         }
@@ -166,7 +166,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
         // console.log('setEnvelopeProps', props);
         const envelopeProps = this.props.envelopeProps || {};
         Object.assign(envelopeProps, props);
-        this.props.setProgramProps(this.props.programID, {envelopeProps});
+        this.props.setProps(this.props.programID, {envelopeProps});
     }
 
 
@@ -240,7 +240,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
 
     toggleOpen() {
         const open = !this.props.open;
-        this.props.setProgramProps(this.props.programID, {open});
+        this.props.setProps(this.props.programID, {open});
     }
 
     changeParam(paramName, newValue) {

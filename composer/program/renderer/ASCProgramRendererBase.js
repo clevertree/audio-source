@@ -18,7 +18,8 @@ export default class ASCProgramRendererBase extends React.Component {
             onFocus: e => this.onFocus(e),
             menuRoot: () => this.renderMenuRoot(),
             parentMenu: programID => this.renderMenuManageProgram(programID),
-            setProgramProps: (programID, props) => this.setProgramProps(programID, props)
+            programLoad: (programID, programClass, programConfig) => this.programLoad(programID, programClass, programConfig),
+            setProps: (programID, props) => this.setProps(programID, props)
         }
         // this.state = {
         //     open: false
@@ -64,7 +65,8 @@ export default class ASCProgramRendererBase extends React.Component {
                     programID={programID}
                     program={program}
                     config={config}
-                    setProgramProps={this.cb.setProgramProps}
+                    setProps={this.cb.setProps}
+                    programLoad={this.cb.programLoad}
                     parentMenu={this.cb.parentMenu}
                     {...programProps}
                 />
@@ -79,7 +81,7 @@ export default class ASCProgramRendererBase extends React.Component {
     renderPresetBrowser() {
         const program = this.getSong().getProxiedData().programs[this.props.programID] || ['Empty', {}];
         return <ASCPresetBrowser
-            composer={this.getComposer()}
+            programLoad={this.cb.programLoad}
             programID={this.props.programID}
             program={program}
         />;
@@ -102,6 +104,16 @@ export default class ASCProgramRendererBase extends React.Component {
         this.getSong().programRemove(programID);
     }
 
+    async programLoad(presetClassName, presetConfig={}) {
+        console.log("Loading preset: ", presetClassName, presetConfig);
+        const instance = ProgramLoader.loadInstance(presetClassName, presetConfig);
+        if(typeof instance.waitForAssetLoad)
+            await instance.waitForAssetLoad();
+        const song = this.getSong();
+        const programID = this.props.programID;
+        song.programReplace(programID, presetClassName, presetConfig);
+    }
+
     // getProgramState() {
     //     return this.getComposer().programGetState(this.props.programID) || {};
     // }
@@ -110,7 +122,7 @@ export default class ASCProgramRendererBase extends React.Component {
     //     this.getComposer().programSetState(this.props.programID, state);
     // }
 
-    setProgramProps(programID, props) {
+    setProps(programID, props) {
         const rendererState = this.getProgramRendererState();
         if(!rendererState.programProps)     rendererState.programProps = props;
         else                                Object.assign(rendererState.programProps, props);
@@ -144,15 +156,6 @@ export default class ASCProgramRendererBase extends React.Component {
         this.setProgramRendererState(rendererState);
     }
 
-    async loadPreset(presetClassName, presetConfig={}) {
-        console.log("Loading preset: ", presetClassName, presetConfig);
-        const instance = ProgramLoader.loadInstance(presetClassName, presetConfig);
-        if(typeof instance.waitForAssetLoad)
-            await instance.waitForAssetLoad();
-        const song = this.getSong();
-        const programID = this.props.programID;
-        song.programReplace(programID, presetClassName, presetConfig);
-    }
 
 
     // wrapPreset(presetClassName, presetConfig={}) {
@@ -194,7 +197,7 @@ export default class ASCProgramRendererBase extends React.Component {
             <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Using Preset</ASUIMenuDropDown>
             <ASUIMenuBreak />
             {ProgramLoader.getRegisteredPrograms().map((config, i) =>
-                <ASUIMenuAction key={i} onAction={e => this.loadPreset(config.className)}       >{config.title}</ASUIMenuAction>
+                <ASUIMenuAction key={i} onAction={e => this.programLoad(config.className)}       >{config.title}</ASUIMenuAction>
             )}
         </>);
     }
@@ -221,7 +224,7 @@ export default class ASCProgramRendererBase extends React.Component {
         if(this.getSong().hasProgram(programID))
             programClassName = this.getSong().programGetClassName(programID);
         return await library.renderMenuPresets((className, presetConfig) => {
-            this.loadPreset(className, presetConfig);
+            this.programLoad(className, presetConfig);
         }, programClassName);
     }
 

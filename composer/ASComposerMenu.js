@@ -205,7 +205,7 @@ class ASComposerMenu extends ASComposerRenderer {
         // if(!selectedIndices || selectedIndices.length === 0)
         //     throw new Error(`No indices selected: ${selectedIndices === null ? 'null' : typeof selectedIndices}`);
 
-        const {selectedIndices, selectedInstructionData} = this.getTrackPanelState()
+        const {selectedInstructionData} = this.getTrackPanelState()
         const processor = new InstructionProcessor(selectedInstructionData);
         // eslint-disable-next-line no-unused-vars
         const [commandString, argTypeList] = processor.processInstructionArgs();

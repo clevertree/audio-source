@@ -3,6 +3,7 @@ import {ArgType, ProgramLoader, Values} from "../../../common/";
 
 let activeNotes = [];
 
+// TODO: fix envelope bug
 export default class OscillatorInstrument {
     /** Command Args **/
     static argTypes = {
