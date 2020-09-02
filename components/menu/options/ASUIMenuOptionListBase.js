@@ -58,16 +58,25 @@ export default class ASUIMenuOptionListBase extends React.Component {
     componentDidMount() {
         // console.log(`${this.constructor.name}.componentDidMount`);
 
-        this.setOptions(this.props.options);
+        // this.refresh();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         // console.log('ASUIMenuOptionList.componentDidUpdate', this.state, prevProps.options !== this.props.options);
-        if(prevProps.options !== this.props.options) {
-            // console.log(`${this.constructor.name}.componentDidUpdate`, prevProps.options, this.props.options)
-            this.setOptions(this.props.options);
-        }
+
+        // let forceUpdate = prevProps.options !== this.props.options;
+        // console.log('forceUpdate', forceUpdate);
+        // if(prevProps.options !== this.props.options) {
+        //     // console.log(`${this.constructor.name}.componentDidUpdate`, prevProps.options, this.props.options)
+        //     this.refresh();
+        // }
     }
+
+    // refresh(force=true) {
+    //     if(force || !this.state.optionArray)
+    //         this.setOptions(this.props.options);
+    //
+    // }
 
     // componentWillUnmount() {
     //     this.getOverlay().removeCloseMenuCallback(this);
@@ -92,10 +101,47 @@ export default class ASUIMenuOptionListBase extends React.Component {
     //
     // }
 
+    getOptions() {
+        let options = this.props.options;
+        if (typeof options === "function")
+            options = options(this);
+        if(options instanceof Promise) {
+            throw new Error("Promise unsupported");
+            // this.setState({optionArray: [<ASUIMenuItem>Loading...</ASUIMenuItem>]})
+            // options = await options;
+        }
+        return options;
+    }
+
     getFilteredOptions() {
-        let optionArray = this.state.optionArray;
+        let options = this.getOptions();
+
+        let optionArray = MenuOptionProcessor.processArray(options);
+        let positionSelected = this.state.positionSelected, currentPosition = 0;
+        optionArray = optionArray
+            .filter(option => option.type !== React.Fragment)
+            .map((option, i) => {
+
+                // if(positionSelected === null && option.props.selected)
+                //     positionSelected = currentPosition;
+
+                const props = {
+                    key: i,
+                }
+                if(option.type.prototype instanceof ASUIClickable) {
+                    props.position = currentPosition;
+                    if(!this.ref.options[currentPosition])
+                        this.ref.options[currentPosition] = React.createRef();
+                    props.ref = this.ref.options[currentPosition];
+                    currentPosition++;
+
+                }
+
+                return React.cloneElement(option, props);
+            });
+
         if(!optionArray || optionArray.length === 0)
-            return [];
+            return [<ASUIMenuItem>No Options</ASUIMenuItem>];
         if(optionArray.length < this.state.limit)
             return optionArray;
         if(this.state.offset > 0) {
@@ -133,49 +179,49 @@ export default class ASUIMenuOptionListBase extends React.Component {
         this.props.onClose();
     }
 
-    async setOptions(options) {
-        if (typeof options === "function")
-            options = options(this);
-        if(options instanceof Promise) {
-            this.setState({optionArray: [<ASUIMenuItem>Loading...</ASUIMenuItem>]})
-            options = await options;
-        }
-        if (!options) {
-            console.warn("Empty options returned by ", this);
-            options = [<ASUIMenuItem>No Options</ASUIMenuItem>];
-        }
-
-
-        let optionArray = MenuOptionProcessor.processArray(options);
-        let positionSelected = this.state.positionSelected, currentPosition = 0;
-        optionArray = optionArray
-            .filter(option => option.type !== React.Fragment)
-            .map((option, i) => {
-
-            // if(positionSelected === null && option.props.selected)
-            //     positionSelected = currentPosition;
-
-            const props = {
-                key: i,
-            }
-            if(option.type.prototype instanceof ASUIClickable) {
-                props.position = currentPosition;
-                this.ref.options[currentPosition] = React.createRef();
-                props.ref = this.ref.options[currentPosition];
-                currentPosition++;
-
-            }
-
-            return React.cloneElement(option, props);
-        });
-
-
-        this.setState({
-            optionArray,
-            positionSelected: positionSelected || null,
-            positionCount: currentPosition
-        })
-    }
+    // async setOptions(options) {
+    //     if (typeof options === "function")
+    //         options = options(this);
+    //     if(options instanceof Promise) {
+    //         this.setState({optionArray: [<ASUIMenuItem>Loading...</ASUIMenuItem>]})
+    //         options = await options;
+    //     }
+    //     if (!options) {
+    //         console.warn("Empty options returned by ", this);
+    //         options = [<ASUIMenuItem>No Options</ASUIMenuItem>];
+    //     }
+    //
+    //
+    //     let optionArray = MenuOptionProcessor.processArray(options);
+    //     let positionSelected = this.state.positionSelected, currentPosition = 0;
+    //     optionArray = optionArray
+    //         .filter(option => option.type !== React.Fragment)
+    //         .map((option, i) => {
+    //
+    //         // if(positionSelected === null && option.props.selected)
+    //         //     positionSelected = currentPosition;
+    //
+    //         const props = {
+    //             key: i,
+    //         }
+    //         if(option.type.prototype instanceof ASUIClickable) {
+    //             props.position = currentPosition;
+    //             this.ref.options[currentPosition] = React.createRef();
+    //             props.ref = this.ref.options[currentPosition];
+    //             currentPosition++;
+    //
+    //         }
+    //
+    //         return React.cloneElement(option, props);
+    //     });
+    //
+    //
+    //     this.setState({
+    //         optionArray,
+    //         positionSelected: positionSelected || null,
+    //         positionCount: currentPosition
+    //     })
+    // }
 
     setOffset(offset) {
         if(offset < 0)

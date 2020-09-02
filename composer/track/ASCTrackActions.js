@@ -178,7 +178,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
     }
 
 
-    toggleViewMode() {
+    toggleViewMode(e) {
         let viewMode = this.state.viewMode;
         viewMode = viewMode === 'minimize' ? null : 'minimize';
         this.setViewMode(viewMode);

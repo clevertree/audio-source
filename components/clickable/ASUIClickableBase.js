@@ -22,16 +22,6 @@ export default class ASUIClickable extends React.Component {
         }
     }
 
-    // shouldComponentUpdate(nextProps, nextState, nextContext) {
-    //     return nextProps.children !== this.props.children;
-    // }
-
-    componentDidMount() {
-        // this.getOverlay().addTabIndexItem(this);
-    }
-    componentWillUnmount() {
-        // this.getOverlay().removeTabIndexItem(this);
-    }
 
     renderChildren(props={}) {
         return this.props.children;
@@ -91,6 +81,32 @@ export default class ASUIClickable extends React.Component {
         const result = this.props.onAction(e, this);
         if (result !== false)
             this.closeAllOpenMenus();
+        // else
+        //     this.refreshParentMenu();
+    }
+
+
+
+    /** Hover **/
+
+
+    isHoverEnabled() {
+        return !(!this.getOverlay() || !this.getOverlay().isHoverEnabled());
+
+        // const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-dropdown-container')
+        // console.log('openDropDownMenus', openDropDownMenus);
+        // return openDropDownMenus.length > 0;
+    }
+
+    hoverDropDown() {
+        // if(!this.isHoverEnabled())
+        //     return;
+
+        console.log('TODO: closeAllDropDownElmsButThis', this);
+        // let openMenus = this.getOverlay().closeDropDownMenus(menuPath);
+
+
+        // this.closeAllDropDownElmsButThis();
     }
 
 
@@ -99,11 +115,18 @@ export default class ASUIClickable extends React.Component {
 
     /** @return {ASUIContextMenuContainer} **/
     getOverlay() { return this.context.overlay; }
+    getParentMenu() { return this.context.parentMenu; }
 
     closeAllOpenMenus() {
         const overlay = this.getOverlay();
-        overlay.closeAllMenus()
+        if(overlay) overlay.closeAllOpenMenus()
     }
 
+    // refreshParentMenu() {
+    //     const parentMenu = this.getParentMenu()
+    //     if(parentMenu)
+    //         parentMenu.refresh();
+    //     console.log('parentMenu', parentMenu);
+    // }
 
 }

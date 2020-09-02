@@ -46,9 +46,7 @@ export default class ASComposerRenderer extends ASComposerBase {
             <ASComposerSongPanel composer={this} ref={this.ref.panelSong} />
 
             <br  className="asui-track-panel-break"/>
-            <div className="asui-track-panel-container">
-                <ASComposerTrackPanel composer={this} ref={this.ref.panelTrack} />
-            </div>
+            <ASComposerTrackPanel composer={this} ref={this.ref.panelTrack} />
             <br  className="asui-track-panel-break"/>
         </>
 

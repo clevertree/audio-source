@@ -15,6 +15,7 @@ class ASComposerMenu extends ASComposerRenderer {
             'program':  () => this.renderMenuProgram(),
             'playback': () => this.renderMenuPlayback(),
             'view':     () => this.renderMenuView(),
+            'options':     () => this.renderMenuOptions(),
         }
     }
 
@@ -32,10 +33,11 @@ class ASComposerMenu extends ASComposerRenderer {
         return (<>
             <ASUIMenuDropDown {...props} ref={ref.file} options={this.cb.menu.file}          >File</ASUIMenuDropDown>
             <ASUIMenuDropDown {...props} ref={ref.edit} options={this.cb.menu.edit}          >Edit</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.track} options={this.cb.menu.track}        >Track</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.track} options={this.cb.menu.track}        >Tracks</ASUIMenuDropDown>
             <ASUIMenuDropDown {...props} ref={ref.program} options={this.cb.menu.program}    >Program</ASUIMenuDropDown>
             <ASUIMenuDropDown {...props} ref={ref.playback} options={this.cb.menu.playback}  >Playback</ASUIMenuDropDown>
             <ASUIMenuDropDown {...props} ref={ref.view} options={this.cb.menu.view}          >View</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.view} options={this.cb.menu.options}       >Options</ASUIMenuDropDown>
         </>);
     }
 
@@ -324,19 +326,16 @@ class ASComposerMenu extends ASComposerRenderer {
     /** View Menu **/
 
     renderMenuView() {
-        const renderMenuViewOptions = viewKey => {
+        const renderMenuViewOptions = viewKey =>
             this.renderMenuViewOptions(viewKey);
-        }
+
         return (<>
             <ASUIMenuAction onAction={e => this.toggleFullscreen(e)}                >{this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen</ASUIMenuAction>
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:song')}>Song Panel</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:tracks')}>Track Panel</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:track')}>Track Panel</ASUIMenuDropDown>
             <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:instruction')}>Instruction Panel</ASUIMenuDropDown>
             <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:programs')}>Program Panel</ASUIMenuDropDown>
-            <ASUIMenuBreak />
-            <ASUIMenuAction onAction={e => this.toggleTrackRowPositionInTicks()}    >Track Position {this.state.showTrackRowPositionInTicks ? 'Formatted' : 'as Ticks'}</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.toggleTrackRowDurationInTicks()}    >Track Duration {this.state.showTrackRowDurationInTicks ? 'Formatted' : 'as Ticks'}</ASUIMenuAction>
         </>);
 
     }
@@ -348,10 +347,20 @@ class ASComposerMenu extends ASComposerRenderer {
                 this.setViewMode(viewKey, newViewMode)
             }
         return (<>
-            <ASUIMenuAction disabled={!oldViewMode} onAction={e => onAction(null)} >Default</ASUIMenuAction>
+            <ASUIMenuAction disabled={!oldViewMode} onAction={e => onAction(null)} >Show Default</ASUIMenuAction>
             <ASUIMenuAction disabled={oldViewMode === 'minimize'} onAction={e => onAction('minimize')} >Minimize</ASUIMenuAction>
             <ASUIMenuAction disabled={oldViewMode === 'none'} onAction={e => onAction('none')} >Hide</ASUIMenuAction>
             <ASUIMenuAction disabled={oldViewMode === 'float'} onAction={e => onAction('float')} >Float Right</ASUIMenuAction>
+        </>);
+
+    }
+
+    /** Options Menu **/
+
+    renderMenuOptions() {
+        return (<>
+            <ASUIMenuAction onAction={e => this.toggleSetting('showTrackRowPositionInTicks')}    >Track Position {this.state.showTrackRowPositionInTicks ? 'as Ticks' : 'Formatted'}</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.toggleSetting('showTrackRowDurationInTicks')}    >Track Duration {this.state.showTrackRowDurationInTicks ? 'as Ticks' : 'Formatted'}</ASUIMenuAction>
         </>);
 
     }
@@ -360,8 +369,8 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuPlayback() {
         return (<>
-            <ASUIMenuAction onAction={e => this.togglePlaybackOnSelection(e)} >{this.state.playbackOnSelect ? '☑' : '☐'} Play on Select</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.togglePlaybackOnChange(e)} >{this.state.playbackOnChange ? '☑' : '☐'} Play on Change</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.toggleSetting('playbackOnSelect')} >{this.state.playbackOnSelect ? '☑' : '☐'} Play on Select</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.toggleSetting('playbackOnChange')} >{this.state.playbackOnChange ? '☑' : '☐'} Play on Change</ASUIMenuAction>
         </>);
     }
 

@@ -14,7 +14,6 @@ export default class ASUIMenuOptionList extends ASUIMenuOptionListBase {
     componentDidUpdate(prevProps, prevState, snapshot) {
         super.componentDidUpdate(prevProps, prevState, snapshot);
 
-        // let forceUpdate = prevProps.options !== this.props.options;
         if(this.props.floating !== false)
             this.updateScreenPosition();
 

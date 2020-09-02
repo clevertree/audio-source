@@ -12,7 +12,7 @@ export default class ASUIContextMenuContainerBase extends React.Component {
             menuHistory: []
         }
         this.cb = {
-            closeAllMenus: () => this.closeAllMenus(),
+            closeAllMenus: () => this.closeAllOpenMenus(),
             goBackSliderMenu: () => this.goBackSliderMenu()
         }
         // this.ref = {
@@ -79,17 +79,21 @@ export default class ASUIContextMenuContainerBase extends React.Component {
     /** Open/Close Menu **/
 
 
-    closeAllMenuButtons() {
-        const slidingMenu = this.state.slidingMenu;
-        slidingMenu && slidingMenu.onClose && slidingMenu.onClose();
-        this.state.openMenus.forEach(openMenu => {
-            openMenu.onClose && openMenu.onClose();
-            delete openMenu.onClose;
-        });
+    // closeAllMenuButtons() {
+    //     const slidingMenu = this.state.slidingMenu;
+    //     slidingMenu && slidingMenu.onClose && slidingMenu.onClose();
+    //     this.state.openMenus.forEach(openMenu => {
+    //         openMenu.onClose && openMenu.onClose();
+    //         delete openMenu.onClose;
+    //     });
+    // }
+
+    refreshAllMenus() {
+        this.forceUpdate();
     }
 
-    closeAllMenus() {
-        this.closeAllMenuButtons();
+    closeAllOpenMenus() {
+        this.closeDropDownMenus();
         this.setState({
             openMenus: [],
             slidingMenu: null,
@@ -128,15 +132,20 @@ export default class ASUIContextMenuContainerBase extends React.Component {
         })
     }
 
-    addDropDownMenu(props) {
-        const menuPath = props.menuPath;
-        let openMenus = this.state.openMenus.filter(openMenu => {
-            if(menuPath.startsWith(openMenu.menuPath))
+    closeDropDownMenus(exceptMenuPath=null) {
+        return this.state.openMenus.filter(openMenu => {
+            if(exceptMenuPath && exceptMenuPath.startsWith(openMenu.menuPath))
                 return true;
             // console.log('menuPath', menuPath, openMenu.menuPath, openMenu.onClose)
             openMenu.onClose && openMenu.onClose();
             return false;
         });
+
+    }
+
+    addDropDownMenu(props) {
+        const menuPath = props.menuPath;
+        let openMenus = this.closeDropDownMenus(menuPath);
         openMenus = openMenus.concat(props);
 
         // console.log('openMenus', props.parentMenu, openMenus);

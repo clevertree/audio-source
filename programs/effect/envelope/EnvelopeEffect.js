@@ -51,8 +51,6 @@ export default class EnvelopeEffect {
         }
 
         // Decay is the time taken for the subsequent run down from the attack level to the designated sustain level.
-        // Sustain is the level during the main sequence of the sound's duration, until the key is released.
-        // velocityGain.gain.linearRampToValueAtTime(velocityValue, startTime + duration);
 
         source.connect(destination);
 
@@ -60,6 +58,10 @@ export default class EnvelopeEffect {
             const i = activeNotes.indexOf(source);
             if(i !== -1) {
                 activeNotes.splice(i, 1);
+
+                // Sustain is the level during the main sequence of the sound's duration, until the key is released.
+                source.gain.linearRampToValueAtTime(amplitude, endTime);
+
                 // Release is the time taken for the level to decay from the sustain level to zero after the key is released.[4]
                 const releaseDuration = this.increaseDurationByRelease(endTime);
                 source.gain.linearRampToValueAtTime(0, releaseDuration);

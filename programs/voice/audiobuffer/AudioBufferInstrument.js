@@ -94,7 +94,6 @@ class AudioBufferInstrument {
             //     return false;
             // }
         }
-        // console.log('playFrequency', frequency, this);
 
         const audioContext = destination.context;
         if (typeof duration === "number") {
@@ -166,7 +165,7 @@ class AudioBufferInstrument {
         source.noteOff = (endTime=audioContext.currentTime, stopSource=true) => {
             const i = activeNotes.indexOf(source);
             if(i !== -1) {
-                activeNotes.splice(i, 1);
+                activeNotes.splice(i, 1); // TODO: happens immediately
                 const sourceEndTime = this.loadedEnvelope.increaseDurationByRelease(endTime)
                 if(stopSource) {
                     source.stop(sourceEndTime);
@@ -176,15 +175,17 @@ class AudioBufferInstrument {
                     lfo.noteOff(sourceEndTime);
                 }
                 onended && onended();
+                console.log('noteOff', frequency, startTime, duration, velocity, activeNotes.length);
             }
         };
         // console.log("Note Start: ", config.url, this.audioBuffer, source);
         source.onended = () => {
             source.noteOff(audioContext.currentTime, false);
-            // console.log("Note Ended: ", config.url, this.audioBuffer, source);
+            console.log("Note Ended: ", config.url, source);
         }
 
         activeNotes.push(source);
+        console.log('noteOn', frequency, startTime, duration, velocity, activeNotes.length);
 
         if(duration !== null) {
             if(duration instanceof Promise) {

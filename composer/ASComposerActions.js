@@ -913,10 +913,15 @@ class ASComposerActions extends ASComposerMenu {
         return false;
     }
 
-    /** Toggle Playback Settings **/
-
-    togglePlaybackOnSelection()         { return this.toggleSetting('playbackOnSelect'); }
-    togglePlaybackOnChange()            { return this.toggleSetting('playbackOnChange'); }
+    // /** Toggle Playback Settings **/
+    //
+    // togglePlaybackOnSelection()         { return this.toggleSetting('playbackOnSelect'); }
+    // togglePlaybackOnChange()            { return this.toggleSetting('playbackOnChange'); }
+    //
+    // /** Toggle Track Formatting **/
+    //
+    // toggleTrackRowPositionInTicks()     { return this.toggleSetting('showTrackRowPositionInTicks'); }
+    // toggleTrackRowDurationInTicks()     { return this.toggleSetting('showTrackRowDurationInTicks'); }
 
 
     /** Toggle View Settings **/
@@ -940,15 +945,10 @@ class ASComposerActions extends ASComposerMenu {
     // togglePresetBrowserPanel()          { return this.toggleSetting('showPanelPresetBrowser'); }
 
     toggleFullscreen() {
-        this.toggleSetting('fullscreen', () => {
+        return this.toggleSetting('fullscreen', () => {
             this.onResize();
         });
     }
-
-    /** Toggle Track Formatting **/
-
-    toggleTrackRowPositionInTicks() { this.setState({showTrackRowPositionInTicks: !this.state.showTrackRowPositionInTicks}); }
-    toggleTrackRowDurationInTicks() { this.setState({showTrackRowDurationInTicks: !this.state.showTrackRowDurationInTicks}); }
 
 
     /** Tools **/
