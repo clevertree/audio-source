@@ -73,7 +73,7 @@ export default class ProgramLoader {
         const classes = ProgramLoader.registeredProgramClasses;
         const {classProgram} = classes[programID];
         if(!classProgram.stopPlayback) {
-            // console.warn(classProgram.name + " has no static stopPlayback method");
+            console.warn(classProgram.name + " has no static stopPlayback method");
         } else {
             classProgram.stopPlayback();
         }

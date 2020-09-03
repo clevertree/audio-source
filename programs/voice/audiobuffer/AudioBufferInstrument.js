@@ -1,13 +1,11 @@
 import AudioBufferLoader from "./loader/AudioBufferLoader";
 import {ArgType, ProgramLoader, Values} from "../../../common";
 
-let activeNotes = [];
 
-// TODO: fix envelope bug
-class AudioBufferInstrument {
+export default class AudioBufferInstrument {
     /** Command Args **/
     static argTypes = {
-        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
+        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity, ArgType.onended],
         pitchBendTo: [ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.onended],
     };
 
@@ -159,35 +157,43 @@ class AudioBufferInstrument {
         for(const LFO of this.loadedLFOs) {
             activeLFOs.push(LFO.createLFO(source, frequency, startTime, null, velocity));
         }
+        source.lfos = activeLFOs;
 
-
+        // Connect Source
         source.connect(destination);
+        // Start Source
         source.start(startTime);
-        source.noteOff = (endTime=audioContext.currentTime, stopSource=true) => {
-            const i = activeNotes.indexOf(source);
-            if(i !== -1) {
-                activeNotes.splice(i, 1); // TODO: happens immediately
-                const sourceEndTime = this.loadedEnvelope.increaseDurationByRelease(endTime)
-                if(stopSource) {
-                    source.stop(sourceEndTime);
-                }
-                gainNode.noteOff(endTime);
-                for(const lfo of activeLFOs) {
-                    lfo.noteOff(sourceEndTime);
-                }
-                onended && onended();
-                // console.log('noteOff', frequency, startTime, duration, velocity, activeNotes.length);
+        // console.log("Note Start: ", config.url, frequency);
+
+        // Set up Note-Off
+        source.noteOff = (endTime=audioContext.currentTime) => {
+            gainNode.noteOff(endTime); // End Envelope on the note end time
+
+            // Get the source end time, when the note actually stops rendering
+            const sourceEndTime = this.loadedEnvelope.increaseDurationByRelease(endTime);
+            for(const lfo of activeLFOs) {
+                lfo.noteOff(sourceEndTime); // End LFOs on the source end time.
             }
+            // console.log('noteOff', {frequency, endTime});
+
+            // Stop the source at the source end time
+            source.stop(sourceEndTime);
         };
-        // console.log("Note Start: ", config.url, this.audioBuffer, source);
+
+        // Set up on end.
         source.onended = () => {
-            source.noteOff(audioContext.currentTime, false);
-            // console.log("Note Ended: ", config.url, source);
+            if(hasActiveNote(source)) {
+                removeActiveNote(source);
+                activeLFOs.forEach(lfo => lfo.stop());
+                onended && onended();
+            }
+            // console.log("Note Ended: ", config.url, frequency);
         }
 
+        // Add Active Note
         activeNotes.push(source);
-        // console.log('noteOn', frequency, startTime, duration, velocity, activeNotes.length);
 
+        // If Duration, queue note end
         if(duration !== null) {
             if(duration instanceof Promise) {
                 // Support for duration promises
@@ -197,8 +203,11 @@ class AudioBufferInstrument {
             }
         }
 
+        // Return source
         return source;
     }
+
+
 
     /** MIDI Events **/
 
@@ -237,13 +246,21 @@ class AudioBufferInstrument {
 
 
     static stopPlayback() {
+        console.log(this.name, `stopping ${activeNotes.length} notes`, activeNotes);
         for(const activeNote of activeNotes)
             activeNote.stop();
         activeNotes = [];
     }
 }
 
+let activeNotes = [];
+function removeActiveNote(source) {
+    const i=activeNotes.indexOf(source);
+    if(i !== -1)
+        activeNotes.splice(i, 1);
+}
+function hasActiveNote(source) {
+    return activeNotes.indexOf(source) !== -1;
+}
 
-
-export default AudioBufferInstrument;
 

@@ -776,8 +776,8 @@ class Song {
         const playback = this.playback;
         this.playback = null;
         this.playbackPosition = playback.getPositionInSeconds();
-        playback.stopPlayback();
-        ProgramLoader.stopAllPlayback(); // TODO: redundant? necessary if no playback
+        playback.stopPlayback(false);
+        // ProgramLoader.stopAllPlayback(); // TODO: redundant? necessary if no playback
 
         // TODO: move to playback class
         // for (let i = 0; i < this.playbackEndCallbacks.length; i++)

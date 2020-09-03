@@ -1,6 +1,4 @@
 
-let activeNotes = [];
-
 export default class EnvelopeEffect {
     constructor(config={}) {
         this.config = config;
@@ -95,4 +93,14 @@ export default class EnvelopeEffect {
 }
 
 
+
+let activeNotes = [];
+function removeActiveNote(source) {
+    const i=activeNotes.indexOf(source);
+    if(i !== -1)
+        activeNotes.splice(i, 1);
+}
+function hasActiveNote(source) {
+    return activeNotes.indexOf(source) !== -1;
+}
 

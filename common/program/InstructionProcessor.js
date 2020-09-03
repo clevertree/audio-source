@@ -126,7 +126,7 @@ export default class InstructionProcessor {
 class DummyProgram {
     /** Command Args **/
     static argTypes = {
-        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
+        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity, ArgType.onended],
         playTrack: [ArgType.trackName, ArgType.duration, ArgType.offset, ArgType.frequency, ArgType.velocity],
         program: [ArgType.program]
     }

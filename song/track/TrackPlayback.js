@@ -89,7 +89,7 @@ export default class TrackPlayback extends TrackIterator {
         if(!stats.playingIndices)
             stats.playingIndices = [];
         const playingIndices = stats.playingIndices;
-        stats.onInstructionStart = (startTime, stats) => {
+        stats.onInstructionStart = (startTime) => {
             if(!this.active) return;
             const waitTime = startTime -this.audioContext.currentTime;
             // console.log('onInstructionStart', startTime, waitTime);
@@ -106,21 +106,19 @@ export default class TrackPlayback extends TrackIterator {
             }, waitTime * 1000);
                                     // console.log('playingIndices.push', playingIndices);
         };
-        stats.onInstructionEnd = (endTime, stats) => {
+        stats.onInstructionEnd = (index) => {
             if(!this.active) return;
-            const waitTime = endTime - this.audioContext.currentTime;
-            // console.log('onInstructionStart', endTime, waitTime);
             const event = {
                 type: 'instruction:end',
                 trackName: stats.trackName,
-                index: stats.currentIndex,
+                index,
                 playingIndices,
             }
-            setTimeout(() => {
-                if(!this.active) return;
-                playingIndices.splice(playingIndices.indexOf(event.index), 1);
-                this.song.dispatchEvent(event)
-            }, waitTime * 1000);
+            // console.log('onInstructionEnd', playingIndices, event);
+            const i = playingIndices.indexOf(event.index);
+            if(i !== -1)
+                playingIndices.splice(i, 1);
+            this.song.dispatchEvent(event)
         };
         // this.onEvent({
         //     type: 'track:start',

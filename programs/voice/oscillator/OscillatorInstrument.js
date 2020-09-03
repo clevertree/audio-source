@@ -1,13 +1,11 @@
 import PeriodicWaveLoader from "./loader/PeriodicWaveLoader";
 import {ArgType, ProgramLoader, Values} from "../../../common/";
 
-let activeNotes = [];
 
-// TODO: fix envelope bug
 export default class OscillatorInstrument {
     /** Command Args **/
     static argTypes = {
-        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
+        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity, ArgType.onended],
         pitchBendTo: [ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.onended],
     };
 
@@ -140,31 +138,41 @@ export default class OscillatorInstrument {
         }
 
 
+        // Connect Source
         source.connect(destination);
+        // Start Source
         source.start(startTime);
-        source.noteOff = (endTime=audioContext.currentTime, stopSource=true) => {
-            const i = activeNotes.indexOf(source);
-            if(i !== -1) {
-                activeNotes.splice(i, 1);
-                const sourceEndTime = this.loadedEnvelope.increaseDurationByRelease(endTime)
-                if(stopSource) {
-                    source.stop(sourceEndTime);
-                }
-                gainNode.noteOff(endTime);
-                for(const lfo of activeLFOs) {
-                    lfo.noteOff(sourceEndTime);
-                }
+        // console.log("Note Start: ", config.url, frequency);
+
+        // Set up Note-Off
+        source.noteOff = (endTime=audioContext.currentTime) => {
+            gainNode.noteOff(endTime); // End Envelope on the note end time
+
+            // Get the source end time, when the note actually stops rendering
+            const sourceEndTime = this.loadedEnvelope.increaseDurationByRelease(endTime);
+            for(const lfo of activeLFOs) {
+                lfo.noteOff(sourceEndTime); // End LFOs on the source end time.
+            }
+            // console.log('noteOff', {frequency, endTime, sourceEndTime});
+
+            // Stop the source at the source end time
+            source.stop(sourceEndTime);
+        };
+
+        // Set up on end.
+        source.onended = () => {
+            if(hasActiveNote(source)) {
+                removeActiveNote(source);
+                activeLFOs.forEach(lfo => lfo.stop());
                 onended && onended();
             }
-        };
-        // console.log("Note Start: ", this.config.url, this.audioBuffer, source);
-        source.onended = () => {
-            source.noteOff(audioContext.currentTime, false);
-            // console.log("Note Ended: ", this.config.url, this.audioBuffer, source);
+            // console.log("Note Ended: ", config.url, frequency);
         }
 
+        // Add Active Note
         activeNotes.push(source);
 
+        // If Duration, queue note end
         if(duration !== null) {
             if(duration instanceof Promise) {
                 // Support for duration promises
@@ -174,6 +182,7 @@ export default class OscillatorInstrument {
             }
         }
 
+        // Return source
         return source;
     }
 
@@ -203,6 +212,7 @@ export default class OscillatorInstrument {
                     delete this.activeMIDINotes[newMIDICommand];
                     return true;
                 } else {
+                    console.warn("active note missing: ", newMIDICommand, eventData);
                     return false;
                 }
 
@@ -240,4 +250,16 @@ export default class OscillatorInstrument {
         // Unload all cached samples from this program type
     }
 }
+
+
+let activeNotes = [];
+function removeActiveNote(source) {
+    const i=activeNotes.indexOf(source);
+    if(i !== -1)
+        activeNotes.splice(i, 1);
+}
+function hasActiveNote(source) {
+    return activeNotes.indexOf(source) !== -1;
+}
+
 

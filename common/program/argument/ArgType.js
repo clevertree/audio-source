@@ -52,11 +52,11 @@ ArgType.duration = new ArgType(
         if(typeof durationTicks === "string")
             durationTicks = Values.instance.parseDurationAsTicks(durationTicks, stats.timeDivision);
         const durationSeconds = Values.instance.durationTicksToSeconds(durationTicks, stats.timeDivision, stats.beatsPerMinute);
-        if(stats.onInstructionEnd) {
-            const startTime = stats.startTime
-                + stats.positionSeconds; // start time equals current track's start + playback times
-            stats.onInstructionEnd(startTime + durationSeconds, stats);
-        }
+        // if(stats.onInstructionEnd) {
+        //     const startTime = stats.startTime
+        //         + stats.positionSeconds; // start time equals current track's start + playback times
+        //     stats.onInstructionEnd(startTime + durationSeconds, stats);
+        // }
         return durationSeconds;
     },
     (durationTicks, values) => {
@@ -94,7 +94,12 @@ ArgType.startTime = new ArgType(
 
 ArgType.onended = new ArgType(
     "Note End",
-    callback => { return callback; },
+    (arg, stats) => {
+        const index = stats.currentIndex;
+        return stats.onInstructionEnd ? function() {
+            stats.onInstructionEnd(index);
+        } : null;
+    },
     callback => { return callback; },
     false
 )
