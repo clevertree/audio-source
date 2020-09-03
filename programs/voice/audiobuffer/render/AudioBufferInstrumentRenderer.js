@@ -25,15 +25,15 @@ export default class AudioBufferInstrumentRenderer extends AudioBufferInstrument
 
         /** Parameter Content **/
         const parameterContent = open ? (
-                <div className="parameters">
-                    {this.getParameters().map((props, i) => (
-                        <div key={i}>
-                            {props.label ? <div className="label">{props.label}:</div> : null}
-                            <div>{props.children}</div>
-                        </div>
-                    ))}
-                </div>)
-            : null;
+            <div className="parameters">
+                {this.getParameters().map((props, i) => (
+                    <div key={i}>
+                        {props.label ? <div className="label">{props.label}:</div> : null}
+                        <div>{props.children}</div>
+                    </div>
+                ))}
+            </div>)
+        : null;
 
 
         /** LFO Content **/
@@ -67,6 +67,7 @@ export default class AudioBufferInstrumentRenderer extends AudioBufferInstrument
                 </ASUIButton>
                 <ASUIButtonDropDown
                     arrow={false}
+                    vertical={false}
                     className="program-config"
                     options={this.cb.renderMenu.root}
                 >

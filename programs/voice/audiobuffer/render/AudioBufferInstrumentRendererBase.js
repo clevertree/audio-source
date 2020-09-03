@@ -48,7 +48,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
             },
             renderParamMenu: {
                 root: () => this.renderMenuChangeKeyRoot(),
-                alias: () => this.renderMenuChangeKeyAlias(),
+                // alias: () => this.renderMenuChangeKeyAlias(),
                 range: () => this.renderMenuChangeKeyRange(),
                 source: () => this.renderMenuChangeAudioBuffer(),
             },
@@ -104,11 +104,11 @@ class AudioBufferInstrumentRendererBase extends React.Component {
                 title:      `Key Root is ${config.root}`,
                 children:   this.renderInput('root'),
             },
-            {
-                label:      'Alias',
-                title:      `Key Alias is ${config.alias}`,
-                children:   this.renderInput('alias'),
-            },
+            // {
+            //     label:      'Alias',
+            //     title:      `Key Alias is ${config.alias}`,
+            //     children:   this.renderInput('alias'),
+            // },
             {
                 label:      'Range',
                 title:      `Key Range is ${config.range}`,
@@ -215,11 +215,11 @@ class AudioBufferInstrumentRendererBase extends React.Component {
                     options={this.cb.renderParamMenu.root}
                 >{config.root ? config.root : "-"}</ASUIButtonDropDown>
 
-            case 'alias':
-                return <ASUIButtonDropDown
-                    className="small"
-                    options={this.cb.renderParamMenu.alias}
-                >{config.alias ? config.alias : "-"}</ASUIButtonDropDown>
+            // case 'alias':
+            //     return <ASUIButtonDropDown
+            //         className="small"
+            //         options={this.cb.renderParamMenu.alias}
+            //     >{config.alias ? config.alias : "-"}</ASUIButtonDropDown>
 
             case 'range':
                 let range = '[all]';
@@ -254,6 +254,15 @@ class AudioBufferInstrumentRendererBase extends React.Component {
         const oldValue = this.props.config[paramName];
         console.log(`Removing parameter ${paramName}: ${oldValue}`);
         delete this.props.config[paramName];
+    }
+
+    changeRange(rangeStart=null, rangeEnd=null) {
+        const oldRange = this.props.config.range.split(':');
+        if(rangeStart !== null)
+            oldRange[0] = rangeStart;
+        if(rangeEnd !== null)
+            oldRange[1] = rangeEnd;
+        this.props.config.range = oldRange.join(':');
     }
 
 
@@ -308,7 +317,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
             {/*<ASUIMenuDropDown options={() => this.renderInput('mixer')}>Edit Mixer</ASUIMenuDropDown>*/}
             <ASUIMenuDropDown options={() => this.renderMenuChangeDetune()}>Edit Detune</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChangeKeyRoot()}>Edit Key Root</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => this.renderMenuChangeKeyAlias()}>Edit Key Alias</ASUIMenuDropDown>
+            {/*<ASUIMenuDropDown options={() => this.renderMenuChangeKeyAlias()}>Edit Key Alias</ASUIMenuDropDown>*/}
             <ASUIMenuDropDown options={() => this.renderMenuChangeKeyRange()}>Edit Key Range</ASUIMenuDropDown>
 
             <ASUIMenuBreak />
@@ -382,15 +391,15 @@ class AudioBufferInstrumentRendererBase extends React.Component {
             <ASUIMenuAction onAction={() => this.removeParam('root')}>Clear Root</ASUIMenuAction>
         </>);
     }
-    renderMenuChangeKeyAlias() {
-        return (<>
-            {Values.instance.renderMenuSelectFrequencyWithRecent(noteNameOctave => {
-                this.changeParam('alias', noteNameOctave)
-            }, this.props.config.alias, "Change Alias")}
-            <ASUIMenuBreak/>
-            <ASUIMenuAction onAction={() => this.removeParam('alias')}>Clear Alias</ASUIMenuAction>
-        </>);
-    }
+    // renderMenuChangeKeyAlias() {
+    //     return (<>
+    //         {Values.instance.renderMenuSelectFrequencyWithRecent(noteNameOctave => {
+    //             this.changeParam('alias', noteNameOctave)
+    //         }, this.props.config.alias, "Change Alias")}
+    //         <ASUIMenuBreak/>
+    //         <ASUIMenuAction onAction={() => this.removeParam('alias')}>Clear Alias</ASUIMenuAction>
+    //     </>);
+    // }
 
 
     renderMenuChangeKeyRange() {
@@ -400,15 +409,15 @@ class AudioBufferInstrumentRendererBase extends React.Component {
             <ASUIMenuDropDown key={i++} options={() => this.renderMenuChangeKeyRangeEnd()}>Range End</ASUIMenuDropDown>,
             <ASUIMenuBreak key={i++} />,
             <ASUIMenuAction  key={i++} onAction={() => {
-                this.removeParam('rangeStart');
-                this.removeParam('rangeEnd');
+                this.removeParam('range');
             }}>Clear Range</ASUIMenuAction>,
         ];
     }
     renderMenuChangeKeyRangeStart() {
         return (<>
             {Values.instance.renderMenuSelectFrequencyWithRecent(noteNameOctave => {
-                this.changeParam('rangeStart', noteNameOctave)
+
+                this.changeParam('range', noteNameOctave)
             }, this.props.config.rangeStart, "Change Range Start")}
             <ASUIMenuBreak/>
             <ASUIMenuAction onAction={() => this.removeParam('rangeStart')}>Clear Range Start</ASUIMenuAction>

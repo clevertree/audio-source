@@ -40,6 +40,7 @@ export default class LFOParameterRenderer extends LFOParameterRendererBase {
                 </ASUIButton>
                 <ASUIButtonDropDown
                     arrow={false}
+                    vertical={false}
                     className="program-config"
                     options={this.cb.renderMenu.root}
                 >

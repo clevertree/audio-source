@@ -156,31 +156,12 @@ export default class EnvelopeEffectRendererBase extends React.Component {
     }
 
 
-    addVoice(instrumentClassName, instrumentConfig={}) {
-        if (!instrumentClassName)
-            throw new Error(`Invalid voice instrument class`);
-
-        const config = this.props.config;
-        config.voice = [instrumentClassName, instrumentConfig || {}];
-        this.setStatus(`Instrument '${instrumentClassName}' set as voice`);
-    }
-
-
-    removeVoice() {
-        const config = this.props.config;
-        config.voice = null;
-    }
 
     /** Menu **/
 
     renderMenuRoot() {
-        const config = this.props.config;
         return (<>
             <ASUIMenuAction onAction={()=>{}} disabled>{`Envelope Effect`}</ASUIMenuAction>
-            <ASUIMenuBreak />
-            {!config.voice
-                ? <ASUIMenuDropDown options={() => this.renderMenuAddVoice()}>Add Voice</ASUIMenuDropDown>
-                : <ASUIMenuAction onAction={() => this.removeVoice()}>Remove Voice</ASUIMenuAction>}
             <ASUIMenuBreak />
             {/*<ASUIMenuDropDown options={() => this.renderMenuChange('mixer')}>Edit Mixer</ASUIMenuDropDown>*/}
             <ASUIMenuDropDown options={() => this.renderMenuChange('attack')}>Edit Attack</ASUIMenuDropDown>

@@ -43,6 +43,7 @@ export default class EnvelopeEffectRenderer extends EnvelopeEffectRendererBase {
                 </ASUIButton>
                 <ASUIButtonDropDown
                     arrow={false}
+                    vertical={false}
                     className="program-config"
                     options={this.cb.renderMenuRoot}
                 >

@@ -50,8 +50,8 @@ export default class ASUIClickable extends React.Component {
 
             case 'Tab':
                 e.preventDefault();
-                const tabIndexItem = this.getOverlay().getNextTabIndexItem(this, 1);
-                console.log('TODO tabIndexItem', tabIndexItem);
+                // const tabIndexItem = this.getOverlay().getNextTabIndexItem(this, 1);
+                // console.log('TODO tabIndexItem', tabIndexItem);
                 break;
 
             // case 'ArrowLeft':
@@ -102,7 +102,7 @@ export default class ASUIClickable extends React.Component {
         // if(!this.isHoverEnabled())
         //     return;
 
-        console.log('TODO: closeAllDropDownElmsButThis', this);
+        // console.log('TODO:: closeAllDropDownElmsButThis', this);
         // let openMenus = this.getOverlay().closeDropDownMenus(menuPath);
 
 

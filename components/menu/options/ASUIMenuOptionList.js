@@ -56,7 +56,10 @@ export default class ASUIMenuOptionList extends ASUIMenuOptionListBase {
         return <div
             style={style}
             className={className}
-            onWheel={this.cb.onWheel}
+            ref={elm => {
+                elm && elm.addEventListener('wheel', this.cb.onWheel, {passive: false});
+                this.ref.container.current = elm;
+            }}
             children={optionArray.map((option, i) => {
                 return <div
                     key={i}
@@ -66,7 +69,6 @@ export default class ASUIMenuOptionList extends ASUIMenuOptionListBase {
             })}
             tabIndex={0}
             onKeyDown={this.cb.onKeyDown}
-            ref={this.ref.container}
         />;
     }
 

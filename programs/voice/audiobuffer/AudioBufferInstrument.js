@@ -78,21 +78,22 @@ class AudioBufferInstrument {
 
     playFrequency(destination, frequency, startTime=null, duration=null, velocity=null, onended=null) {
         const config = this.config;
-        if (config.alias) {
-            // this.freqRange = null;
-            // if (config.alias) {
-            //     const freqAlias = Values.instance.parseFrequencyString(config.alias);
-            //     this.freqRange = [freqAlias, freqAlias];
-            // } else {
-            //     this.freqRange = null;
-            // }
-            // if (
-            //     this.freqRange[0] < frequency
-            //     || this.freqRange[1] > frequency
-            // ) {
-            //     console.log("Skipping out of range note: ", frequency, this.freqRange);
-            //     return false;
-            // }
+        if (config.range) {
+            let [rangeStart, rangeEnd] = config.range;
+            if(rangeStart) {
+                rangeStart = Values.instance.parseFrequencyString(rangeStart);
+                if(rangeStart < frequency) {
+                    // console.log("Skipping out of range note: ", rangeStart, "<", frequency, config);
+                    return false;
+                }
+            }
+            if(rangeEnd) {
+                rangeEnd = Values.instance.parseFrequencyString(rangeEnd);
+                if(rangeEnd > frequency) {
+                    // console.log("Skipping out of range note: ", rangeEnd, ">", frequency, config);
+                    return false;
+                }
+            }
         }
 
         const audioContext = destination.context;
@@ -175,17 +176,17 @@ class AudioBufferInstrument {
                     lfo.noteOff(sourceEndTime);
                 }
                 onended && onended();
-                console.log('noteOff', frequency, startTime, duration, velocity, activeNotes.length);
+                // console.log('noteOff', frequency, startTime, duration, velocity, activeNotes.length);
             }
         };
         // console.log("Note Start: ", config.url, this.audioBuffer, source);
         source.onended = () => {
             source.noteOff(audioContext.currentTime, false);
-            console.log("Note Ended: ", config.url, source);
+            // console.log("Note Ended: ", config.url, source);
         }
 
         activeNotes.push(source);
-        console.log('noteOn', frequency, startTime, duration, velocity, activeNotes.length);
+        // console.log('noteOn', frequency, startTime, duration, velocity, activeNotes.length);
 
         if(duration !== null) {
             if(duration instanceof Promise) {

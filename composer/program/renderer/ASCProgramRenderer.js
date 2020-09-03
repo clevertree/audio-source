@@ -40,6 +40,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                     </ASUIButton>
                     {open !== 'browser' ? <ASUIButtonDropDown
                         arrow={false}
+                        vertical={false}
                         className="program-config"
                         options={this.cb.menuRoot}
                     >

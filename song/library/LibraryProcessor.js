@@ -27,13 +27,13 @@ class LibraryProcessor {
         let presets = this.data.presets;
         if(typeof presets === "function")
             presets = this.data.presets();
-        if(Array.isArray(presets)) {
-            presets = function*() {
-                for(let preset of presets)
-                    yield preset;
-            }
-            presets = presets();
-        }
+        // if(Array.isArray(presets)) {
+        //     presets = function*() {
+        //         for(let preset of presets)
+        //             yield preset;
+        //     }
+        //     presets = presets();
+        // }
         return presets;
     }
 
@@ -42,13 +42,13 @@ class LibraryProcessor {
         let samples = this.data.samples;
         if(typeof samples === "function")
             samples = this.data.samples();
-        if(Array.isArray(samples)) {
-            samples = function*() {
-                for(let preset of samples)
-                    yield preset;
-            }
-            samples = samples();
-        }
+        // if(Array.isArray(samples)) {
+        //     samples = function*() {
+        //         for(let preset of samples)
+        //             yield preset;
+        //     }
+        //     samples = samples();
+        // }
         return samples;
     }
 
@@ -163,28 +163,30 @@ class LibraryProcessor {
         return content.length === 0 ? null : content;
     }
 
-    renderMenuLibraries(onSelectPreset) {
-        let i=0;
-        const content = [];
-        const libraries = this.getLibraryGenerator();
+    /** Libraries Menu **/
 
-        if(libraries) {
-            let nextLibrary = libraries.next();
-            while (!nextLibrary.done) {
-                const library = new LibraryProcessor(nextLibrary.value);
-                nextLibrary = libraries.next();
-                content.push(
-                    <ASUIMenuDropDown
-                        key={`lib-${i}`}
-                        options={() => library.renderMenuPresets(onSelectPreset)}
-                    >
-                        {library.getTitle()}
-                    </ASUIMenuDropDown>
-                )
-            }
-        }
-        return content.length === 0 ? null : content;
-    }
+    // renderMenuLibraries(onSelectPreset) {
+    //     let i=0;
+    //     const content = [];
+    //     const libraries = this.getLibraryGenerator();
+    //
+    //     if(libraries) {
+    //         let nextLibrary = libraries.next();
+    //         while (!nextLibrary.done) {
+    //             const library = new LibraryProcessor(nextLibrary.value);
+    //             nextLibrary = libraries.next();
+    //             content.push(
+    //                 <ASUIMenuDropDown
+    //                     key={`lib-${i}`}
+    //                     options={() => library.renderMenuPresets(onSelectPreset)}
+    //                 >
+    //                     {library.getTitle()}
+    //                 </ASUIMenuDropDown>
+    //             )
+    //         }
+    //     }
+    //     return content.length === 0 ? null : content;
+    // }
 
     renderMenuLibraryOptions(onSelectLibraryOptions) {
         let i=0;

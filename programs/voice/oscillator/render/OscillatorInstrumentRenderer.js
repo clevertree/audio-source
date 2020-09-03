@@ -1,12 +1,18 @@
 import React from 'react';
 
-import {ASUIButton, ASUIButtonDropDown, ASUIIcon} from "../../../../components";
+import {
+    ASUIIcon,
+    ASUIButton,
+    ASUIButtonDropDown
+} from "../../../../components";
 
 import OscillatorInstrumentRendererBase from "./OscillatorInstrumentRendererBase";
+import OscillatorInstrument from "../OscillatorInstrument";
 import "./OscillatorInstrumentRenderer.css";
 
 export default class OscillatorInstrumentRenderer extends OscillatorInstrumentRendererBase {
     render() {
+        // console.log('OscillatorInstrumentRenderer.render', this.props);
         let className = "oscillator-instrument-container";
         const config = this.props.config;
         const open = this.props.open;
@@ -40,9 +46,9 @@ export default class OscillatorInstrumentRenderer extends OscillatorInstrumentRe
 
 
         /** Envelope Content **/
-        const envelopeContent = open && config.envelope ? (
+        const envelopeContent = open ? (
             <div className="envelope">
-                {this.renderEnvelope(config.envelope)}
+                {this.renderEnvelope(config.envelope || OscillatorInstrument.defaultEnvelope)}
             </div>
         ) : null;
 
@@ -52,7 +58,6 @@ export default class OscillatorInstrumentRenderer extends OscillatorInstrumentRe
             <div className="header"
                  title={title}>
                 <ASUIButton
-                    // title={`Oscillator: ${title}`}
                     className="toggle-container"
                     selected={open}
                     onAction={this.cb.onClick}
@@ -62,6 +67,7 @@ export default class OscillatorInstrumentRenderer extends OscillatorInstrumentRe
                 </ASUIButton>
                 <ASUIButtonDropDown
                     arrow={false}
+                    vertical={false}
                     className="program-config"
                     options={this.cb.renderMenu.root}
                 >

@@ -117,7 +117,8 @@ export default class ASUIMenuOptionListBase extends React.Component {
         let options = this.getOptions();
 
         let optionArray = MenuOptionProcessor.processArray(options);
-        let positionSelected = this.state.positionSelected, currentPosition = 0;
+        // let positionSelected = this.state.positionSelected;
+        let currentPosition = 0;
         optionArray = optionArray
             .filter(option => option.type !== React.Fragment)
             .map((option, i) => {
@@ -233,7 +234,8 @@ export default class ASUIMenuOptionListBase extends React.Component {
     /** Input **/
 
     onWheel(e) {
-        // e.preventDefault();
+        console.log(e.type, e);
+        e.preventDefault();
         let offset = parseInt(this.state.offset) || 0;
         offset += e.deltaY > 0 ? 1 : -1;
         this.setOffset(offset);

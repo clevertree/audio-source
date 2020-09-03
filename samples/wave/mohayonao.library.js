@@ -13,7 +13,7 @@ const Mohayonao = {
         sample.title = sample.url.split('/').pop().replace('.json', '');
       if(LibraryData.baseURL)
         sample.url = LibraryData.baseURL + sample.url;
-      yield ['oscillator', sample];
+      yield ['Oscillator', sample];
     }
   },
 

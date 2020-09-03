@@ -145,6 +145,8 @@ export default class ASCProgramRendererBase extends React.Component {
     toggleContainer() {
         const rendererState = this.getProgramRendererState();
         rendererState.open = !rendererState.open;
+        if(!rendererState.programProps)
+            rendererState.programProps = {open: true};
         this.setProgramRendererState(rendererState);
     }
 
@@ -185,17 +187,14 @@ export default class ASCProgramRendererBase extends React.Component {
             <ASUIMenuAction onAction={this.cb.togglePresetBrowser}>{this.props.open === 'browser' ? 'Hide' : 'Show'} Preset Browser</ASUIMenuAction>
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuChangeProgram()}>Change Program</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Change Preset</ASUIMenuDropDown>
             <ASUIMenuBreak />
             {this.renderMenuManageProgram()}
         </>);
     }
 
-    renderMenuChangeProgram(menuTitle = "Change Program") {
+    renderMenuChangeProgram() {
         return (<>
-            <ASUIMenuItem>{menuTitle}</ASUIMenuItem>
-            <ASUIMenuBreak/>
-            <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Using Preset</ASUIMenuDropDown>
-            <ASUIMenuBreak />
             {ProgramLoader.getRegisteredPrograms().map((config, i) =>
                 <ASUIMenuAction key={i} onAction={e => this.programLoad(config.className)}       >{config.title}</ASUIMenuAction>
             )}
@@ -217,17 +216,22 @@ export default class ASCProgramRendererBase extends React.Component {
     //     </>);
     // }
 
-    async renderMenuChangePreset() {
-        const library = LibraryProcessor.loadDefault();
-        const programID = this.props.programID;
-        let programClassName = null;
-        if(this.getSong().hasProgram(programID))
-            programClassName = this.getSong().programGetClassName(programID);
-        return await library.renderMenuPresets((className, presetConfig) => {
-            this.programLoad(className, presetConfig);
-        }, programClassName);
-    }
 
+    renderMenuChangePreset(library=null) {
+        library = library || LibraryProcessor.loadDefault();
+        const libraryOptions = library.renderMenuLibraryOptions((library) =>
+            () => this.renderMenuChangePreset(library)
+        );
+        const presetOptions = library.renderMenuPresets(
+            (presetClass, presetConfig) => this.programLoad(presetClass, presetConfig)
+        );
+        return (<>
+            <ASUIMenuItem>Library: {library.getTitle()}</ASUIMenuItem>
+            <ASUIMenuBreak />
+            {libraryOptions ? <>${libraryOptions}<ASUIMenuBreak/></> : <ASUIMenuItem>No Libraries</ASUIMenuItem>}
+            {presetOptions ? presetOptions : <ASUIMenuItem>No Presets</ASUIMenuItem>}
+        </>)
+    }
 
     /** Input **/
 

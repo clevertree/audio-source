@@ -30,6 +30,7 @@ div.audiobuffer-instrument-container > div.header {
 }
 div.audiobuffer-instrument-container > div.header > div.toggle-container {
     flex-basis: 100%;
+    padding-right: 4px;
 }
 
 /** Parameters **/
