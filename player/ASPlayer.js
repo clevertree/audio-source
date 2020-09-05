@@ -163,7 +163,7 @@ class ASPlayer extends ASPlayerActions {
                 break;
 
             case 'song:seek':
-                this.updateSongPositionValue(e.detail.position);
+                this.setSongPosition(e.detail.position);
 
                 break;
 
@@ -189,7 +189,7 @@ class ASPlayer extends ASPlayerActions {
                         // this.containerElm.classList.remove('playing');
                         // this.classList.remove('playing');
                     }
-                    this.updateSongPositionValue(this.song.getSongPlaybackPosition());
+                    this.setSongPosition(this.song.getSongPlaybackPosition());
                 }, 10);
                 break;
 

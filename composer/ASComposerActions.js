@@ -429,17 +429,12 @@ class ASComposerActions extends ASComposerMenu {
         return this.setSongPosition(playbackPosition);
     }
 
-    setSongPosition(songPosition) {
-        // TODO: parse % percentage
-        if(typeof songPosition === 'string')
-            songPosition = this.values.parsePlaybackPosition(songPosition);
-        if(isNaN(songPosition))
-            throw new Error("Invalid song position: " + songPosition);
-        this.updateSongPositionValue(songPosition);
-        // this.state.songPosition = songPosition;
-        // this.setState({songPosition})
-//         console.info('setSongPosition', songPosition);
-    }
+//     setSongPosition(songPosition) {
+//         this.updateSongPositionValue(songPosition);
+//         // this.state.songPosition = songPosition;
+//         // this.setState({songPosition})
+// //         console.info('setSongPosition', songPosition);
+//     }
 
     async setSongPositionPrompt() {
         let songPosition = this.values.formatPlaybackPosition(this.songStats.position || 0);
@@ -447,7 +442,12 @@ class ASComposerActions extends ASComposerMenu {
         this.setSongPosition(songPosition);
     }
 
-    updateSongPositionValue(playbackPositionInSeconds, updateTrackPositions=true) {
+    setSongPosition(playbackPositionInSeconds, updateTrackPositions=true) {
+        // TODO: parse % percentage
+        if(typeof playbackPositionInSeconds === 'string')
+            playbackPositionInSeconds = this.values.parsePlaybackPosition(playbackPositionInSeconds);
+        if(isNaN(playbackPositionInSeconds))
+            throw new Error("Invalid song position: " + playbackPositionInSeconds);
         this.songStats.position = playbackPositionInSeconds;
 
         // Update Song Panel
@@ -460,7 +460,7 @@ class ASComposerActions extends ASComposerMenu {
             for (const trackName in this.ref.activeTracks) {
                 if (this.ref.activeTracks.hasOwnProperty(trackName)) {
                     const activeTrack = this.ref.activeTracks[trackName].current;
-                    activeTrack && activeTrack.forceUpdate();
+                    activeTrack.updateSongPosition(playbackPositionInSeconds);
                 }
             }
         }

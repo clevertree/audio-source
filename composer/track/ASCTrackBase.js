@@ -34,6 +34,8 @@ export default class ASCTrackBase extends React.Component {
             rowOffset:      0,
             cursorOffset:   0,
             selectedIndices: [],
+            startPosition: 0,
+            songPosition: 0,
 
             menuOpen: false,
             menuOptions: null,
@@ -50,7 +52,7 @@ export default class ASCTrackBase extends React.Component {
             rowContainer: React.createRef()
         }
         this.destination = null;
-
+        this.renderStats = {};
     }
 
     componentDidMount() {

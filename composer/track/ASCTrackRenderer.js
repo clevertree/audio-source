@@ -4,25 +4,30 @@ import {ASUIButton, ASUIButtonDropDown} from "../../components/";
 import ASCTrackInstruction from "./instruction/ASCTrackInstruction";
 import ASCTrackRow from "./row/ASCTrackRow";
 import ASCTrackBase from "./ASCTrackBase";
+import {Values} from "../../common";
 
 
 // TODO: ASCTrackRowContainer
 
 export default class ASCTrackRenderer extends ASCTrackBase {
-
+    constructor(props) {
+        super(props);
+        this.renderStats.songPositionRowRange = [0,0];
+    }
 
     /** Render Content **/
 
 
     renderRowContent() {
-        const composer = this.getComposer();
+        // const composer = this.getComposer();
         // const track = this.getTrackState();
 
-        const songPosition = composer.songStats.position;
+        const songPosition = this.getSongPosition();
         const trackSongPosition = songPosition - this.getStartPosition();
         const cursorOffset = this.getCursorOffset();
         const rowOffset = this.getRowOffset();
         let trackSongPositionFound = false;
+        this.renderStats.songPositionRowRange = null;
         // const quantizationTicks = this.getQuantizationTicks() || this.getSong().data.timeDivision;
 
         // console.time('ASCThis.renderRowContent()');
@@ -82,6 +87,7 @@ export default class ASCTrackRenderer extends ASCTrackBase {
                 const rowID = iterator.getRowCount();
                 if(rowID >= rowOffset) {
                     let positionTicks = iterator.getPositionInTicks();
+                    let positionSeconds = iterator.getPositionInSeconds();
                     // let segmentID = Math.floor(positionTicks / segmentLengthTicks);
                     let beatID = Math.floor(positionTicks / quantizationTicks);
                     let highlight = [beatID % 2 === 0 ? 'even' : 'odd'];
@@ -101,9 +107,15 @@ export default class ASCTrackRenderer extends ASCTrackBase {
                         //     rows[rows.length-1].highlight.push('measure-end');
                     }
 
-                    if(!trackSongPositionFound && trackSongPosition <= iterator.getPositionInSeconds()) {
+                    if(!trackSongPositionFound && trackSongPosition <= positionSeconds) {
                         trackSongPositionFound = true;
-                        highlight.push('position');
+                        const elapsedTimeSeconds = Values.instance.durationTicksToSeconds(rowDeltaTicks, iterator.getTimeDivision(), iterator.getBeatsPerMinute());
+                        const lastPositionSeconds = positionSeconds - elapsedTimeSeconds;
+                        if(trackSongPosition > lastPositionSeconds) {
+                            this.renderStats.songPositionRowRange = [positionSeconds - elapsedTimeSeconds, positionSeconds];
+                            highlight.push('position');
+                        }
+                        // console.log('this.renderStats.songPositionRowRange', this.renderStats.songPositionRowRange, elapsedTimeSeconds)
                     }
 
                     const rowProp = {

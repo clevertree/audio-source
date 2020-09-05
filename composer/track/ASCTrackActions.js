@@ -58,6 +58,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
     getSegmentRowOffsets() { return this.state.segmentRowOffsets || [0]; }
 
     getStartPosition() { return this.state.startPosition || 0; }
+    getSongPosition() { return this.state.songPosition || 0; }
 
     isSelectedTrack() {
         return this.trackName === this.props.composer.getSelectedTrackName();
@@ -233,7 +234,17 @@ export default class ASCTrackActions extends ASCTrackRenderer {
     //     return new TrackState(this, trackName);
     // }
 
-
+    /** Position **/
+    updateSongPosition(songPosition) {
+        const [low, high] = this.renderStats.songPositionRowRange || [0, 0];
+        if(songPosition < low || songPosition > high) {
+            // TODO: set offset based on songPosition
+            console.log('updateSongPosition', this.getTrackName(), this.renderStats.songPositionRowRange, songPosition);
+            this.setState({songPosition});
+        } else {
+            // console.warn('updateSongPosition', this.getTrackName(), this.renderStats.songPositionRange, playbackPositionInSeconds);
+        }
+    }
 
     /** Selection **/
 

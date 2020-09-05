@@ -26,7 +26,7 @@ export default class ASComposerEvents extends ASComposerInput {
                 break;
 
             case 'song:seek':
-                this.updateSongPositionValue(e.position);
+                this.setSongPosition(e.position);
                 break;
 
             case 'song:volume':
@@ -47,7 +47,7 @@ export default class ASComposerEvents extends ASComposerInput {
                         // this.fieldSongPlaybackPause.disabled = true;
                         this.setState({playing: false, paused: false});
                     }
-                    this.updateSongPositionValue(this.song.getSongPlaybackPosition(), updateCount % 5 === 0);
+                    this.setSongPosition(this.song.getSongPlaybackPosition(), updateCount % 5 === 0);
                     updateCount++;
                 }, 10);
                 break;
