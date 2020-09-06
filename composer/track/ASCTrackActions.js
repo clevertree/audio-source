@@ -243,7 +243,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
     updateSongPosition(songPosition) {
         const [low, high] = this.renderStats.songPositionRowRange || [0, 0];
         if(songPosition < low || songPosition > high) {
-            console.log('songPosition < low || songPosition > high', this.getTrackName(), {songPosition, low, high});
+            // console.log('songPosition < low || songPosition > high', this.getTrackName(), {songPosition, low, high});
             const state = {
                 songPosition
             }

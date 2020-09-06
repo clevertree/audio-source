@@ -29,7 +29,7 @@ export default class ASCTrack extends ASCTrackInput {
         const trackName = this.getTrackName();
         const trackLength = composer.getSong().data.tracks[trackName].length;
         const viewMode = this.state.viewMode;
-        console.log('ASCTrack.render', trackName);
+        // console.log('ASCTrack.render', trackName);
         let content = null;
         let className = "asc-track";
 

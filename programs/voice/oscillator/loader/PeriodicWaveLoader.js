@@ -64,6 +64,7 @@ export default class PeriodicWaveLoader {
         // console.log('tryCache', cache, promises, url);
         if(!cache[url])
             return null;
+        cache[url][1] = new Date().getTime() + PeriodicWaveLoader.DEFAULT_EXPIRE_MS; // Extend cache timeout
         return cache[url][0];
     }
 

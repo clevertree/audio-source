@@ -54,6 +54,7 @@ export default class AudioBufferLoader {
     tryCache(url) {
         if(!cache[url])
             return null;
+        cache[url][1] = new Date().getTime() + AudioBufferLoader.DEFAULT_EXPIRE_MS; // Extend cache timeout
         return cache[url][0];
     }
 
