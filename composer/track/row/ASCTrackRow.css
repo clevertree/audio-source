@@ -53,7 +53,9 @@ div.asct-row.playing {
 }
 
 div.asct-row.position {
-    background-color: #87b487;
+    /*background-color: #87b487;*/
+    background-color: #90BEDE;
+
 }
 
 
@@ -61,8 +63,8 @@ div.asct-row.position {
 
 div.asct-row.cursor,
 div.asct-row.selected {
-    background-color: #90BEDE;
-    position: relative;
+    /*background-color: #90BEDE;*/
+    /*position: relative;*/
     /*box-shadow: #ffeedd 0px 0px 4px;*/
     /*z-index: 2;*/
 }

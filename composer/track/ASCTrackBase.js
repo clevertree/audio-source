@@ -20,6 +20,8 @@ export default class ASCTrackBase extends React.Component {
         // selectedIndices: PropTypes.array.isRequired,
         composer: PropTypes.object.isRequired,
         trackName: PropTypes.string.isRequired,
+        selected: PropTypes.bool.isRequired,
+
     };
 
 
@@ -56,7 +58,7 @@ export default class ASCTrackBase extends React.Component {
     }
 
     componentDidMount() {
-        this.updateRenderingProps();
+        this.updateRenderingStats();
     }
 
 

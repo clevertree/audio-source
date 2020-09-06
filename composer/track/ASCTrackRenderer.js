@@ -22,12 +22,16 @@ export default class ASCTrackRenderer extends ASCTrackBase {
         // const composer = this.getComposer();
         // const track = this.getTrackState();
 
+        /** Song Position **/
         const songPosition = this.getSongPosition();
         const trackSongPosition = songPosition - this.getStartPosition();
+        let trackSongPositionFound = false;
+
+
+        /** Offsets **/
         const cursorOffset = this.getCursorOffset();
         const rowOffset = this.getRowOffset();
-        let trackSongPositionFound = false;
-        this.renderStats.songPositionRowRange = null;
+
         // const quantizationTicks = this.getQuantizationTicks() || this.getSong().data.timeDivision;
 
         // console.time('ASCThis.renderRowContent()');
@@ -39,12 +43,17 @@ export default class ASCTrackRenderer extends ASCTrackBase {
         const quantizationTicks = this.getQuantizationTicks();
         // const isSelectedTrack = this.isSelectedTrack();
 
+        /** Rendering Stats **/
+        this.renderStats.songPositionRowRange = null;
 
-        // Get Iterator
+
+        /** Get Iterator **/
         const iterator = this.getRowIterator();
 
         const rows = [];
         let rowInstructions = [];
+
+        const autoScrollToCursor = !this.props.selected
 
         // console.log('quantizationTicks', quantizationTicks, cursorOffset, rowOffset, this.props.this.state);
 
@@ -107,15 +116,20 @@ export default class ASCTrackRenderer extends ASCTrackBase {
                         //     rows[rows.length-1].highlight.push('measure-end');
                     }
 
-                    if(!trackSongPositionFound && trackSongPosition <= positionSeconds) {
-                        trackSongPositionFound = true;
-                        const elapsedTimeSeconds = Values.instance.durationTicksToSeconds(rowDeltaTicks, iterator.getTimeDivision(), iterator.getBeatsPerMinute());
-                        const lastPositionSeconds = positionSeconds - elapsedTimeSeconds;
-                        if(trackSongPosition > lastPositionSeconds) {
-                            this.renderStats.songPositionRowRange = [positionSeconds - elapsedTimeSeconds, positionSeconds];
-                            highlight.push('position');
+                    if(!trackSongPositionFound) {
+                        if(trackSongPosition <= positionSeconds) {
+                            trackSongPositionFound = true;
+                            const elapsedTimeSeconds = Values.instance.durationTicksToSeconds(rowDeltaTicks, iterator.getTimeDivision(), iterator.getBeatsPerMinute());
+                            const lastPositionSeconds = positionSeconds - elapsedTimeSeconds;
+                            if(trackSongPosition > lastPositionSeconds) {
+                                this.renderStats.songPositionRowRange = [positionSeconds - elapsedTimeSeconds, positionSeconds];
+                                highlight.push('position');
+                            }
+                            // console.log('this.renderStats.songPositionRowRange', this.renderStats.songPositionRowRange, elapsedTimeSeconds)
+                        } else if(autoScrollToCursor) {
+                            if(rows.length === rowLength-2)
+                                rows.shift();
                         }
-                        // console.log('this.renderStats.songPositionRowRange', this.renderStats.songPositionRowRange, elapsedTimeSeconds)
                     }
 
                     const rowProp = {
@@ -165,46 +179,50 @@ export default class ASCTrackRenderer extends ASCTrackBase {
         // const trackState = this.getTrackState();
         const cursorRowOffset = this.getRowOffset();
         // const rowLength = this.getRowLength();
-        let segmentRowOffsets = this.getSegmentRowOffsets();
+        let offsetList = this.getSegmentInfo().map(([offset, seconds, ticks]) => offset);
         // const segmentLengthTicks = this.getSegmentLengthTicks();
         // let nextSegmentPositionTicks = 0;
 
-        const lastSegmentRowOffset = segmentRowOffsets[segmentRowOffsets.length - 1];
-        const lastSegmentRowCount = lastSegmentRowOffset - segmentRowOffsets[segmentRowOffsets.length - 2];
+        const lastSegmentRowOffset = offsetList[offsetList.length - 1];
+        const lastSegmentRowCount = lastSegmentRowOffset - offsetList[offsetList.length - 2];
 
         // if(rowOffset >= nextSegmentRowOffset) {
-        segmentRowOffsets = segmentRowOffsets.slice();
         for(let i=lastSegmentRowOffset + lastSegmentRowCount; i<=cursorRowOffset+lastSegmentRowCount; i+=lastSegmentRowCount) {
-            segmentRowOffsets.push(i);
+            offsetList.push(i);
         }
-        // console.log('segmentRowOffsets', cursorRowOffset, segmentRowOffsets);
+        // console.log('segmentInfo', cursorRowOffset, segmentInfo);
         // }
 
         let buttons = [];
-        let selectedFound = false, firstButton=null;
-        for(let i=0; i<segmentRowOffsets.length; i++) {
-            const rowOffset = segmentRowOffsets[i];
-            const nextRowOffset = segmentRowOffsets.length > i ? segmentRowOffsets[i+1] : null;
+        let firstButton=null;
+        let selectedProps = null;
+        for(let i=0; i<offsetList.length; i++) {
+            const currentOffset = offsetList[i];
             const props = {
-                onAction: e => this.setRowOffset(rowOffset),
+                onAction: e => this.setRowOffset(currentOffset),
                 children: i
             }
-            if(!selectedFound && (nextRowOffset === null || cursorRowOffset < nextRowOffset)) {
-                selectedFound = true;
-                props.className = 'selected';
+            if(cursorRowOffset >= currentOffset) {
+                selectedProps = props;
             }
             buttons.push(props);
             if(buttons.length > ASCTrackBase.DEFAULT_MAX_SEGMENTS) {
+                if(selectedProps)
+                    break;
+                buttons.shift();
                 // if(buttons[0].className) {
                 //     buttons.pop();
                 // } else {
-                const button = buttons.shift();
-                if(!firstButton)
-                    firstButton = button;
+                // const button = buttons.shift();
+                // if(!firstButton)
+                //     firstButton = button;
                 // }
             }
         }
-        // console.log('segmentRowOffsets', cursorRowOffset, segmentRowOffsets);
+        if(selectedProps) {
+            selectedProps.className = 'selected';
+        }
+        // console.log('segmentInfo', cursorRowOffset, segmentInfo);
 
         if(firstButton)
             buttons.unshift(firstButton);

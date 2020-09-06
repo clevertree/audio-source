@@ -55,7 +55,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
     getDestinationList() { return this.state.destinationList || []; }
     getTrackLengthTicks() { return this.state.trackLengthTicks || null; }
 
-    getSegmentRowOffsets() { return this.state.segmentRowOffsets || [0]; }
+    getSegmentInfo() { return this.state.segmentInfo || [[0,0,0]]; }
 
     getStartPosition() { return this.state.startPosition || 0; }
     getSongPosition() { return this.state.songPosition || 0; }
@@ -72,47 +72,6 @@ export default class ASCTrackActions extends ASCTrackRenderer {
     //     console.warn('TODO: calculate correct destination');
     //     return this.destination = this.getComposer().getAudioContext();
     // }
-
-
-    updateRenderingProps() {
-        const segmentLengthTicks = this.getSegmentLengthTicks();
-        // const rowOffset = this.getRowOffset();
-
-        const iterator = this.getIterator();
-        iterator.seekToEnd();
-        const trackLengthTicks = iterator.getPositionInTicks() + segmentLengthTicks * 2;
-
-        const segmentRowOffsets = [];
-        const rowIterator = this.getRowIterator();
-        // let lastSegmentPositionTicks = 0;
-        let nextSegmentPositionTicks = 0;
-        while(true) {
-            const positionTicks = rowIterator.getPositionInTicks();
-            if(positionTicks >= trackLengthTicks
-                && segmentRowOffsets.length >= ASCTrackBase.DEFAULT_MIN_SEGMENTS)
-                break;
-            if(segmentRowOffsets.length >= ASCTrackBase.DEFAULT_MAX_SEGMENTS)
-                break;
-            const instructionData = rowIterator.nextCursorPosition();
-            if(Array.isArray(instructionData)) {
-            } else {
-                // Row
-                const currentRowOffset = rowIterator.getRowCount();
-                const currentPositionTicks = rowIterator.getPositionInTicks();
-                if(nextSegmentPositionTicks <= currentPositionTicks) {
-                    // lastSegmentPositionTicks += segmentLengthTicks;
-                    segmentRowOffsets.push(currentRowOffset);
-                    nextSegmentPositionTicks += segmentLengthTicks;
-                }
-            }
-        }
-
-        this.setState({
-            trackLengthTicks,
-            segmentRowOffsets
-        });
-    }
-
 
     cursorGetInfo(cursorOffset=null) {
         return this.getCursorInfo(cursorOffset || this.getCursorOffset());
@@ -234,17 +193,83 @@ export default class ASCTrackActions extends ASCTrackRenderer {
     //     return new TrackState(this, trackName);
     // }
 
+    /** Update Rendering Stats **/
+
+    updateRenderingStats() {
+        const segmentLengthTicks = this.getSegmentLengthTicks();
+        // const rowOffset = this.getRowOffset();
+
+        /** Seek to track end **/
+        const iterator = this.getIterator();
+        iterator.seekToEnd();
+        const trackLengthTicks = iterator.getPositionInTicks() + segmentLengthTicks * 2;
+
+        /** Calculate segments **/
+        const segmentInfo = [];
+        const rowIterator = this.getRowIterator();
+        // let lastSegmentPositionTicks = 0;
+        let nextSegmentPositionTicks = 0;
+        while(true) {
+            const positionTicks = rowIterator.getPositionInTicks();
+            // if(positionTicks >= trackLengthTicks
+            //     && segmentInfo.length >= ASCTrackBase.DEFAULT_MIN_SEGMENTS)
+            //     break;
+            // if(segmentInfo.length >= ASCTrackBase.DEFAULT_MAX_SEGMENTS)
+            //     break;
+            const instructionData = rowIterator.nextCursorPosition();
+            if(Array.isArray(instructionData)) {
+            } else {
+                // Row
+                const currentRowOffset = rowIterator.getRowCount();
+                const currentPositionTicks = rowIterator.getPositionInTicks();
+                if(currentPositionTicks > trackLengthTicks)
+                    break;
+                if(nextSegmentPositionTicks <= currentPositionTicks) {
+                    console.log('segmentInfo', currentRowOffset, currentPositionTicks, rowIterator.getPositionInSeconds())
+                    // lastSegmentPositionTicks += segmentLengthTicks;
+                    segmentInfo.push([currentRowOffset, currentPositionTicks, rowIterator.getPositionInSeconds()]);
+                    nextSegmentPositionTicks += segmentLengthTicks;
+                }
+            }
+        }
+
+        this.setState({
+            trackLengthTicks,
+            segmentInfo
+        });
+    }
+
     /** Position **/
     updateSongPosition(songPosition) {
         const [low, high] = this.renderStats.songPositionRowRange || [0, 0];
         if(songPosition < low || songPosition > high) {
-            // TODO: set offset based on songPosition
-            console.log('updateSongPosition', this.getTrackName(), this.renderStats.songPositionRowRange, songPosition);
-            this.setState({songPosition});
+            console.log('songPosition < low || songPosition > high', this.getTrackName(), {songPosition, low, high});
+            const state = {
+                songPosition
+            }
+            const autoScrollToCursor = !this.props.selected
+            if(autoScrollToCursor) {
+                let lastSegmentRowOffset = null; //, lastSegmentPositionSeconds=null;
+                for(let i=0; i<this.state.segmentInfo.length; i++) {
+                    const [segmentRowOffset, segmentPositionTicks, segmentPositionSeconds] = this.state.segmentInfo[i];
+                    if(songPosition < segmentPositionSeconds) {
+                        // const perc = (songPosition - lastSegmentPositionSeconds) / (segmentPositionSeconds - lastSegmentPositionSeconds);
+                        // console.log('perc', perc);
+                        break;
+                    }
+                    lastSegmentRowOffset = segmentRowOffset;
+                    // lastSegmentPositionSeconds = segmentPositionSeconds;
+                }
+                if(lastSegmentRowOffset !== null)
+                    state.rowOffset = lastSegmentRowOffset;
+            }
+            // console.log('updateSongPosition', this.getTrackName(), this.state.segmentInfo, state);
+            this.setState(state);
         } else {
             // console.warn('updateSongPosition', this.getTrackName(), this.renderStats.songPositionRange, playbackPositionInSeconds);
         }
     }
+
 
     /** Selection **/
 
@@ -369,9 +394,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
             throw new Error("Invalid quantizationTicks: " + quantizationTicks);
         this.setState({
             quantizationTicks
-        }, () => {
-            this.updateRenderingProps();
-        })
+        }, () => this.updateRenderingStats());
     }
 
     async changeQuantizationPrompt() {
@@ -387,7 +410,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
             throw new Error("Invalid quantizationTicks");
         this.setState({
             rowLength
-        })
+        }, () => this.updateRenderingStats());
     }
 
     async changeRowLengthPrompt() {

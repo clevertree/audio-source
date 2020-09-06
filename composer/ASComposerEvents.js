@@ -47,7 +47,7 @@ export default class ASComposerEvents extends ASComposerInput {
                         // this.fieldSongPlaybackPause.disabled = true;
                         this.setState({playing: false, paused: false});
                     }
-                    this.setSongPosition(this.song.getSongPlaybackPosition(), updateCount % 5 === 0);
+                    this.setSongPosition(this.song.getSongPlaybackPosition(), true);
                     updateCount++;
                 }, 10);
                 break;

@@ -119,7 +119,7 @@ class ASComposerActions extends ASComposerMenu {
         //         if (songData.tracks[trackName]) {
         //             // if (this.state.activeTracks.hasOwnProperty(trackName)) {
         //                 // const trackState = new TrackState(this, trackName);
-        //                 // trackState.updateRenderingProps();
+        //                 // trackState.updateRenderingStats();
         //             // }
         //             console.log("TODO finish")
         //         } else {
@@ -175,7 +175,8 @@ class ASComposerActions extends ASComposerMenu {
             for(let key in state.activeTracks) {
                 if(state.activeTracks.hasOwnProperty(key)) try {
                     const trackState = state.activeTracks[key];
-                    this.ref.activeTracks[key].current.setState(trackState);
+                    const activeTrack = this.ref.activeTracks[key].current;
+                    activeTrack.setState(trackState, () => activeTrack.updateRenderingStats());
                 } catch (e) {
                     console.error(e);
                 }
@@ -456,7 +457,6 @@ class ASComposerActions extends ASComposerMenu {
 
         // Update Tracks
         if(updateTrackPositions) {
-            // TODO Optimize: skip update if position change is less than next row?
             for (const trackName in this.ref.activeTracks) {
                 if (this.ref.activeTracks.hasOwnProperty(trackName)) {
                     const activeTrack = this.ref.activeTracks[trackName].current;
