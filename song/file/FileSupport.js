@@ -1,4 +1,5 @@
 import MIDIFileSupport from "./MIDIFileSupport";
+import JSONFileSupport from "./JSONFileSupport";
 
 const classes = [];
 
@@ -21,7 +22,10 @@ export default class FileSupport {
 
     async processSongFromFileBuffer(fileBuffer, filePath) {
         const support = this.getFileSupportByPath(filePath);
-        return await support.processSongFromFileBuffer(fileBuffer, filePath);
+        const song = await support.processSongFromFileBuffer(fileBuffer, filePath);
+        if(!song)
+            throw new Error("Support module failed to produce Song object: " + this.constructor.name)
+        return song;
     }
 
 
@@ -36,3 +40,4 @@ export default class FileSupport {
 
 
 FileSupport.addFileSupport(['mid', 'midi'], MIDIFileSupport);
+FileSupport.addFileSupport(['json'], JSONFileSupport);

@@ -68,8 +68,12 @@ export default class TrackIterator {
                     instructionData = instructionData.slice().splice(1, 1);
                 }
                 let trackArgs = this.processArgList(stats, instructionData, InstructionProcessor.trackCommand);
+                if(trackArgs[0].indexOf('*') !== -1) {
+                    this.onPlayWildcardTrack(stats, ...trackArgs)
+                } else {
+                    this.onPlayTrack(stats, ...trackArgs)
 
-                this.onPlayTrack(stats, ...trackArgs)
+                }
                 break;
 
             default:
@@ -102,6 +106,24 @@ export default class TrackIterator {
             // default:
         }
 
+    }
+
+    onPlayWildcardTrack(parentStats, wildCardTrackName, trackDuration=null, trackStartTime=0, trackFrequency=null) {
+        var escapeRegex = (str) => str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+        const trackNameMatch = new RegExp("^" + wildCardTrackName.split("*").map(escapeRegex).join(".*") + "$");
+
+        const tracks = this.song.getProxiedData().tracks;
+        let count = 0;
+        for(const trackName in tracks) {
+            if(tracks.hasOwnProperty(trackName)) {
+                if(trackNameMatch.test(trackName)) {
+                    this.onPlayTrack(parentStats, trackName, trackDuration, trackStartTime, trackFrequency);
+                    count++;
+                }
+            }
+        }
+        if(count === 0)
+            console.warn("No tracks matched wildcard track: " + wildCardTrackName, tracks);
     }
 
     onPlayTrack(parentStats, trackName, trackDuration=null, trackStartTime=0, trackFrequency=null) {

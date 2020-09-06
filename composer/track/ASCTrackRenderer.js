@@ -179,7 +179,7 @@ export default class ASCTrackRenderer extends ASCTrackBase {
         // const trackState = this.getTrackState();
         const cursorRowOffset = this.getRowOffset();
         // const rowLength = this.getRowLength();
-        let offsetList = this.getSegmentInfo().map(([offset, seconds, ticks]) => offset);
+        let offsetList = this.getSegmentInfo().map(([offset, seconds]) => offset);
         // const segmentLengthTicks = this.getSegmentLengthTicks();
         // let nextSegmentPositionTicks = 0;
 

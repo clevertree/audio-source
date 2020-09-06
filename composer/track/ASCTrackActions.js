@@ -55,7 +55,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
     getDestinationList() { return this.state.destinationList || []; }
     getTrackLengthTicks() { return this.state.trackLengthTicks || null; }
 
-    getSegmentInfo() { return this.state.segmentInfo || [[0,0,0]]; }
+    getSegmentInfo() { return this.state.segmentInfo || [[0,0]]; }
 
     getStartPosition() { return this.state.startPosition || 0; }
     getSongPosition() { return this.state.songPosition || 0; }
@@ -210,7 +210,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
         // let lastSegmentPositionTicks = 0;
         let nextSegmentPositionTicks = 0;
         while(true) {
-            const positionTicks = rowIterator.getPositionInTicks();
+            // const positionTicks = rowIterator.getPositionInTicks();
             // if(positionTicks >= trackLengthTicks
             //     && segmentInfo.length >= ASCTrackBase.DEFAULT_MIN_SEGMENTS)
             //     break;
@@ -225,9 +225,9 @@ export default class ASCTrackActions extends ASCTrackRenderer {
                 if(currentPositionTicks > trackLengthTicks)
                     break;
                 if(nextSegmentPositionTicks <= currentPositionTicks) {
-                    console.log('segmentInfo', currentRowOffset, currentPositionTicks, rowIterator.getPositionInSeconds())
+                    // console.log('segmentInfo', currentRowOffset, currentPositionTicks, rowIterator.getPositionInSeconds())
                     // lastSegmentPositionTicks += segmentLengthTicks;
-                    segmentInfo.push([currentRowOffset, currentPositionTicks, rowIterator.getPositionInSeconds()]);
+                    segmentInfo.push([currentRowOffset, rowIterator.getPositionInSeconds()]);
                     nextSegmentPositionTicks += segmentLengthTicks;
                 }
             }
@@ -251,7 +251,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
             if(autoScrollToCursor) {
                 let lastSegmentRowOffset = null; //, lastSegmentPositionSeconds=null;
                 for(let i=0; i<this.state.segmentInfo.length; i++) {
-                    const [segmentRowOffset, segmentPositionTicks, segmentPositionSeconds] = this.state.segmentInfo[i];
+                    const [segmentRowOffset, segmentPositionSeconds] = this.state.segmentInfo[i];
                     if(songPosition < segmentPositionSeconds) {
                         // const perc = (songPosition - lastSegmentPositionSeconds) / (segmentPositionSeconds - lastSegmentPositionSeconds);
                         // console.log('perc', perc);

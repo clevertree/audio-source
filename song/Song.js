@@ -1,7 +1,6 @@
 import ProgramLoader from "../common/program/ProgramLoader";
 import SongValues from "./values/SongValues";
 
-import JSONSongFile from "./file/JSONSongFile";
 import ConfigListener from "./config/ConfigListener";
 import Instruction from "./instruction/Instruction";
 import InstructionIterator from "./instruction/iterator/InstructionIterator";
@@ -13,6 +12,7 @@ import TrackIterator from "./track/TrackIterator";
 import TrackPlayback from "./track/TrackPlayback";
 import InstructionProcessor from "../common/program/InstructionProcessor";
 import MIDIFileSupport from "./file/MIDIFileSupport";
+import JSONFileSupport from "./file/JSONFileSupport";
 
 // TODO: can be handled cleaner
 ProgramList.addAllPrograms();
@@ -1021,7 +1021,7 @@ class Song {
             //     return new MIDISupport;
             //
             case 'json':
-                library = new JSONSongFile();
+                library = new JSONFileSupport();
                 // await library.init();
                 return library;
             //

@@ -460,7 +460,11 @@ class ASComposerActions extends ASComposerMenu {
             for (const trackName in this.ref.activeTracks) {
                 if (this.ref.activeTracks.hasOwnProperty(trackName)) {
                     const activeTrack = this.ref.activeTracks[trackName].current;
-                    activeTrack.updateSongPosition(playbackPositionInSeconds);
+                    if(activeTrack) {
+                        activeTrack.updateSongPosition(playbackPositionInSeconds);
+                    } else {
+                        delete this.ref.activeTracks[trackName];
+                    }
                 }
             }
         }
