@@ -111,7 +111,7 @@ export default class ASComposerTrackPanel extends React.Component {
     renderInstructionForms() {
         const instructionData = this.state.selectedInstructionData;
         const processor = new InstructionProcessor(instructionData);
-        const [, argTypeList] = processor.processInstructionArgs();
+        const [, argTypeList] = processor.processInstructionArgList();
 
         // console.log('commandString', commandString, params);
         let argIndex = 0;

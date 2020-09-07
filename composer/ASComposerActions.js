@@ -696,9 +696,6 @@ class ASComposerActions extends ASComposerMenu {
             newInstructionData.splice(1, 1, commandString);
         }
 
-        newInstructionData = Instruction.parseInstructionData(newInstructionData);
-        newInstructionData[0] = 0;
-
         const index = this.song.instructionInsertAtPosition(trackName, positionTicks, newInstructionData);
         if(select)
             this.trackSelect(trackName, index);

@@ -69,9 +69,9 @@ ArgType.duration = new ArgType(
 ArgType.velocity = new ArgType(
     "Velocity",
     velocity => {
-        if(Number.isInteger(velocity))
-            return velocity;
-        console.error("Invalid velocity: " + velocity);
+        // if(Number.isInteger(velocity))
+        return velocity;
+        // console.error("Invalid velocity: " + velocity);
     },
     (velocity, values) => { return velocity; },
     true

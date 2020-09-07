@@ -122,21 +122,14 @@ export default class ASCTrackRenderer extends ASCTrackBase {
                         const elapsedTimeSeconds = Values.instance.durationTicksToSeconds(rowDeltaTicks, iterator.getTimeDivision(), iterator.getBeatsPerMinute());
                         const nextRowPositionSeconds = rowPositionSeconds + elapsedTimeSeconds;
                         if (trackSongPositionSeconds < nextRowPositionSeconds) {
-                            // const rowLengthSeconds = rowPositionSeconds - lastRowPositionSeconds;
                             trackSongPositionFound = true;
-                            // const elapsedTimeSeconds = Values.instance.durationTicksToSeconds(rowDeltaTicks, iterator.getTimeDivision(), iterator.getBeatsPerMinute());
-                            // const lastPositionSeconds = rowPositionSeconds - elapsedTimeSeconds;
-                            // if (trackSongPosition > lastPositionSeconds) {
-                                this.renderStats.songPositionRowRange = [rowPositionSeconds, nextRowPositionSeconds - 0.0001];
-                                highlight.push('position');
-                            // }
-                            // console.log('this.renderStats.songPositionRowRange', trackSongPositionSeconds, this.renderStats.songPositionRowRange);
-                            // console.log('this.renderStats.songPositionRowRange', this.renderStats.songPositionRowRange, elapsedTimeSeconds)
+                            this.renderStats.songPositionRowRange = [rowPositionSeconds, nextRowPositionSeconds - 0.0001]; // Hack?
+                            highlight.push('position');
                         }
-                    }
-                    if(!trackSongPositionFound && autoScrollToCursor) {
-                        if(rows.length > rowLength-2)
-                            rows.shift();
+                        if(autoScrollToCursor) {
+                            if(rows.length > rowLength-2)
+                                rows.shift();
+                        }
                     }
 
                     const rowProp = {

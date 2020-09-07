@@ -19,7 +19,7 @@ export default class TrackPlayback extends TrackIterator {
         this.destination = destination;
 
         this.startTime = null;
-        this.seekLength = 10;
+        this.seekLength = 1;
         this.active = false;
         this.activePrograms = [];
 
@@ -45,6 +45,7 @@ export default class TrackPlayback extends TrackIterator {
             console.warn("Failed to execute command on empty program: ", commandString, params, trackStats);
             // TODO: error state
         } else {
+            console.log(program.constructor.name, `(${commandString})`, params);
             program[commandString].apply(program, params);
         }
     }

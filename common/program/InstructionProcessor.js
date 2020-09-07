@@ -8,7 +8,7 @@ export default class InstructionProcessor {
         this.programClass = programClass;
     }
 
-    processInstructionArgs() {
+    processInstructionArgList() {
         const argTypes = this.programClass.argTypes;
         // let argOffset = 1;
         let prependList = null;
@@ -54,8 +54,17 @@ export default class InstructionProcessor {
         return [commandString, prependList ? prependList.concat(argTypeList) : argTypeList];
     }
 
+    // validateInstructionArgs() {
+    //     const [commandString, argTypeList] = this.processInstructionArgList();
+    //     for(let i=0; i<argTypeList.length; i++) {
+    //         if(!argTypeList[i].consumesArgument)
+    //             continue;
+    //         const argType = argTypeList[i];
+    //
+    // }
+
     isTrackCommand() {
-        const [commandString, argTypeList] = this.processInstructionArgs();
+        const [commandString, argTypeList] = this.processInstructionArgList();
         if(commandString !== 'playTrack')
             return false;
         let argIndex = this.findArgParameterIndex(ArgType.trackName, argTypeList);
@@ -69,7 +78,7 @@ export default class InstructionProcessor {
 
     updateArg(argType, newArgValue) {
         // eslint-disable-next-line no-unused-vars
-        const [commandString, argTypeList] = this.processInstructionArgs();
+        const [commandString, argTypeList] = this.processInstructionArgList();
         let argIndex = this.findArgParameterIndex(argType, argTypeList);
         const oldValue = this.instructionData[argIndex];
         this.instructionData[argIndex] = newArgValue;

@@ -210,7 +210,7 @@ class ASComposerMenu extends ASComposerRenderer {
         const {selectedInstructionData} = this.getTrackPanelState()
         const processor = new InstructionProcessor(selectedInstructionData);
         // eslint-disable-next-line no-unused-vars
-        const [commandString, argTypeList] = processor.processInstructionArgs();
+        const [commandString, argTypeList] = processor.processInstructionArgList();
 
         let argIndex = 0;
         const content = [];

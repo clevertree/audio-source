@@ -94,7 +94,7 @@ class SongValues extends Values {
 
     renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue, onSelectValue) {
         // const processor = new InstructionProcessor(instructionData);
-        // const [commandString] = processor.processInstructionArgs();
+        // const [commandString] = processor.processInstructionArgList();
         // console.log('commandString', commandString);
         switch(argType) {
             // case ArgType.trackCommand:

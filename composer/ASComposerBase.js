@@ -39,7 +39,7 @@ class ASComposerBase extends React.Component {
             // Tracks
             activeTracks: {},
             // selectedIndices: [],
-            selectedInstructionData: [0, 'C4', '1B'],
+            selectedInstructionData: [0, 'C4'],
 
 
             // Track Playback

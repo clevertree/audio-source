@@ -50,7 +50,7 @@ export default class TrackIterator {
 
     processCommandInstruction(instructionData, stats) {
         const processor = new InstructionProcessor(instructionData);
-        const [commandString, argTypeList] = processor.processInstructionArgs();
+        const [commandString, argTypeList] = processor.processInstructionArgList();
 
         switch(commandString) {
             case 'program':      // Set Program (can be changed many times per track)
@@ -163,13 +163,13 @@ export default class TrackIterator {
         for (let i = 0; i < argTypeList.length; i++) {
             const argType = argTypeList[i];
             if (argType.consumesArgument) {
-                if(typeof instructionData[argIndex] !== "undefined") {
+                // if(typeof instructionData[argIndex] !== "undefined") {
                     const arg = argType.process(instructionData[argIndex], stats);
                     newArgs.push(arg);
                     if (argType === ArgType.duration)
                         this.processDuration(instructionData[argIndex], newArgs[i], stats);
                     argIndex++
-                }
+                // }
             } else {
                 const arg = argType.process(null, stats);
                 newArgs.push(arg);
