@@ -8,6 +8,7 @@ import PageFooter from "./PageFooter";
 import PropTypes from "prop-types";
 
 import "./assets/PageContainer.css";
+import "./assets/PageStyles.css";
 
 export default class PageContainer extends React.Component {
 
@@ -18,7 +19,7 @@ export default class PageContainer extends React.Component {
 
     render() {
         return (
-            <div className="aspage-container">
+            <div className={`aspage-container aspage${this.props.currentPath.replace('/','-')}`}>
                 <PageHeader/>
                 <PageHeaderLinks currentPath={this.props.currentPath}/>
                 <PageContent>

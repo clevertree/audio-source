@@ -16,7 +16,7 @@ export default class ASUIContextMenuContainer extends ASUIContextMenuContainerBa
                 <div
                     key="overlay"
                     className={`overlay${openOverlay ? ' open' : ''}`}
-                    onClick={this.cb.closeAllMenus}
+                    onClick={this.cb.closeAllOpenMenus}
                     // onContextMenu={this.cb.closeAllMenus}
                 >
                 </div>

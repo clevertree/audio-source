@@ -24,6 +24,9 @@ export default class ASComposerContainer extends React.Component {
                 // playback: React.createRef(),
             }
         }
+        this.cb = {
+            renderRootMenu: () => this.props.composer.renderRootMenu(this.ref.menu)
+        }
     }
 
     getContainerElement() {
@@ -72,7 +75,7 @@ export default class ASComposerContainer extends React.Component {
                     <ASUIMenuDropDown
                         arrow={false}
                         className="asc-menu-button-toggle"
-                        options={() => this.props.composer.renderRootMenu(this.ref.menu)}
+                        options={this.cb.renderRootMenu}
                     >
                         <ASUIIcon source="menu" size="large"/>
                     </ASUIMenuDropDown>
@@ -83,7 +86,7 @@ export default class ASComposerContainer extends React.Component {
             <div className="asc-header-container">
                 <div key="title" className="asc-title-text">{title}</div>
                 <div className="asc-menu-container">
-                    {this.props.composer.renderRootMenu(this.ref.menu)}
+                    {this.cb.renderRootMenu()}
                 </div>
             </div>
         );

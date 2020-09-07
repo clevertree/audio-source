@@ -52,6 +52,8 @@ div.audio-source-composer.fullscreen {
 
 
 
+
+
 /** Header **/
 
 
@@ -156,12 +158,14 @@ div.audio-source-composer.portrait div.asc-container {
 
 
 div.audio-source-composer.portrait div.asui-panel > div.container {
-    flex-wrap: nowrap;
+    /*flex-wrap: nowrap;*/
     /*overflow-y: visible;*/
 }
 
 
 div.audio-source-composer.portrait div.asc-content-container {
+    /*max-height: 95vh;*/
+    /*overflow-y: auto;*/
     /*display: flex;*/
     /*flex-wrap: wrap;*/
 }

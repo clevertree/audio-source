@@ -12,7 +12,7 @@ export default class ASUIContextMenuContainerBase extends React.Component {
             menuHistory: []
         }
         this.cb = {
-            closeAllMenus: () => this.closeAllOpenMenus(),
+            closeAllOpenMenus: () => this.closeAllOpenMenus(),
             goBackSliderMenu: () => this.goBackSliderMenu()
         }
         // this.ref = {
@@ -44,7 +44,7 @@ export default class ASUIContextMenuContainerBase extends React.Component {
                 {...this.state.slidingMenu}
                 floating={false}
             />
-            <ASUIMenuAction onAction={this.cb.closeAllMenus}>Close</ASUIMenuAction>
+            <ASUIMenuAction onAction={this.cb.closeAllOpenMenus}>Close</ASUIMenuAction>
         </>
     }
 
@@ -94,6 +94,7 @@ export default class ASUIContextMenuContainerBase extends React.Component {
 
     closeAllOpenMenus() {
         this.closeDropDownMenus();
+        this.closeSlidingMenu();
         this.setState({
             openMenus: [],
             slidingMenu: null,
@@ -132,6 +133,12 @@ export default class ASUIContextMenuContainerBase extends React.Component {
         })
     }
 
+    closeSlidingMenu() {
+        if(this.state.slidingMenu) {
+            const onClose = this.state.slidingMenu.onClose;
+            onClose && onClose();
+        }
+    }
     closeDropDownMenus(exceptMenuPath=null) {
         return this.state.openMenus.filter(openMenu => {
             if(exceptMenuPath && exceptMenuPath.startsWith(openMenu.menuPath))
