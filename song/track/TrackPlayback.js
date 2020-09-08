@@ -17,6 +17,7 @@ export default class TrackPlayback extends TrackIterator {
             throw new Error("Invalid destination");
         this.audioContext = destination.context;
         this.destination = destination;
+        this.lastCurrentTime = null;
 
         this.startTime = null;
         this.seekLength = 2;
@@ -173,7 +174,11 @@ export default class TrackPlayback extends TrackIterator {
     }
 
     renderPlayback() {
-        const currentPositionSeconds = this.getPlaybackPosition();
+        const currentPositionSeconds = this.audioContext.currentTime - this.startTime;
+        if(this.audioContext.currentTime === this.lastCurrentTime)
+            console.warn("audioContext.currentTime is stalling: ", this.audioContext.currentTime, this.lastCurrentTime);
+        this.lastCurrentTime = this.audioContext.currentTime;
+
         // console.log('renderPlayback()', {currentPositionSeconds}, this.active, this.hasReachedEnd(), this);
 
         if(!this.active || this.hasReachedEnd()) {

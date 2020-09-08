@@ -381,7 +381,7 @@ class Song {
     }
 
     instructionReplaceArg(trackName, replaceIndex, argIndex, newArgValue) {
-        console.log('instructionReplaceArg', trackName, replaceIndex, argIndex, newArgValue);
+        // console.log('instructionReplaceArg', trackName, replaceIndex, argIndex, newArgValue);
         const track = this.dataProxy.tracks[trackName];
         if(!track[replaceIndex])
             throw new Error(`Invalid replace index (${trackName}): ${replaceIndex}`);

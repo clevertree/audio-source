@@ -82,7 +82,6 @@ class ASComposerActions extends ASComposerMenu {
         this.song = song;
 
         this.song.addEventListener('*', this.cb.onSongEventCallback);
-        await this.song.programLoadAll();
 
         let songLength = 0;
         try {
@@ -103,6 +102,8 @@ class ASComposerActions extends ASComposerMenu {
         }
         state.activeTracks[startTrackName] = {}; // TODO: open root, why not?
         await this.setStateAsync(state);
+        console.log("Loading Song: ", song.data, songLength);
+        await this.song.programLoadAll();
         console.log("Current Song: ", song.data, songLength);
     }
 

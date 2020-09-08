@@ -4,13 +4,18 @@ const cache = {};
 const promises = {};
 let cacheClearInterval = null;
 
+let AC;
+function getDefaultAudioContext() {
+    return AC || (AC = new (window.AudioContext || window.webkitAudioContext)())
+}
+
 export default class AudioBufferLoader {
     static DEFAULT_TIMEOUT_MS = 10000;
     static DEFAULT_EXPIRE_MS = 60000;
     static CACHE_CLEAR_INTERVAL = 6000;
 
     constructor(audioContext=null) {
-        this.audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+        this.audioContext = audioContext || getDefaultAudioContext();
     }
 
     isAudioBufferAvailable(url) {

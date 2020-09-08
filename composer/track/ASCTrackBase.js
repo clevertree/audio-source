@@ -8,7 +8,7 @@ export default class ASCTrackBase extends React.Component {
     static DEFAULT_ROW_LENGTH = 16;
     static DEFAULT_MEASURES_PER_SEGMENT = 4;
     static DEFAULT_BEATS_PER_MEASURE = 4;
-    static DEFAULT_MAX_SEGMENTS = 8;
+    static DEFAULT_MAX_SEGMENTS = 6;
     static DEFAULT_MIN_SEGMENTS = 4;
 
     /** Default Properties **/

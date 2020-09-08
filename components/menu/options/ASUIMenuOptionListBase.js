@@ -59,6 +59,7 @@ export default class ASUIMenuOptionListBase extends React.Component {
         // console.log(`${this.constructor.name}.componentDidMount`);
 
         // this.refresh();
+        this.processOptions();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -70,6 +71,9 @@ export default class ASUIMenuOptionListBase extends React.Component {
         //     // console.log(`${this.constructor.name}.componentDidUpdate`, prevProps.options, this.props.options)
         //     this.refresh();
         // }
+        if(this.props.options !== prevProps.options) {
+            this.processOptions();
+        }
     }
 
     // refresh(force=true) {
@@ -101,12 +105,25 @@ export default class ASUIMenuOptionListBase extends React.Component {
     //
     // }
 
-    getOptions() {
+    processOptions() {
         let options = this.props.options;
         if (typeof options === "function")
             options = options(this);
+        if (options instanceof Promise) {
+            console.log('options', options);
+            options.then(options => this.setState({options: options}))
+            // this.setState({optionArray: [<ASUIMenuItem>Loading...</ASUIMenuItem>]})
+            // options = await options;
+        }
+    }
+
+    getOptions() {
+        let options = this.state.options || this.props.options;
+        if (typeof options === "function")
+            options = options(this);
         if(options instanceof Promise) {
-            throw new Error("Promise unsupported");
+            return [<ASUIMenuItem>Loading...</ASUIMenuItem>];
+            // throw new Error("Promise unsupported");
             // this.setState({optionArray: [<ASUIMenuItem>Loading...</ASUIMenuItem>]})
             // options = await options;
         }
