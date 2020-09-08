@@ -1,4 +1,4 @@
-import {ArgType} from "../../../common/";
+import {ArgType} from "../../../song/";
 
 export default class EmptyInstrument {
     /** Command Args **/

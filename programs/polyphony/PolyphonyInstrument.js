@@ -1,4 +1,4 @@
-import {Values, ProgramLoader} from "../../common";
+import {Values, ProgramLoader} from "../../song";
 
 class PolyphonyInstrument {
     constructor(config={}) {

@@ -5,6 +5,7 @@ import ASCTrackInstructionAdd from "../instruction/ASCTrackInstructionAdd";
 import ASCTrackDelta from "../delta/ASCTrackDelta";
 import ASUIDropDownContainer from "../../../components/options/ASUIDropDownContainer";
 import ASCTrackRowBase from "./ASCTrackRowBase";
+import Values from "../../../song/values/Values";
 
 export default class ASCTrackRow extends ASCTrackRowBase {
 
@@ -17,7 +18,7 @@ export default class ASCTrackRow extends ASCTrackRowBase {
         }
 
         const composer = this.getComposer();
-        const rowDeltaDuration = composer.values.formatSongDuration(this.props.deltaDuration);
+        const rowDeltaDuration = Values.instance.formatDuration(this.props.deltaDuration, composer.getSong().getTimeDivision());
         return (
             // <TouchableOpacity
             //     onPressIn={this.cb.onPressIn}

@@ -1,12 +1,12 @@
 import React from 'react';
+import PropTypes from "prop-types";
 
 import {
     ASUIGlobalContext,
     ASUIInputRange, ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem
 } from "../../../../components";
-import {ProgramLoader, PromptManager} from "../../../../common/";
-
-import PropTypes from "prop-types";
+import {PromptManager} from "../../../../common/";
+import {ProgramLoader} from "../../../../song";
 
 export default class EnvelopeEffectRendererBase extends React.Component {
     /** Property validation **/

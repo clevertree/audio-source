@@ -5,8 +5,7 @@ import {
     ASUIInputRange,
     ASUIMenuDropDown, ASUIButtonDropDown, ASUIMenuItem, ASUIGlobalContext
 } from "../../../../components";
-import {LibraryProcessor, ProgramLoader} from "../../../../song";
-import {Values} from "../../../../common";
+import {LibraryProcessor, ProgramLoader, Values} from "../../../../song";
 
 import PropTypes from "prop-types";
 import AudioBufferLoader from "../loader/AudioBufferLoader";

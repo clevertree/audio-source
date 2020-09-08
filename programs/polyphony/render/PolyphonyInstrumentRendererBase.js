@@ -1,14 +1,14 @@
 import React from 'react';
+import PropTypes from "prop-types";
 
 import {
     ASUIGlobalContext,
-    ASUIMenuAction, ASUIMenuBreak, ASUIMenuItem,
+    ASUIMenuAction, ASUIMenuBreak, ASUIMenuItem
 } from "../../../components";
+import {PromptManager} from "../../../common/";
+import {ProgramLoader} from "../../../song";
 
-import {ProgramLoader, PromptManager} from "../../../common";
-import PropTypes from "prop-types";
 
-/** PolyphonyInstrumentRenderer **/
 class PolyphonyInstrumentRendererBase extends React.Component {
     /** Property validation **/
     static propTypes = {

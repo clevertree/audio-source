@@ -4,6 +4,7 @@ import ASCTrackInstructionAdd from "../instruction/ASCTrackInstructionAdd";
 import ASCTrackDelta from "../delta/ASCTrackDelta";
 import ASCTrackRowBase from "./ASCTrackRowBase";
 
+import Values from "../../../song/values/Values";
 import "./ASCTrackRow.css";
 
 class ASCTrackRow extends ASCTrackRowBase {
@@ -19,8 +20,8 @@ class ASCTrackRow extends ASCTrackRowBase {
             className += ' ' + (this.props.highlight||[]).join(' '); // ' highlight';
         const composer = this.getComposer();
         const track = this.getTrack();
-        const rowDeltaDuration = composer.state.showTrackRowDurationInTicks ? this.props.deltaDuration : composer.values.formatDuration(this.props.deltaDuration);
-        const rowPosition = composer.state.showTrackRowPositionInTicks ? this.props.positionTicks : composer.values.formatDurationAsDecimal(this.props.positionTicks);
+        const rowDeltaDuration = composer.state.showTrackRowDurationInTicks ? this.props.deltaDuration : track.formatTrackDuration(this.props.deltaDuration);
+        const rowPosition = composer.state.showTrackRowPositionInTicks ? this.props.positionTicks : track.formatDurationAsDecimal(this.props.positionTicks);
         return (
             <div
                 // tabIndex={0}

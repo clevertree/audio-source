@@ -4,7 +4,7 @@ import {ASUIButton, ASUIButtonDropDown} from "../../components/";
 import ASCTrackInstruction from "./instruction/ASCTrackInstruction";
 import ASCTrackRow from "./row/ASCTrackRow";
 import ASCTrackBase from "./ASCTrackBase";
-import {Values} from "../../common";
+import {Values} from "../../song";
 
 
 // TODO: ASCTrackRowContainer
@@ -65,7 +65,7 @@ export default class ASCTrackRenderer extends ASCTrackBase {
                 const instructionData = nextCursorEntry; //iterator.currentInstruction();
                 // console.log('instruction', instruction);
                 const index = iterator.getIndex();
-                const rowProp = {
+                const instructionProp = {
                     key: index,
                     index: index,
                     instruction: instructionData,
@@ -73,14 +73,14 @@ export default class ASCTrackRenderer extends ASCTrackBase {
                     cursorPosition: iterator.getCursorPosition(),
                 };
                 if(iterator.getCursorPosition() === cursorOffset) {
-                    rowProp.cursor = true;
+                    instructionProp.cursor = true;
 
                 }
                 if(selectedIndices.indexOf(index) !== -1)
-                    rowProp.selected = true;
+                    instructionProp.selected = true;
                 if(playingIndices.indexOf(index) !== -1)
-                    rowProp.playing = true;
-                rowInstructions.push(rowProp)
+                    instructionProp.playing = true;
+                rowInstructions.push(instructionProp)
 
             } else {
                 const rowDeltaTicks = nextCursorEntry;
@@ -229,7 +229,7 @@ export default class ASCTrackRenderer extends ASCTrackBase {
         const composer = this.props.composer;
 
         const quantizationTicks = this.getQuantizationTicks();
-        const rowDeltaDuration = composer.values.formatSongDuration(quantizationTicks);
+        const rowDeltaDuration = Values.instance.formatDuration(quantizationTicks, composer.getSong().getTimeDivision());
         return <ASUIButtonDropDown
             className="row-quantization"
             title={`Quantization (Duration = ${rowDeltaDuration})`}

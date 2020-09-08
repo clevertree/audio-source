@@ -48,6 +48,7 @@ export default class ASCTrackBase extends React.Component {
             renderMenuViewOptions: () => this.renderMenuViewOptions(),
             renderMenuSetQuantization: () => this.renderMenuSetQuantization(),
             renderMenuSetRowLength: () => this.renderMenuSetRowLength(),
+            // formatDuration: durationTicks => this.formatTrackDuration(durationTicks)
         }
 
         this.ref = {

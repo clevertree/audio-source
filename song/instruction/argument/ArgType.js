@@ -1,4 +1,4 @@
-import {Values} from "../../index";
+import Values from "../../values/Values";
 
 export default class ArgType {
     constructor(title, processArgumentCallback, formatArgumentCallback, consumesArgument=true) {
@@ -37,7 +37,7 @@ ArgType.frequency = new ArgType(
             frequency /= stats.transpose;
         return frequency;
     },
-    (frequency, values) => {
+    (frequency, stats) => {
         if(frequency === null)
             return 'N/A';
         return frequency;
@@ -56,8 +56,10 @@ ArgType.duration = new ArgType(
         return Values.instance.durationTicksToSeconds(durationTicks, stats.timeDivision, stats.beatsPerMinute);
         // return durationSeconds;
     },
-    (durationTicks, values) => {
-        return values.formatDuration(durationTicks);
+    (durationTicks, stats) => {
+        if(typeof durationTicks === "number")
+            return Values.instance.formatDuration(durationTicks, stats.timeDivision);
+        return Values.instance.formatDurationAsTicks(durationTicks);
     },
     true
 )
@@ -70,7 +72,7 @@ ArgType.velocity = new ArgType(
         return velocity;
         // console.error("Invalid velocity: " + velocity);
     },
-    (velocity, values) => { return velocity; },
+    (velocity, stats) => { return velocity; },
     true
 )
 

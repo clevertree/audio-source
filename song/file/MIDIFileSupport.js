@@ -1,6 +1,6 @@
 import {parseArrayBuffer} from 'midi-json-parser';
-import Values from "../../common/values/Values";
-import {Song} from "../";
+import Song from "../Song";
+import Values from "../values/Values";
 
 
 export default class MIDIFileSupport {

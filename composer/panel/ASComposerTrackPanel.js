@@ -1,7 +1,8 @@
 import React from "react";
 
 import {ASUIIcon, ASUIForm, ASUIPanel, ASUIButton, ASUIButtonDropDown} from "../../components";
-import {ArgType, InstructionProcessor, Values} from "../../common";
+import Instruction from "../../song/instruction/Instruction";
+import {ArgType, Values} from "../../song";
 
 export default class ASComposerTrackPanel extends React.Component {
 
@@ -109,9 +110,13 @@ export default class ASComposerTrackPanel extends React.Component {
     /** Forms **/
 
     renderInstructionForms() {
+        const composer = this.props.composer;
         const instructionData = this.state.selectedInstructionData;
-        const processor = new InstructionProcessor(instructionData);
+        const processor = new Instruction(instructionData);
         const [, argTypeList] = processor.processInstructionArgList();
+        const formatStats = {
+            timeDivision: composer.getSong().getTimeDivision()
+        };
 
         // console.log('commandString', commandString, params);
         let argIndex = 0;
@@ -127,7 +132,7 @@ export default class ASComposerTrackPanel extends React.Component {
                 case ArgType.offset:
                 case ArgType.trackName:
                 default:
-                    return this.renderDropDownForm(instructionData, argType, argIndex, paramValue);
+                    return this.renderDropDownForm(instructionData, argType, argIndex, paramValue, formatStats);
 
                 case ArgType.velocity:
                     return this.renderVelocityForm(instructionData, argType, argIndex, paramValue);
@@ -135,7 +140,7 @@ export default class ASComposerTrackPanel extends React.Component {
         });
     }
 
-    renderDropDownForm(instructionData, argType, argIndex, paramValue) {
+    renderDropDownForm(instructionData, argType, argIndex, paramValue, formatStats={}) {
         let header = argType.title.split(' ').pop(); // Long text hack
         const composer = this.props.composer;
         return <ASUIForm key={argIndex} header={header}>
@@ -143,7 +148,7 @@ export default class ASComposerTrackPanel extends React.Component {
                 arrow={'▼'}
                 title={`Change ${argType.title}`}
                 options={() => composer.renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue)}
-            >{argType.format(paramValue, composer.getSong().values)}</ASUIButtonDropDown>
+            >{argType.format(paramValue, formatStats)}</ASUIButtonDropDown>
         </ASUIForm>
     }
 
@@ -151,7 +156,7 @@ export default class ASComposerTrackPanel extends React.Component {
         const composer = this.props.composer;
 
         return <ASUIForm key={argIndex} header={header}>
-            {Values.instance.renderInputVelocity((newVelocity) => {
+            {composer.renderInputVelocity((newVelocity) => {
                 composer.instructionReplaceArgByType(composer.getSelectedTrackName(), this.state.selectedIndices, argType, newVelocity);
             }, paramValue, title)}
         </ASUIForm>;
@@ -161,7 +166,7 @@ export default class ASComposerTrackPanel extends React.Component {
 
     renderMenuSelectTrack() {
         const composer = this.props.composer;
-        return composer.values.renderMenuSelectTrack(trackName => {
+        return composer.renderMenuSelectTrack(trackName => {
             composer.trackSelect(trackName)
         }, null, composer.getSelectedTrackName())
     }

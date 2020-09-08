@@ -1,7 +1,7 @@
-import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../components/";
 import React from "react";
-import ProgramLoader from "../../common/program/ProgramLoader";
+import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../components/";
 import DefaultLibraryData from "../../default.library";
+import ProgramLoader from "../program/ProgramLoader";
 
 
 class LibraryProcessor {

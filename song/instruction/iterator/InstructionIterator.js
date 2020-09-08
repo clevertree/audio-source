@@ -1,4 +1,4 @@
-import {Values} from "../../../common";
+import {Values} from "../../../song";
 
 export default class InstructionIterator {
     constructor(instructionList, stats={}, instructionCallback=null) {

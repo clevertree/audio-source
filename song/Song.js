@@ -1,5 +1,3 @@
-import ProgramLoader from "../common/program/ProgramLoader";
-import SongValues from "./values/SongValues";
 
 import ConfigListener from "./config/ConfigListener";
 import Instruction from "./instruction/Instruction";
@@ -7,12 +5,12 @@ import InstructionIterator from "./instruction/iterator/InstructionIterator";
 
 
 import ProgramList from "../programs";
-import Values from "../common/values/Values";
 import TrackIterator from "./track/TrackIterator";
 import TrackPlayback from "./track/TrackPlayback";
-import InstructionProcessor from "../common/program/InstructionProcessor";
 import MIDIFileSupport from "./file/MIDIFileSupport";
 import JSONFileSupport from "./file/JSONFileSupport";
+import ProgramLoader from "./program/ProgramLoader";
+import Values from "./values/Values";
 
 // TODO: can be handled cleaner
 ProgramList.addAllPrograms();
@@ -33,7 +31,7 @@ class Song {
 
         this.data = Object.assign({
             title: Song.generateTitle(),
-            uuid: new SongValues(this).generateUUID(),
+            uuid: new Values().generateUUID(),
             version: '0.0.1',
             created: new Date().getTime(),
             timeDivision: 96 * 4,
@@ -133,7 +131,7 @@ class Song {
 
         this.dataProxy = new Proxy(this.data, new ConfigListener(this, []));
         this.history = [];
-        this.values = new SongValues(this);
+        // this.values = new SongValues(this);
 
         // this.loadSongData(songData);
         // this.programLoadAll();
@@ -155,6 +153,7 @@ class Song {
     }
 
     getProxiedData() { return this.dataProxy; }
+    getTimeDivision() { return this.data.timeDivision; }
 
     /** @deprecated? **/
     connect(destination) {
@@ -214,6 +213,14 @@ class Song {
     }
 
 
+    trackEach(callback) {
+        const tracks = this.data.tracks;
+        return Object.keys(tracks).map(function(trackName) {
+            return callback(trackName, tracks[trackName]);
+        });
+    }
+
+
     generateInstructionTrackName(trackName = 'track') {
         const tracks = this.data.tracks;
         for (let i = 0; i <= 999; i++) {
@@ -223,8 +230,6 @@ class Song {
         }
         throw new Error("Failed to generate group name");
     }
-
-
 
 
     /** Instructions **/
@@ -393,7 +398,7 @@ class Song {
         if(!track[replaceIndex])
             throw new Error(`Invalid replace index (${trackName}): ${replaceIndex}`);
         const instructionData = track[replaceIndex]; // this.instructionDataGetByIndex(trackName, replaceIndex);
-        const processor = new InstructionProcessor(instructionData);
+        const processor = new Instruction(instructionData);
         processor.updateArg(argType, newArgValue)
     }
 

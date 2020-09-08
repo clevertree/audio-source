@@ -1,6 +1,6 @@
 import ASPlayerActions from "./ASPlayerActions";
 
-import {Song, SongValues}          from "../song";
+import {Song}          from "../song";
 import ClientStorage       from "../common/storage/ClientStorage";
 
 /**
@@ -59,7 +59,7 @@ class ASPlayer extends ASPlayerActions {
     // get isPaused()              { return this.state.paused; }
     // set isPaused(value)         { this.setStatus({paused: value}); }
 
-    get values() { return new SongValues(this.song); }
+    // get values() { return new SongValues(this.song); }
 
     componentDidMount() {
         super.componentDidMount();

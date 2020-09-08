@@ -19,7 +19,7 @@ import EnvelopeEffectRenderer from "./effect/envelope/render/EnvelopeEffectRende
 import LFOParameter from "./parameter/lfo/LFOParameter";
 import LFOParameterRenderer from "./parameter/lfo/render/LFOParameterRenderer";
 
-import ProgramLoader from "../common/program/ProgramLoader";
+import ProgramLoader from "../song/program/ProgramLoader";
 
 export default {
     AudioBufferInstrument,

@@ -1,6 +1,7 @@
 import React from "react";
 
 import {ASUIIcon, ASUIForm, ASUIPanel, ASUIInputRange, ASUIButton} from "../../components";
+import {Values} from "../../song";
 
 export default class ASComposerSongPanel extends React.Component {
     constructor(props) {
@@ -8,7 +9,7 @@ export default class ASComposerSongPanel extends React.Component {
         const composer = this.props.composer;
         this.formats = {
             songPosition: function(value) {
-                return composer.values.formatPlaybackPosition(composer.songStats.position);
+                return Values.instance.formatPlaybackPosition(composer.songStats.position);
             }
         }
         this.cb = {

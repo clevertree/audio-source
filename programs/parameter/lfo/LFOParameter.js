@@ -1,4 +1,4 @@
-import {ArgType} from "../../../common/";
+import {ArgType} from "../../../song/";
 
 let activeNotes = [];
 export default class LFOParameter {

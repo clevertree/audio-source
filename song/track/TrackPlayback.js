@@ -1,5 +1,5 @@
 import TrackIterator from "./TrackIterator";
-import ProgramLoader from "../../common/program/ProgramLoader";
+import ProgramLoader from "../program/ProgramLoader";
 
 
 export default class TrackPlayback extends TrackIterator {

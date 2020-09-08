@@ -110,7 +110,7 @@ export default class ASUIMenuOptionListBase extends React.Component {
         if (typeof options === "function")
             options = options(this);
         if (options instanceof Promise) {
-            console.log('options', options);
+            // console.log('options', options);
             options.then(options => this.setState({options: options}))
             // this.setState({optionArray: [<ASUIMenuItem>Loading...</ASUIMenuItem>]})
             // options = await options;

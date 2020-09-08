@@ -1,8 +1,7 @@
 import {LibraryProcessor, ProgramLoader, Song, ClientStorage, FileService, FileSupport} from "../song";
+import {Instruction, Values} from "../song";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
-import {InstructionProcessor} from "../common";
-import Values from "../common/values/Values";
 
 // import {TrackInfo} from "./track/";
 
@@ -374,7 +373,9 @@ class ASComposerActions extends ASComposerMenu {
                 resolve(e.target.result);
             };
         });
-        return await this.loadSongFromBuffer(buffer, file.name);
+        const song = await this.loadSongFromBuffer(buffer, file.name);
+        await this.saveSongToMemory();
+        return song;
     }
 
     async loadSongFromBuffer(buffer, filePath) {
@@ -736,7 +737,7 @@ class ASComposerActions extends ASComposerMenu {
         // console.log('instructionReplaceArg', trackName, selectedIndices, argIndex, newArgValue, selectedInstructionData);
 
         const selectedInstructionData = this.state.selectedInstructionData;
-        const processor = new InstructionProcessor(selectedInstructionData);
+        const processor = new Instruction(selectedInstructionData);
         processor.updateArg(argType, newArgValue)
         this.setState({selectedInstructionData});
         for (let i = 0; i < selectedIndices.length; i++) {

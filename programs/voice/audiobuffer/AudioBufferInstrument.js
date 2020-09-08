@@ -1,5 +1,5 @@
 import AudioBufferLoader from "./loader/AudioBufferLoader";
-import {ArgType, ProgramLoader, Values} from "../../../common";
+import {ArgType, ProgramLoader, Values} from "../../../song";
 
 
 export default class AudioBufferInstrument {

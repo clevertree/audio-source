@@ -4,8 +4,7 @@ import {
     ASUIMenuAction,
     ASUIMenuDropDown, ASUIMenuBreak, ASUIMenuItem,
 } from "../../../components";
-import {LibraryProcessor} from "../../../song";
-import {ProgramLoader} from "../../../common";
+import {LibraryProcessor, ProgramLoader} from "../../../song";
 import ASCPresetBrowser from "../browser/ASCPresetBrowser";
 
 

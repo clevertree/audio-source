@@ -1,6 +1,7 @@
 import InstructionIterator from "../instruction/iterator/InstructionIterator";
-import InstructionProcessor from "../../common/program/InstructionProcessor";
-import {ArgType, Values} from "../../common";
+import {Instruction} from "../index";
+import Values from "../values/Values";
+import ArgType from "../instruction/argument/ArgType";
 
 
 export default class TrackIterator {
@@ -49,7 +50,7 @@ export default class TrackIterator {
 
 
     processCommandInstruction(instructionData, stats) {
-        const processor = new InstructionProcessor(instructionData);
+        const processor = new Instruction(instructionData);
         const [commandString, argTypeList] = processor.processInstructionArgList();
 
         switch(commandString) {
@@ -67,7 +68,7 @@ export default class TrackIterator {
                 } else {
                     instructionData = instructionData.slice().splice(1, 1);
                 }
-                let trackArgs = this.processArgList(stats, instructionData, InstructionProcessor.trackCommand);
+                let trackArgs = this.processArgList(stats, instructionData, Instruction.trackCommand);
                 if(trackArgs[0].indexOf('*') !== -1) {
                     this.onPlayWildcardTrack(stats, ...trackArgs)
                 } else {

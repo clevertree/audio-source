@@ -1,12 +1,10 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 import {ASUIClickable, ASUIGlobalContext, ASUIMenuAction, ASUIMenuItem} from "../../../components";
-import {LibraryProcessor} from "../../../song";
-
+import {LibraryProcessor, ProgramLoader} from "../../../song";
+import {PromptManager} from "../../../common";
 import "./ASCPresetBrowser.css";
-import {ProgramLoader} from "../../../common";
-import PromptManager from "../../../common/prompt/PromptManager";
-import PropTypes from "prop-types";
 
 export default class ASCPresetBrowser extends React.Component {
     static DEFAULT_TIMEOUT_MS = 10000;

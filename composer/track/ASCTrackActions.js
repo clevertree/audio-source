@@ -3,8 +3,7 @@ import * as React from "react";
 import {ASUIMenuAction} from "../../components/";
 import PromptManager from "../../common/prompt/PromptManager";
 import TrackInstructionRowIterator from "./instruction/TrackInstructionRowIterator";
-import {InstructionIterator} from "../../song";
-import Values from "../../common/values/Values";
+import {InstructionIterator, Values} from "../../song";
 import ASCTrackBase from "./ASCTrackBase";
 import ASCTrackRenderer from "./ASCTrackRenderer";
 
@@ -434,8 +433,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
 
     renderMenuSetQuantization(title = "Select Quantization") {
         const quantizationTicks = this.getQuantizationTicks();
-        const songValues = this.props.composer.values;
-        return songValues.renderMenuSelectDuration(
+        return this.props.composer.renderMenuSelectDuration(
             durationTicks => this.changeQuantization(durationTicks),
             this.getTimeDivision(),
             quantizationTicks,
@@ -446,9 +444,8 @@ export default class ASCTrackActions extends ASCTrackRenderer {
 
 
     renderMenuSetRowLength() {
-        const songValues = this.props.composer.values;
         return (<>
-            {songValues.getTrackerLengthInRows((length, title) =>
+            {this.props.composer.getTrackerLengthInRows((length, title) =>
                 <ASUIMenuAction key={length} onAction={(e) => this.changeRowLength(length)}>{title}</ASUIMenuAction>
             )}
             <ASUIMenuAction onAction={(e) => this.changeRowLengthPrompt()} >Custom Length</ASUIMenuAction>
@@ -586,6 +583,17 @@ export default class ASCTrackActions extends ASCTrackRenderer {
             }
         )
     }
+
+
+    /** Format **/
+
+    formatTrackDuration(durationTicks) {
+        return Values.instance.formatDuration(durationTicks, this.getTimeDivision())
+    }
+    formatDurationAsDecimal(durationTicks, fractionDigits=2) {
+        return Values.instance.formatDurationAsDecimal(durationTicks, this.getTimeDivision(), fractionDigits)
+    }
+
 
 }
 

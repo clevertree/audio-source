@@ -1,5 +1,5 @@
 import React from "react";
-import {Keyboard, LibraryProcessor, Song, SongValues} from "../song";
+import {Keyboard, LibraryProcessor, Song} from "../song";
 
 class ASComposerBase extends React.Component {
     constructor(props) {
@@ -133,7 +133,7 @@ class ASComposerBase extends React.Component {
     //     Object.apply(this.globalState, globalState);
     // }
 
-    get values() { return new SongValues(this.song); }
+    // get values() { return new SongValues(this.song); }
 
     // async connectedCallback() {
     //     this.shadowDOM = this.attachShadow({mode: 'closed'});

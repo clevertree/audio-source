@@ -1,5 +1,5 @@
 import PeriodicWaveLoader from "./loader/PeriodicWaveLoader";
-import {ArgType, ProgramLoader, Values} from "../../../common/";
+import {ArgType, ProgramLoader, Values} from "../../../song/";
 
 
 export default class OscillatorInstrument {
