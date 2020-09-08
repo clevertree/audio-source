@@ -23,8 +23,8 @@ export default class ProgramLoader {
 
     getData(programID, proxiedData=true) {
         let songData = proxiedData
-            ? this.song.data
-            : this.song.getProxiedData();
+            ? this.song.getProxiedData()
+            : this.song.data;
         return songData.programs[programID];
     }
 

@@ -11,7 +11,7 @@ export default class TrackPlayback extends TrackIterator {
                 startTime: null,
             },
             filterProgramCommand
-            )
+        );
 
         if (!destination || !destination.context)
             throw new Error("Invalid destination");
@@ -19,13 +19,14 @@ export default class TrackPlayback extends TrackIterator {
         this.destination = destination;
 
         this.startTime = null;
-        this.seekLength = 1;
+        this.seekLength = 2;
         this.active = false;
         this.activePrograms = [];
 
         this.endPromise = new Promise((resolve, reject) => {
             this.endResolve = resolve;
         });
+        console.log('TrackPlayback', startingTrackName, song);
     }
 
     isActive() { return this.active; }
@@ -45,7 +46,7 @@ export default class TrackPlayback extends TrackIterator {
             console.warn("Failed to execute command on empty program: ", commandString, params, trackStats);
             // TODO: error state
         } else {
-            console.log(program.constructor.name, `(${commandString})`, params);
+            // console.log(program.constructor.name, `(${commandString})`, params);
             program[commandString].apply(program, params);
         }
     }
@@ -130,6 +131,7 @@ export default class TrackPlayback extends TrackIterator {
 
 
     play(startPosition=null) {
+        console.log('TrackPlayback.play', startPosition);
         const stats = this.activeIterators[0].stats;
         this.active = true;
 
@@ -139,7 +141,7 @@ export default class TrackPlayback extends TrackIterator {
             this.startTime -= startPosition;
         stats.startTime = this.startTime; // TODO: redundant?
 
-        this.seekInterval = setInterval(() => this.renderPlayback(), this.seekLength / 10);
+        this.seekInterval = setInterval(() => this.renderPlayback(), (this.seekLength * 1000) / 2);
 
         this.renderPlayback();
     }
@@ -172,7 +174,7 @@ export default class TrackPlayback extends TrackIterator {
 
     renderPlayback() {
         const currentPositionSeconds = this.getPlaybackPosition();
-        // console.log('currentPositionSeconds', currentPositionSeconds);
+        // console.log('renderPlayback()', {currentPositionSeconds}, this.active, this.hasReachedEnd(), this);
 
         if(!this.active || this.hasReachedEnd()) {
             clearInterval(this.seekInterval);
@@ -189,6 +191,7 @@ export default class TrackPlayback extends TrackIterator {
     }
 
     stopPlayback(stopAllNotes=true) {
+        console.log('TrackPlayback.stopPlayback', stopAllNotes);
         if(this.active) {
             this.active = false;
             this.endResolve();

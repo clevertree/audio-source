@@ -11,10 +11,9 @@ class SongValues extends Values {
 
 
     getSongPrograms(callback = (id, name) => [id, name]) {
-        const songData = this.song.getProxiedData();
         const results = [];
-        if (songData.programs) {
-            const programList = songData.programs;
+        if (this.song.data.programs) {
+            const programList = this.song.data.programs;
             for (let programID = 0; programID < programList.length; programID++) {
                 const program = programList[programID];
 

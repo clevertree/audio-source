@@ -356,7 +356,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
         // const viewKey = this.getTrackViewKey();
         composer.trackSelect(this.getTrackName(), selectedIndices);
 
-        if(composer.state.playbackOnSelect && playback) try {
+        if(composer.state.playbackOnSelect && playback && (selectedIndices.length > 0)) try {
             composer.trackPlay(this.getTrackName(), selectedIndices, false);
         } catch (e) {
             console.error("Error in playback: ", e);

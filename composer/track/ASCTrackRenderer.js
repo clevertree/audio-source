@@ -58,7 +58,7 @@ export default class ASCTrackRenderer extends ASCTrackBase {
         // console.log('quantizationTicks', quantizationTicks, cursorOffset, rowOffset, this.props.this.state);
 
         const rowLength = this.getRowLength();
-        let lastRowPositionSeconds = 0;
+        // let lastRowPositionSeconds = 0;
         while(rows.length < rowLength) {
             const nextCursorEntry = iterator.nextCursorPosition();
             if(Array.isArray(nextCursorEntry)) {
@@ -151,7 +151,7 @@ export default class ASCTrackRenderer extends ASCTrackBase {
                 }
 
                 rowInstructions = [];
-                lastRowPositionSeconds = rowPositionSeconds;
+                // lastRowPositionSeconds = rowPositionSeconds;
             }
         }
 

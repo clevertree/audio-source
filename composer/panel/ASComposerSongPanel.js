@@ -11,6 +11,13 @@ export default class ASComposerSongPanel extends React.Component {
                 return composer.values.formatPlaybackPosition(composer.songStats.position);
             }
         }
+        this.cb = {
+            setSongPositionPercentage: (pos) => composer.setSongPositionPercentage(pos),
+            setSongNamePrompt: (e) => composer.setSongNamePrompt(),
+            setVolume: (newVolume) => composer.setVolume(newVolume/100),
+            setSongVersionPrompt: (e) => composer.setSongVersionPrompt(),
+            setSongStartingBPMPrompt: (e) => composer.setSongStartingBPMPrompt(),
+        }
     }
     render() {
         const composer = this.props.composer;
@@ -18,6 +25,7 @@ export default class ASComposerSongPanel extends React.Component {
         const cb = composer.cb;
         const state = composer.state;
         const songStats = composer.songStats;
+        // console.log('state', state);
         // const positionString = composer.values.formatPlaybackPosition(songStats.position);
         return (
             <ASUIPanel viewKey="song" header="Song Information">
@@ -63,7 +71,7 @@ export default class ASComposerSongPanel extends React.Component {
                 <ASUIForm className="volume" horizontal header="Volume">
                     <ASUIInputRange
                         className="volume"
-                        onChange={(newVolume) => composer.setVolume(newVolume/100)}
+                        onChange={this.cb.setVolume}
                         value={state.volume*100}
                         format={ASUIInputRange.formats.percent}
                         min={0}
@@ -75,7 +83,7 @@ export default class ASComposerSongPanel extends React.Component {
                 <ASUIForm className="position" header="Position">
                     <ASUIInputRange
                         className="position"
-                        onChange={(pos) => composer.setSongPositionPercentage(pos)}
+                        onChange={this.cb.setSongPositionPercentage}
                         value={Math.floor(songStats.position / (state.songLength || 1) * 100)}
                         format={this.formats.songPosition}
                         min={0}
@@ -97,7 +105,7 @@ export default class ASComposerSongPanel extends React.Component {
                 {state.portrait ? null : <ASUIForm className="name" header="Name">
                     <ASUIButton
                         className="name wide"
-                        onAction={(e) => composer.setSongNamePrompt()}
+                        onAction={this.cb.setSongNamePrompt}
                         title="Song Name"
                         children={song ? song.data.title : "no song loaded"}
                     />
@@ -106,7 +114,7 @@ export default class ASComposerSongPanel extends React.Component {
                 <ASUIForm className="version" header="Version">
                     <ASUIButton
                         className="version wide"
-                        onAction={(e) => composer.setSongVersionPrompt()}
+                        onAction={this.cb.setSongVersionPrompt}
                         title="Song Version"
                         children={song ? song.data.version : "0.0.0"}
                     />
@@ -115,7 +123,7 @@ export default class ASComposerSongPanel extends React.Component {
                 <ASUIForm className="beatsPerMinute" header="BPM">
                     <ASUIButton
                         className="beats-per-minute wide"
-                        onAction={(e) => composer.setSongStartingBPMPrompt()}
+                        onAction={this.cb.setSongStartingBPMPrompt}
                         title="Song Beats Per Minute"
                         children={song ? song.data.beatsPerMinute : "N/A"}
                     />

@@ -1,4 +1,4 @@
-import {Instruction, LibraryProcessor, ProgramLoader, Song, ClientStorage, FileService, FileSupport} from "../song";
+import {LibraryProcessor, ProgramLoader, Song, ClientStorage, FileService, FileSupport} from "../song";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
 import {InstructionProcessor} from "../common";
@@ -68,7 +68,7 @@ class ASComposerActions extends ASComposerMenu {
      * Sets current composer song
      * @param song
      */
-    setCurrentSong(song) {
+    async setCurrentSong(song) {
         if(!song instanceof Song)
             throw new Error("Invalid current song");
         if(this.song) {
@@ -80,10 +80,9 @@ class ASComposerActions extends ASComposerMenu {
             this.song.unloadAll();
         }
         this.song = song;
-        console.log("Current Song: ", song.getProxiedData());
 
         this.song.addEventListener('*', this.cb.onSongEventCallback);
-        this.song.programLoadAll();
+        await this.song.programLoadAll();
 
         let songLength = 0;
         try {
@@ -103,7 +102,8 @@ class ASComposerActions extends ASComposerMenu {
             activeTracks: {}
         }
         state.activeTracks[startTrackName] = {}; // TODO: open root, why not?
-        this.setState(state);
+        await this.setStateAsync(state);
+        console.log("Current Song: ", song.data, songLength);
     }
 
     updateCurrentSong() {
@@ -147,6 +147,12 @@ class ASComposerActions extends ASComposerMenu {
 
     /** State **/
 
+    async setStateAsync(state) {
+        await new Promise(resolve => {
+            this.setState(state, resolve);
+        })
+    }
+
     async loadState() {
         const storage = new ClientStorage();
         const state = await storage.loadState('audio-source-composer-state');
@@ -161,8 +167,9 @@ class ASComposerActions extends ASComposerMenu {
             await this.loadDefaultSong(state.songUUID);
             const recentValues = state.recentValues;
             delete state.songUUID;
+            delete state.songLength;
             delete state.recentValues;
-            this.setState(state);
+            await this.setStateAsync(state);
             // this.updateCurrentSong();
             // this.setCurrentSong(this.song); // Hack: resetting current song after setting state, bad idea
 
@@ -257,7 +264,8 @@ class ASComposerActions extends ASComposerMenu {
     setSongName(newSongTitle=null) {
         if(typeof newSongTitle !== "string")
             throw new Error("Invalid song title: " + newSongTitle);
-        this.song.data.title = newSongTitle;
+        const data = this.song.getProxiedData();
+        data.title = newSongTitle;
         this.setStatus(`Song title updated: ${newSongTitle}`);
     }
 
@@ -268,7 +276,8 @@ class ASComposerActions extends ASComposerMenu {
     setSongVersion(newSongVersion) {
         if(typeof newSongVersion !== "string")
             throw new Error("Invalid song version: " + newSongVersion);
-        this.song.data.version = newSongVersion;
+        const data = this.song.getProxiedData();
+        data.version = newSongVersion;
         this.setStatus(`Song version updated: ${newSongVersion}`);
     }
 
@@ -281,7 +290,8 @@ class ASComposerActions extends ASComposerMenu {
         const bpm = Number.parseFloat(newSongBeatsPerMinute)
         if(Number.isNaN(bpm))
             throw new Error("Invalid BPM: " + newSongBeatsPerMinute)
-        this.song.data.beatsPerMinute = bpm; // songChangeStartingBeatsPerMinute(newSongBeatsPerMinute);
+        const data = this.song.getProxiedData();
+        data.beatsPerMinute = bpm; // songChangeStartingBeatsPerMinute(newSongBeatsPerMinute);
         this.setStatus(`Song beats per minute updated: ${bpm}`);
     }
 
@@ -325,7 +335,7 @@ class ASComposerActions extends ASComposerMenu {
         // let songData = storage.generateDefaultSong(defaultProgramURL);
         // const song = Song.loadSongFromData(songData);
         const song = new Song();
-        this.setCurrentSong(song);
+        await this.setCurrentSong(song);
         await this.saveSongToMemory();
         // this.forceUpdate();
         this.clearUIState();
@@ -369,7 +379,7 @@ class ASComposerActions extends ASComposerMenu {
     async loadSongFromBuffer(buffer, filePath) {
         const fileSupport = new FileSupport();
         const song = await fileSupport.processSongFromFileBuffer(buffer, filePath);
-        this.setCurrentSong(song);
+        await this.setCurrentSong(song);
         this.clearUIState();
         return song;
     }
@@ -383,16 +393,15 @@ class ASComposerActions extends ASComposerMenu {
         const song = new Song(songData);
         // song.loadSongData(songData);
         song.loadSongHistory(songHistory);
-        this.setCurrentSong(song);
+        await this.setCurrentSong(song);
         this.saveState();
-        this.setStatus("Loaded new song");
         this.setStatus("Song loaded from memory: " + songUUID);
     }
 
 
     async saveSongToMemory(setStatus=true) {
         const song = this.song;
-        const songData = song.getProxiedData();
+        const songData = song.data; // getProxiedData();
         const songHistory = song.history;
         const storage = new ClientStorage();
         setStatus && this.setStatus("Saving song to memory...");
@@ -407,7 +416,7 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     async saveSongToFile(prompt=true) {
-        const songData = this.song.getProxiedData();
+        const songData = this.song.data; // getProxiedData();
         let fileName = (songData.title || "untitled")
                 .replace(/\s+/g, '_')
             + '.json';

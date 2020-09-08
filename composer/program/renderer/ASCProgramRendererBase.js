@@ -37,10 +37,9 @@ export default class ASCProgramRendererBase extends React.Component {
     getProgramID() { return this.props.programID; }
     getComposer() { return this.props.composer; }
     getSong() { return this.getComposer().getSong(); }
-    getProgramData() {
-        let songData = this.getSong().getProxiedData();
-        return songData.programs[this.getProgramID()];
-
+    getProgramData(proxiedData=true) {
+        const loader = new ProgramLoader(this.getSong());
+        return loader.getData(this.getProgramID(), proxiedData)
     }
     // getProgramEntry(proxiedData=true) {
     //     let songData = proxiedData
@@ -52,7 +51,7 @@ export default class ASCProgramRendererBase extends React.Component {
 
     renderProgramContent() {
         try {
-            let songData = this.getSong().data; // getProxiedData();
+            let songData = this.getSong().getProxiedData();
 
             const programID = this.props.programID;
             const program = songData.programs[programID];
@@ -79,7 +78,7 @@ export default class ASCProgramRendererBase extends React.Component {
 
 
     renderPresetBrowser() {
-        const program = this.getSong().getProxiedData().programs[this.props.programID] || ['Empty', {}];
+        const program = this.getProgramData(this.props.programID, true) || ['Empty', {}];
         return <ASCPresetBrowser
             programLoad={this.cb.programLoad}
             programID={this.props.programID}

@@ -31,7 +31,7 @@ class Song {
         this.lastMIDIProgram = null; // TODO: ugly?
         this.playbackPosition = 0;
 
-        const data = Object.assign({
+        this.data = Object.assign({
             title: Song.generateTitle(),
             uuid: new SongValues(this).generateUUID(),
             version: '0.0.1',
@@ -131,29 +131,30 @@ class Song {
             }
         }, songData);
 
-        this.getProxiedData = function() { return data; };
-        this.data = new Proxy(data, new ConfigListener(this, []));
+        this.dataProxy = new Proxy(this.data, new ConfigListener(this, []));
         this.history = [];
         this.values = new SongValues(this);
 
         // this.loadSongData(songData);
         // this.programLoadAll();
 
-        this.dispatchEventCallback = e => this.dispatchEvent(e);
+        // this.dispatchEventCallback = e => this.dispatchEvent(e);
 
 
         // this.data = songData;
 
         // Process all instructions
-        if(!data.tracks)
+        if(!this.data.tracks)
             throw new Error("No tracks found in song data");
-        Instruction.processInstructionTracks(data.tracks);
+        Instruction.processInstructionTracks(this.data.tracks);
 
         // let loadingPrograms = 0;
 
         // console.log("Song data loaded: ", songData);
 
     }
+
+    getProxiedData() { return this.dataProxy; }
 
     /** @deprecated? **/
     connect(destination) {
@@ -345,23 +346,33 @@ class Song {
         if (!insertInstructionData)
             throw new Error("Invalid insert instruction");
         insertInstructionData = Instruction.parseInstructionData(insertInstructionData);
-        this.instructionGetList(trackName).splice(insertIndex, 0, insertInstructionData);
+        if(!this.data.tracks[trackName])
+            throw new Error("Invalid instruction track: " + trackName);
+        const track = this.dataProxy.tracks[trackName];
+        track.splice(insertIndex, 0, insertInstructionData);
         return insertIndex;
     }
 
 
     instructionDeleteAtIndex(trackName, deleteIndex) {
-        const deleteInstructionData = this.instructionDataGetByIndex(trackName, deleteIndex);
+        if(!this.data.tracks[trackName])
+            throw new Error("Invalid instruction track: " + trackName);
+        const track = this.dataProxy.tracks[trackName];
+        if(!track[deleteIndex])
+            throw new Error(`Invalid delete index (${trackName}): ${deleteIndex}`);
+
+        const deleteInstructionData = track[deleteIndex];
         if (deleteInstructionData[0] > 0) {
-            let instructionList = this.instructionGetList(trackName);
-            if (instructionList.length > deleteIndex + 1) {
-                const nextInstruction = this.instructionDataGetByIndex(trackName, deleteIndex + 1, false);
+            // let instructionList = this.instructionGetList(trackName);
+            if (track.length > deleteIndex + 1) {
+                const nextInstruction = track[deleteIndex + 1];
+                // const nextInstruction = this.instructionDataGetByIndex(trackName, deleteIndex + 1, false);
                 // this.getInstruction(trackName, deleteIndex+1).deltaDuration =
                 //     nextInstruction.deltaDuration + deleteInstruction.deltaDuration;
                 this.instructionReplaceDeltaDuration(trackName, deleteIndex + 1, nextInstruction[0] + deleteInstructionData[0])
             }
         }
-        this.instructionGetList(trackName).splice(deleteIndex, 1);
+        track.splice(deleteIndex, 1);
         // return this.spliceDataByPath(['instructions', trackName, deleteIndex], 1);
     }
 
@@ -371,12 +382,17 @@ class Song {
 
     instructionReplaceArg(trackName, replaceIndex, argIndex, newArgValue) {
         console.log('instructionReplaceArg', trackName, replaceIndex, argIndex, newArgValue);
-        const instructionData = this.instructionDataGetByIndex(trackName, replaceIndex);
-        instructionData[argIndex] = newArgValue;
+        const track = this.dataProxy.tracks[trackName];
+        if(!track[replaceIndex])
+            throw new Error(`Invalid replace index (${trackName}): ${replaceIndex}`);
+        track[replaceIndex][argIndex] = newArgValue;
     }
 
     instructionReplaceArgByType(trackName, replaceIndex, argType, newArgValue) {
-        const instructionData = this.instructionDataGetByIndex(trackName, replaceIndex);
+        const track = this.dataProxy.tracks[trackName];
+        if(!track[replaceIndex])
+            throw new Error(`Invalid replace index (${trackName}): ${replaceIndex}`);
+        const instructionData = track[replaceIndex]; // this.instructionDataGetByIndex(trackName, replaceIndex);
         const processor = new InstructionProcessor(instructionData);
         processor.updateArg(argType, newArgValue)
     }
@@ -384,32 +400,35 @@ class Song {
     /** @deprecated Use custom arg renderer **/
     instructionReplaceCommand(trackName, replaceIndex, newCommand) {
         //: TODO: check for recursive group
-        const instruction = this.instructionDataGetByIndex(trackName, replaceIndex);
-        instruction[1] = newCommand;
+        const track = this.dataProxy.tracks[trackName];
+        if(!track[replaceIndex])
+            throw new Error(`Invalid replace index (${trackName}): ${replaceIndex}`);
+        const instructionData = track[replaceIndex]; // this.instructionDataGetByIndex(trackName, replaceIndex);
+        instructionData[1] = newCommand;
     }
 
     // instructionReplaceProgram(trackName, replaceIndex, programID) {
     //     this.instructionGetByIndex(trackName, replaceIndex).program = programID;
     // }
 
-    /** @deprecated Use custom arg renderer **/
-    instructionReplaceDuration(trackName, replaceIndex, newDuration) {
-        if (typeof newDuration === 'string')
-            newDuration = Values.instance.parseDurationAsTicks(newDuration, this.data.timeDivision);
-        const instruction = this.instructionDataGetByIndex(trackName, replaceIndex);
-        instruction.durationTicks = newDuration;
-    }
-
-    /** @deprecated Use custom arg renderer **/
-    instructionReplaceVelocity(trackName, replaceIndex, newVelocity) {
-        if (!Number.isInteger(newVelocity))
-            throw new Error("Velocity must be an integer: " + newVelocity);
-        if (newVelocity < 0)
-            throw new Error("Velocity must be a positive integer: " + newVelocity);
-        const instruction = this.instructionDataGetByIndex(trackName, replaceIndex);
-        instruction.velocity = newVelocity;
-        console.log('instruction', instruction);
-    }
+    // /** @deprecated Use custom arg renderer **/
+    // instructionReplaceDuration(trackName, replaceIndex, newDuration) {
+    //     if (typeof newDuration === 'string')
+    //         newDuration = Values.instance.parseDurationAsTicks(newDuration, this.data.timeDivision);
+    //     const instruction = this.instructionDataGetByIndex(trackName, replaceIndex);
+    //     instruction.durationTicks = newDuration;
+    // }
+    //
+    // /** @deprecated Use custom arg renderer **/
+    // instructionReplaceVelocity(trackName, replaceIndex, newVelocity) {
+    //     if (!Number.isInteger(newVelocity))
+    //         throw new Error("Velocity must be an integer: " + newVelocity);
+    //     if (newVelocity < 0)
+    //         throw new Error("Velocity must be a positive integer: " + newVelocity);
+    //     const instruction = this.instructionDataGetByIndex(trackName, replaceIndex);
+    //     instruction.velocity = newVelocity;
+    //     console.log('instruction', instruction);
+    // }
 
 
     /** Song Tracks **/
@@ -417,7 +436,8 @@ class Song {
     trackAdd(newTrackName, instructionList) {
         if (this.data.tracks.hasOwnProperty(newTrackName))
             throw new Error("New group already exists: " + newTrackName);
-        this.data.tracks[newTrackName] = instructionList || [];
+        const tracks = this.dataProxy.tracks;
+        tracks[newTrackName] = instructionList || [];
     }
 
 
@@ -428,7 +448,8 @@ class Song {
             throw new Error("Existing group not found: " + removeTrackName);
 
         console.log("TODO: remove track commands");
-        delete this.data.tracks[removeTrackName];
+        const tracks = this.dataProxy.tracks;
+        delete tracks[removeTrackName];
     }
 
 
@@ -441,8 +462,9 @@ class Song {
             throw new Error("New group already exists: " + newTrackName);
 
         const removedGroupData = this.data.tracks[oldTrackName];
-        delete this.data.tracks[oldTrackName];
-        this.data.tracks[newTrackName] = removedGroupData;
+        const tracks = this.dataProxy.tracks;
+        delete tracks[oldTrackName];
+        tracks[newTrackName] = removedGroupData;
     }
 
 
@@ -533,7 +555,7 @@ class Song {
     // All programs are sent a 0 frequency play in order to pre-load samples.
 
     hasProgram(programID) {
-        return !!this.getProxiedData().programs[programID];
+        return !!this.data.programs[programID];
     }
 
     // /** @deprecated Use custom arg processor **/
@@ -555,8 +577,8 @@ class Song {
     //     return this.data.programs;
     // }
     programEach(callback) {
-        const data = this.getProxiedData();
-        return data.programs.map(function(entry, programID) {
+        // const data = this.dataProxy;
+        return this.data.programs.map(function(entry, programID) {
             const [className, config] = entry || [null, {}];
             return callback(programID, className, config);
         });
@@ -565,7 +587,7 @@ class Song {
 
     /** Asset Loading **/
     async programLoadAll() {
-        const programList = this.getProxiedData().programs;
+        const programList = this.data.programs;
         // console.log('programList', programList);
         const promises = [];
         for (let programID = 0; programID < programList.length; programID++) {
@@ -607,7 +629,7 @@ class Song {
         if (!programClassName)
             throw new Error("Invalid Program Class");
 
-        const programList = this.data.programs;
+        const programList = this.dataProxy.programs;
         const programID = programList.length;
 
         this.data.programs[programID] = [programClassName, programConfig];
@@ -622,8 +644,9 @@ class Song {
 
         this.stopPlayback();
 
-        const oldConfig = this.getProxiedData().programs[programID];
-        this.data.programs[programID] = [programClassName, programConfig];
+        const programList = this.dataProxy.programs;
+        const oldConfig = this.data.programs[programID];
+        programList[programID] = [programClassName, programConfig];
         const instance = this.programLoadInstanceFromID(programID);
         console.log('programReplace', programID, programClassName, programConfig, instance);
         return oldConfig;
@@ -635,7 +658,7 @@ class Song {
     }
 
     programRemove(programID) {
-        const programList = this.data.programs;
+        const programList = this.dataProxy.programs;
         if (typeof programList[programID] === "undefined")
             return console.error("Invalid program ID: " + programID);
         const isLastProgram = programID === programList.length - 1;
@@ -647,7 +670,7 @@ class Song {
             programList[programID] = null;
         }
         // this.programUnload(programID);
-        // console.log('programRemove', programID, this.getProxiedData().programs)
+        // console.log('programRemove', programID, this.dataProxy.programs)
         return oldConfig;
     }
 
@@ -974,7 +997,7 @@ class Song {
         const historyAction = args.shift();
         const path = args.shift().split('.');
         const lastPath = path.pop();
-        const songData = this.getProxiedData();
+        const songData = this.data;
 
         let target = songData;
 

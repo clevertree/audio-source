@@ -163,7 +163,7 @@ export default class InstructionIterator {
     /** Static **/
 
     static getIteratorFromSong(song, trackName, stats={}, instructionCallback=null) {
-        const songData = song.getProxiedData();
+        const songData = song.data;
         if(!songData.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
         const instructionList = songData.tracks[trackName];

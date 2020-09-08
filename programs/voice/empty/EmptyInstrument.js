@@ -49,12 +49,12 @@ export default class EmptyInstrument {
 
 
 let activeNotes = [];
-function removeActiveNote(source) {
-    const i=activeNotes.indexOf(source);
-    if(i !== -1)
-        activeNotes.splice(i, 1);
-}
-function hasActiveNote(source) {
-    return activeNotes.indexOf(source) !== -1;
-}
+// function removeActiveNote(source) {
+//     const i=activeNotes.indexOf(source);
+//     if(i !== -1)
+//         activeNotes.splice(i, 1);
+// }
+// function hasActiveNote(source) {
+//     return activeNotes.indexOf(source) !== -1;
+// }
 

@@ -13,13 +13,13 @@ export default class ASCTracksContainerBase extends React.Component {
 
     renderTracks() {
         const composer = this.props.composer;
-        const songData = composer.getSong().getProxiedData();
+        const songTracks = composer.getSong().data.tracks;
         // composer.ref.activeTracks = {};
         const activeTracks = composer.ref.activeTracks;
 
         const selectedTrack = composer.getSelectedTrackName();
         // const selectedIndices = composer.state.selectedIndices;
-        let trackList = Object.keys(songData.tracks);
+        // let trackList = Object.keys(songData.tracks);
         // let collapsed = false;
         // if(composer.state.portrait) {
             // collapsed = true;
@@ -27,7 +27,7 @@ export default class ASCTracksContainerBase extends React.Component {
             // if (selectedTrackID !== -1)
             //     trackList.unshift(trackList.splice(selectedTrackID, 1)[0])
         // }
-        return trackList.map((trackName) => {
+        return Object.keys(songTracks).map((trackName) => {
             // if(!songData.tracks[trackName])
             //     return null;
             if(!activeTracks[trackName])

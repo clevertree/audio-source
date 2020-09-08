@@ -39,7 +39,7 @@ class ASComposerBase extends React.Component {
             // Tracks
             activeTracks: {},
             // selectedIndices: [],
-            selectedInstructionData: [0, 'C4'],
+            selectedInstructionData: [0, 'C4', 96],
 
 
             // Track Playback
@@ -98,7 +98,8 @@ class ASComposerBase extends React.Component {
         this.timeouts = {
             saveSongToMemory: null,
             saveState: null,
-            renderPrograms: null
+            renderPrograms: null,
+            render: null
         };
         this.autoSaveTimeout = 4000;
 

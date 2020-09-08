@@ -109,10 +109,10 @@ export default class TrackIterator {
     }
 
     onPlayWildcardTrack(parentStats, wildCardTrackName, trackDuration=null, trackStartTime=0, trackFrequency=null) {
-        var escapeRegex = (str) => str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+        var escapeRegex = (str) => str.replace(/([.*+?^=!:${}()|[\]/\\])/g, "\\$1");
         const trackNameMatch = new RegExp("^" + wildCardTrackName.split("*").map(escapeRegex).join(".*") + "$");
 
-        const tracks = this.song.getProxiedData().tracks;
+        const tracks = this.song.data.tracks;
         let count = 0;
         for(const trackName in tracks) {
             if(tracks.hasOwnProperty(trackName)) {
@@ -126,7 +126,7 @@ export default class TrackIterator {
             console.warn("No tracks matched wildcard track: " + wildCardTrackName, tracks);
     }
 
-    onPlayTrack(parentStats, trackName, trackDuration=null, trackStartTime=0, trackFrequency=null) {
+    onPlayTrack(parentStats, trackName, trackDuration=null, trackStartPosition=null, trackFrequency=null) {
         if(parentStats.trackName === trackName) {
             console.warn("Skipping recursive track name: " + trackName);
             return;
@@ -136,7 +136,7 @@ export default class TrackIterator {
             // destination: trackStats.destination,    // Current destination sent to all playFrequency calls
             // parentStats: trackStats,
             startTime: parentStats.startTime + parentStats.positionSeconds,
-            startPosition: trackStartTime, // trackStats.positionSeconds,
+            startPosition: trackStartPosition || 0, // trackStats.positionSeconds,
             trackName,
             beatsPerMinute: parentStats.beatsPerMinute,
             timeDivision: parentStats.timeDivision, // Time division is passed to sub-groups
@@ -163,12 +163,13 @@ export default class TrackIterator {
         for (let i = 0; i < argTypeList.length; i++) {
             const argType = argTypeList[i];
             if (argType.consumesArgument) {
+                const value = typeof instructionData[argIndex] === "undefined" ? null : instructionData[argIndex];
                 // if(typeof instructionData[argIndex] !== "undefined") {
-                    const arg = argType.process(instructionData[argIndex], stats);
-                    newArgs.push(arg);
-                    if (argType === ArgType.duration)
-                        this.processDuration(instructionData[argIndex], newArgs[i], stats);
-                    argIndex++
+                const arg = argType.process(value, stats);
+                newArgs.push(arg);
+                if (value !== null && argType === ArgType.duration)
+                    this.processDuration(value, newArgs[i], stats);
+                argIndex++
                 // }
             } else {
                 const arg = argType.process(null, stats);

@@ -40,7 +40,6 @@ export default class ASComposerEvents extends ASComposerInput {
             case 'song:play':
                 this.setState({playing: true});
                 // this.fieldSongPlaybackPause.disabled = false;
-                let updateCount = 0;
                 const updateSongPositionInterval = setInterval(e => {
                     if (!this.song.isPlaying()) {
                         clearInterval(updateSongPositionInterval);
@@ -48,7 +47,6 @@ export default class ASComposerEvents extends ASComposerInput {
                         this.setState({playing: false, paused: false});
                     }
                     this.setSongPosition(this.song.getSongPlaybackPosition(), true);
-                    updateCount++;
                 }, 10);
                 break;
 
@@ -64,8 +62,14 @@ export default class ASComposerEvents extends ASComposerInput {
 
 
             case 'song:modified':
+                if(!this.timeouts.render) {
+                    this.timeouts.render = setTimeout(() => {
+                        clearTimeout(this.timeouts.render);
+                        delete this.timeouts.render;
+                        this.forceUpdate();
+                    }, 100)
+                }
                 // console.log(e.type);
-                this.forceUpdate();  // TODO: might be inefficient
                 // TODO: auto save toggle
                 this.saveSongToMemoryWithTimeout();
                 break;

@@ -11,7 +11,7 @@ export default class MIDIFileSupport {
         const midiData = await parseArrayBuffer(fileBuffer);
 
         const song = new Song();
-        const songData = song.getProxiedData();
+        const songData = song.data;
         songData.tracks.root = [];
         songData.title = filePath.split('/').pop();
 
@@ -106,7 +106,7 @@ export default class MIDIFileSupport {
             }
         }
 
-        console.log('midiData', midiData, song.getProxiedData())
+        console.log('midiData', midiData, song.data)
         return song;
     }
 //
