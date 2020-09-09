@@ -1,3 +1,6 @@
+import {ASUIInputRange, ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../components";
+import PromptManager from "../../common/prompt/PromptManager.native";
+import React from "react";
 
 class Values {
     static FREQ_A4 = 432;
@@ -340,7 +343,7 @@ class Values {
 
     getFrequencyFromMIDINote(midiNote) {
         const command = this.getCommandFromMIDINote(midiNote);
-        const frequency = Values.instance.parseFrequencyString(command);
+        const frequency = this.parseFrequencyString(command);
         return frequency;
     }
 
@@ -354,6 +357,192 @@ class Values {
 
 
 
+
+    /** Menus **/
+
+    /** Command Menu **/
+
+    renderMenuSelectCommand(onSelectValue, currentCommand=null, additionalMenuItems=null) {
+        return (<>
+            {this.renderMenuSelectFrequency(onSelectValue, currentCommand)}
+            <ASUIMenuBreak />
+            {additionalMenuItems}
+
+            <ASUIMenuAction
+                onAction={async e => onSelectValue(await PromptManager.openPromptDialog("Insert custom command"))}
+            >Custom</ASUIMenuAction>
+            <ASUIMenuBreak />
+            {(Values.recentFrequencies || []).map((recentFrequency, i) =>
+                <ASUIMenuAction key={i} onAction={() => onSelectValue(recentFrequency)}>{recentFrequency}</ASUIMenuAction>
+            )}
+        </>);
+    }
+
+    /** Frequency Menu **/
+
+    renderMenuSelectFrequency(onSelectFrequency, currentFrequency=null, title=null) {
+        const oldCallback = onSelectFrequency;
+        onSelectFrequency = function(selectedFrequency) {
+            addRecentMenuItem(selectedFrequency, Values.recentFrequencies);
+            return oldCallback(selectedFrequency);
+        }
+        return (<>
+            {title ? <ASUIMenuItem>{title}</ASUIMenuItem> : null}
+            {title ? <ASUIMenuBreak /> : null}
+            <ASUIMenuDropDown options={() => this.renderMenuSelectFrequencyByNote(onSelectFrequency, currentFrequency)}         >By Note</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuSelectFrequencyByOctave(onSelectFrequency, currentFrequency)}       >By Octave</ASUIMenuDropDown>
+        </>);
+    }
+
+    renderMenuSelectFrequencyWithRecent(onSelectFrequency, currentFrequency=null, title=null) {
+        const recentFrequencies = Values.recentFrequencies || [];
+        return (<>
+            {this.renderMenuSelectFrequency(onSelectFrequency, currentFrequency, title)}
+            {recentFrequencies.length > 0 ? <ASUIMenuBreak /> : null}
+            {(recentFrequencies).map((recentFrequency, i) =>
+                <ASUIMenuAction key={i} onAction={() => onSelectFrequency(recentFrequency)}>{recentFrequency}</ASUIMenuAction>
+            )}
+        </>);
+    }
+    /**
+     {(Values.recentFrequencies || []).map((recentFrequency, i) =>
+    <ASUIMenuAction key={i} onAction={() => onSelectFrequency(recentFrequency)}>{recentFrequency}</ASUIMenuAction>
+)}
+     */
+
+    renderMenuSelectFrequencyByNote(onSelectValue, currentFrequency=null) {
+        let currentNote = null;
+        if(currentFrequency)
+            try {currentNote = this.parseFrequencyParts(currentFrequency).note;} catch (e) {}
+        // console.log('currentCommand', currentCommand);
+        return (<>
+            {currentNote !== null ? <ASUIMenuDropDown key={currentNote} options={() => this.renderMenuSelectFrequencyFromNoteName(onSelectValue, currentNote, currentFrequency)}>
+                {`${currentNote} (Current)`}
+            </ASUIMenuDropDown> : null}
+            {currentNote !== null ? <ASUIMenuBreak /> : null}
+            {this.getNoteFrequencies((noteName) =>
+                <ASUIMenuDropDown key={noteName} options={() => this.renderMenuSelectFrequencyFromNoteName(onSelectValue, noteName, currentFrequency)}>
+                    {noteName}
+                </ASUIMenuDropDown>
+            )}
+        </>);
+    }
+
+    renderMenuSelectFrequencyFromNoteName(onSelectOctave, noteName, currentFrequency=null) {
+        let currentOctave = null;
+        if(currentFrequency)
+            try {currentOctave = this.parseFrequencyParts(currentFrequency).octave;} catch (e) {}
+
+        return (<>
+            {currentOctave !== null ? <ASUIMenuAction onAction={() => onSelectOctave(noteName+''+currentOctave)}>{`${noteName}${currentOctave} (Current)`}</ASUIMenuAction> : null}
+            {currentOctave !== null ? <ASUIMenuBreak /> : null}
+            {this.getNoteOctaves((octave) =>
+                <ASUIMenuAction key={octave} onAction={() => onSelectOctave(noteName+''+octave)}>
+                    {`${noteName}${octave}`}
+                </ASUIMenuAction>
+            )}
+        </>)
+    }
+
+    renderMenuSelectFrequencyByOctave(onSelectValue, currentFrequency=null) {
+        let currentOctave = null;
+        if(currentFrequency)
+            try {currentOctave = this.parseFrequencyParts(currentFrequency).octave;} catch (e) {}
+        return (<>
+            {currentOctave !== null ? <ASUIMenuDropDown key={currentOctave} options={() => this.renderMenuSelectFrequencyFromOctave(onSelectValue, currentOctave)}>
+                {`${currentOctave} (Current)`}
+            </ASUIMenuDropDown> : null}
+            {this.getNoteOctaves((octave) =>
+                <ASUIMenuDropDown key={octave} options={() => this.renderMenuSelectFrequencyFromOctave(onSelectValue, octave)}>
+                    {octave}
+                </ASUIMenuDropDown>
+            )}
+        </>)
+    }
+
+    renderMenuSelectFrequencyFromOctave(onSelectValue, octave) {
+        return this.getNoteFrequencies((noteName) =>
+            <ASUIMenuAction key={noteName} onAction={() => onSelectValue(noteName+''+octave)}     >{noteName+''+octave}</ASUIMenuAction>
+        );
+    }
+
+
+
+    /** Duration Menu **/
+
+    renderMenuSelectDuration(onSelectDuration, timeDivision=this.song.data.timeDivision, currentDuration = null, title=null) {
+        const oldCallback = onSelectDuration;
+        onSelectDuration = (selectedDuration, selectedDurationString) => {
+            addRecentMenuItem(selectedDurationString, Values.recentDurations);
+            selectedDuration = this.parseDurationAsTicks(selectedDuration)
+            return oldCallback(selectedDuration);
+        }
+        return (<>
+            {title ? <ASUIMenuItem>{title}</ASUIMenuItem> : null}
+            {title ? <ASUIMenuBreak /> : null}
+            <ASUIMenuDropDown options={() => this.renderMenuSelectDurationByMode('fraction', onSelectDuration, timeDivision, currentDuration)}  >Fraction</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuSelectDurationByMode('triplet', onSelectDuration, timeDivision, currentDuration)}  >Triplet</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuSelectDurationByMode('dotted', onSelectDuration, timeDivision, currentDuration)}  >Dotted</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            {/*<ASUIMenuDropDown disabled options={() => renderMenuSelect('recent')}    >Recent</ASUIMenuDropDown>*/}
+            <ASUIMenuAction onAction={() => {
+                PromptManager.openPromptDialog("Enter a duration string or number of ticks", currentDuration)
+                    .then(onSelectDuration)
+            }}    >Custom</ASUIMenuAction>
+            <ASUIMenuBreak />
+            {(Values.recentDurations || []).map((recentDuration, i) =>
+                <ASUIMenuAction key={i} onAction={() => onSelectDuration(recentDuration)}>{recentDuration}</ASUIMenuAction>
+            )}
+            {/*{this.renderMenuSelectDurationByMode(Values.lastModeKey, onSelectValue, timeDivision, currentDuration)}*/}
+        </>);
+    }
+
+    renderMenuSelectDurationByMode(modeKey, onSelectValue, timeDivision, currentDuration) {
+        const oldCallback = onSelectValue;
+        onSelectValue = function(...args) {
+            oldCallback(...args);
+            // console.log('Values.lastModeKey', modeKey);
+            Values.lastModeKey = modeKey;
+        }
+        return this.getNoteDurations((duration, durationString) =>
+                <ASUIMenuAction
+                    selected={currentDuration === duration}
+                    key={durationString}
+                    onAction={() => onSelectValue(duration, durationString)}>{durationString}</ASUIMenuAction>,
+            timeDivision,
+            modeKey
+        )
+    }
+
+    /** Velocity Menu **/
+
+
+    renderMenuSelectVelocity(onSelectValue, currentVelocity=null, title=null) {
+        const customAction = () => {
+            PromptManager.openPromptDialog("Enter custom velocity (1-127)", 127)
+                .then(onSelectValue)
+        };
+        return (<>
+            {title ? <ASUIMenuItem>{title}</ASUIMenuItem> : null}
+            {title ? <ASUIMenuBreak /> : null}
+            {this.renderInputVelocity(onSelectValue, currentVelocity, title)}
+            <ASUIMenuBreak/>
+            {this.getNoteVelocities((velocity, velocityTitle) =>
+                <ASUIMenuAction key={velocity} onAction={() => onSelectValue(velocity)}  >{velocityTitle}</ASUIMenuAction>)}
+            <ASUIMenuAction onAction={customAction} hasBreak >Custom</ASUIMenuAction>
+        </>);
+    }
+
+    renderInputVelocity(onChange, currentVelocity=null, title=null) {
+        return <ASUIInputRange
+            min={0}
+            max={100}
+            title={title}
+            value={currentVelocity || 100}
+            format={ASUIInputRange.formats.percent}
+            onChange={onChange}
+        />;
+    }
 
 
     /** Values **/
@@ -435,6 +624,17 @@ function addResult (results, result) {
         results.push(result);
     return result === false ? result : true;
 }
+
+
+function addRecentMenuItem(item, collection) {
+    const i = collection.indexOf(item);
+    if(i !== -1)
+        collection.splice(i, 1);
+    collection.unshift(item);
+    if(collection > Values.RECENT_ITEM_LIMIT)
+        collection.pop();
+}
+
 
 export default Values;
 

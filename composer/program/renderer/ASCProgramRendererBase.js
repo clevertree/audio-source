@@ -99,7 +99,7 @@ export default class ASCProgramRendererBase extends React.Component {
     }
     programRemove() {
         const programID = this.props.programID;
-        this.getSong().programRemove(programID);
+        this.getComposer().programRemovePrompt(programID);
     }
 
     async programLoad(presetClassName, presetConfig={}) {

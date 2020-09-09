@@ -4,7 +4,6 @@ import ASCTrackInstructionAdd from "../instruction/ASCTrackInstructionAdd";
 import ASCTrackDelta from "../delta/ASCTrackDelta";
 import ASCTrackRowBase from "./ASCTrackRowBase";
 
-import Values from "../../../song/values/Values";
 import "./ASCTrackRow.css";
 
 class ASCTrackRow extends ASCTrackRowBase {

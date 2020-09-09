@@ -110,8 +110,10 @@ ArgType.offset = new ArgType(
             return offsetDurationTicks;
         return Values.instance.durationTicksToSeconds(offsetDurationTicks, stats.timeDivision, stats.beatsPerMinute);
     },
-    (offsetTicks, values) => {
-        return values.formatDuration(offsetTicks);
+    (offsetTicks, stats) => {
+        if(typeof offsetTicks === "number")
+            return Values.instance.formatDuration(offsetTicks, stats.timeDivision);
+        return Values.instance.formatDurationAsTicks(offsetTicks);
     },
     true
 )

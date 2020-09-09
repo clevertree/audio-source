@@ -48,7 +48,6 @@ class ASComposerBase extends React.Component {
 
             // Programs
             programStates: [],
-            selectedProgramID: 0,
 
             // View Modes
             viewModes: {},
@@ -87,6 +86,7 @@ class ASComposerBase extends React.Component {
             container: React.createRef(),
             panelSong: React.createRef(),
             panelTrack: React.createRef(),
+            panelProgram: React.createRef(),
             activeTracks: [],
             activePrograms: [],
         }

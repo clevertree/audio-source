@@ -73,7 +73,6 @@ export default class TrackIterator {
                     this.onPlayWildcardTrack(stats, ...trackArgs)
                 } else {
                     this.onPlayTrack(stats, ...trackArgs)
-
                 }
                 break;
 
@@ -110,21 +109,15 @@ export default class TrackIterator {
     }
 
     onPlayWildcardTrack(parentStats, wildCardTrackName, trackDuration=null, trackStartTime=0, trackFrequency=null) {
-        var escapeRegex = (str) => str.replace(/([.*+?^=!:${}()|[\]/\\])/g, "\\$1");
-        const trackNameMatch = new RegExp("^" + wildCardTrackName.split("*").map(escapeRegex).join(".*") + "$");
-
-        const tracks = this.song.data.tracks;
-        let count = 0;
-        for(const trackName in tracks) {
-            if(tracks.hasOwnProperty(trackName)) {
-                if(trackNameMatch.test(trackName)) {
-                    this.onPlayTrack(parentStats, trackName, trackDuration, trackStartTime, trackFrequency);
-                    count++;
-                }
+        let trackNameList = Object.keys(this.song.data.tracks);
+        trackNameList = TrackIterator.getWildCardTracks(wildCardTrackName, trackNameList);
+        if(trackNameList.length > 0) {
+            for (const trackName of trackNameList) {
+                this.onPlayTrack(parentStats, trackName, trackDuration, trackStartTime, trackFrequency);
             }
+        } else {
+            console.warn("No tracks matched wildcard track: " + wildCardTrackName, Object.keys(this.song.data.tracks));
         }
-        if(count === 0)
-            console.warn("No tracks matched wildcard track: " + wildCardTrackName, tracks);
     }
 
     onPlayTrack(parentStats, trackName, trackDuration=null, trackStartPosition=null, trackFrequency=null) {
@@ -271,4 +264,9 @@ export default class TrackIterator {
         return finished;
     }
 
+    static getWildCardTracks(wildCardTrackName, trackNameList) {
+        var escapeRegex = (str) => str.replace(/([.*+?^=!:${}()|[\]/\\])/g, "\\$1");
+        const trackNameMatch = new RegExp("^" + wildCardTrackName.split("*").map(escapeRegex).join(".*") + "$");
+        return trackNameList.filter(trackName => trackNameMatch.test(trackName))
+    }
 }

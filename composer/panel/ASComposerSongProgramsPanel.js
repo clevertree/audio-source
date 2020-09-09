@@ -12,12 +12,16 @@ export default class ASComposerSongProgramsPanel extends React.Component {
     }
 
     render() {
+        // console.log(this.constructor.name + '.render()')
         const composer = this.props.composer;
         // composer.ref.activePrograms = {};
         const activePrograms = composer.ref.activePrograms;
 
         const programStates = composer.state.programStates || [];
-        const selectedProgramID = composer.state.selectedProgramID || 0;
+        let selectedProgramID = null;
+        const [type, id] = composer.state.selectedComponent;
+        if(type === 'program')
+            selectedProgramID = id;
         // console.log('programStates', programStates);
         // setTimeout(() => console.log('activePrograms', activePrograms), 100);
         return (

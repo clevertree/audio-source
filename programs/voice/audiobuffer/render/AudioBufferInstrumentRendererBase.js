@@ -221,20 +221,22 @@ class AudioBufferInstrumentRendererBase extends React.Component {
             //     >{config.alias ? config.alias : "-"}</ASUIButtonDropDown>
 
             case 'range':
-                let range = '[all]';
-                if(config.rangeStart || config.rangeEnd)
-                    range = `${config.rangeStart||'[low]'} to ${config.rangeEnd||'[high]'}`;
+                let rangeText = '[all]';
+                if(config.rangeStart || config.rangeEnd) {
+                    let rangeStart = config.rangeStart || '[low]', rangeEnd = config.rangeEnd || '[high]';
+                    rangeText = `${rangeStart} to ${rangeEnd}`;
+                    if(config.rangeStart === config.rangeEnd)
+                        rangeText = config.rangeStart;
+                }
                 return <ASUIButtonDropDown
                     className="small"
                     options={this.cb.renderParamMenu.range}
-                >{range}</ASUIButtonDropDown>
+                >{rangeText}</ASUIButtonDropDown>
 
             default:
                 return 'Unknown';
         }
     }
-
-
 
     /** Actions **/
 
@@ -255,14 +257,6 @@ class AudioBufferInstrumentRendererBase extends React.Component {
         delete this.props.config[paramName];
     }
 
-    changeRange(rangeStart=null, rangeEnd=null) {
-        const oldRange = this.props.config.range.split(':');
-        if(rangeStart !== null)
-            oldRange[0] = rangeStart;
-        if(rangeEnd !== null)
-            oldRange[1] = rangeEnd;
-        this.props.config.range = oldRange.join(':');
-    }
 
 
     async changeSampleURL(url) {
@@ -415,8 +409,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
     renderMenuChangeKeyRangeStart() {
         return (<>
             {Values.instance.renderMenuSelectFrequencyWithRecent(noteNameOctave => {
-
-                this.changeParam('range', noteNameOctave)
+                this.changeParam('rangeStart', noteNameOctave)
             }, this.props.config.rangeStart, "Change Range Start")}
             <ASUIMenuBreak/>
             <ASUIMenuAction onAction={() => this.removeParam('rangeStart')}>Clear Range Start</ASUIMenuAction>

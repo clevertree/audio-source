@@ -28,9 +28,11 @@ export default class ASUIMenuOptionList extends ASUIMenuOptionListBase {
     //     this.updateOverlay();
     // }
 
-    // componentDidMount() {
-    //     super.componentDidMount();
-    // }
+    componentDidMount() {
+        super.componentDidMount();
+        if(this.props.floating !== false)
+            this.updateScreenPosition();
+    }
 
 
 
@@ -84,6 +86,7 @@ export default class ASUIMenuOptionList extends ASUIMenuOptionListBase {
         const rect = div.getBoundingClientRect();
         div.classList.toggle('overflow-right', rect.right > window.innerWidth);
         div.classList.toggle('overflow-bottom', rect.bottom > window.innerHeight);
+        // console.log('rect.right > window.innerWidth', rect.right, window.innerWidth, rect.right > window.innerWidth, rect, div);
     }
 
 

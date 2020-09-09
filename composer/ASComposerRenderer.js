@@ -11,7 +11,7 @@ import ASUIGlobalContext from "../components/context/ASUIGlobalContext";
 export default class ASComposerRenderer extends ASComposerBase {
 
     render() {
-        console.log('ASComposerRenderer.render()');
+        // console.log('ASComposerRenderer.render()');
         return (
             <ASUIGlobalContext.Provider
                 value={this.cb.global}>
@@ -20,7 +20,7 @@ export default class ASComposerRenderer extends ASComposerBase {
                     composer={this}
                     >
                     {this.state.portrait ? this.renderSongPanelPortrait() : this.renderSongPanelLandscape()}
-                    <ASComposerSongProgramsPanel composer={this} />
+                    <ASComposerSongProgramsPanel composer={this} ref={this.ref.panelProgram}/>
 
                     <ASCTracksContainer
                         composer={this}

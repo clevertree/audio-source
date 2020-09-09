@@ -9,10 +9,14 @@ div.asc-instrument-renderer {
 }
 
 div.asc-instrument-renderer:hover {
-    background: #90F3FF;
+    background: #AAC9C5;
 }
-div.asc-instrument-renderer:focus {
+div.asc-instrument-renderer.selected {
     background-color: #90BEDE;
+}
+
+div.asc-instrument-renderer:focus {
+
 }
 
 

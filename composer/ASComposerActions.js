@@ -449,7 +449,7 @@ class ASComposerActions extends ASComposerMenu {
 //     }
 
     async setSongPositionPrompt() {
-        let songPosition = this.values.formatPlaybackPosition(this.songStats.position || 0);
+        let songPosition = Values.instance.formatPlaybackPosition(this.songStats.position || 0);
         songPosition = await PromptManager.openPromptDialog("Set playback position:", songPosition);
         this.setSongPosition(songPosition);
     }
@@ -457,7 +457,7 @@ class ASComposerActions extends ASComposerMenu {
     setSongPosition(playbackPositionInSeconds, updateTrackPositions=true) {
         // TODO: parse % percentage
         if(typeof playbackPositionInSeconds === 'string')
-            playbackPositionInSeconds = this.values.parsePlaybackPosition(playbackPositionInSeconds);
+            playbackPositionInSeconds = Values.instance.parsePlaybackPosition(playbackPositionInSeconds);
         if(isNaN(playbackPositionInSeconds))
             throw new Error("Invalid song position: " + playbackPositionInSeconds);
         this.songStats.position = playbackPositionInSeconds;
@@ -616,17 +616,17 @@ class ASComposerActions extends ASComposerMenu {
 
         newTrackName = newTrackName || song.generateInstructionTrackName();
         if(promptUser)
-            newTrackName = await PromptManager.openPromptDialog("Create new instruction group?", newTrackName);
+            newTrackName = await PromptManager.openPromptDialog("Create new instruction track?", newTrackName);
         if (newTrackName) {
             song.trackAdd(newTrackName, []);
             this.trackSelect(newTrackName);
         } else {
-            this.setError("Create instruction group canceled");
+            this.setError("Create instruction track canceled");
         }
     }
 
     async trackRenamePrompt(oldTrackName) {
-        const newTrackName = await PromptManager.openPromptDialog(`Rename instruction group (${oldTrackName})?`, oldTrackName);
+        const newTrackName = await PromptManager.openPromptDialog(`Rename instruction track "${oldTrackName}"?`, oldTrackName);
         this.trackRename(oldTrackName, newTrackName);
     }
     trackRename(oldTrackName, newTrackName) {
@@ -637,7 +637,7 @@ class ASComposerActions extends ASComposerMenu {
             this.trackSelect(newTrackName);
             // this.trackSelect(oldTrackName);
         } else {
-            this.setError("Rename instruction group canceled");
+            this.setError("Rename instruction track canceled");
         }
     }
 
@@ -647,11 +647,11 @@ class ASComposerActions extends ASComposerMenu {
         this.trackUnselect(trackName);
     }
     async trackRemovePrompt(trackName) {
-        const result = await PromptManager.openConfirmDialog(`Remove instruction group (${trackName})?`);
+        const result = await PromptManager.openConfirmDialog(`Remove instruction track "${trackName}"?`);
         if (result) {
             this.trackRemove(trackName);
         } else {
-            this.setError("Remove instruction group canceled");
+            this.setError("Remove instruction track canceled");
         }
 
     }
@@ -720,7 +720,7 @@ class ASComposerActions extends ASComposerMenu {
 
     instructionReplaceArg(trackName, selectedIndices, argIndex, newArgValue) {
         const song = this.song;
-        selectedIndices = this.values.parseSelectedIndices(selectedIndices);
+        selectedIndices = Values.instance.parseSelectedIndices(selectedIndices);
         for (let i = 0; i < selectedIndices.length; i++) {
             song.instructionReplaceArg(trackName, selectedIndices[i], argIndex, newArgValue);
         }
@@ -732,7 +732,7 @@ class ASComposerActions extends ASComposerMenu {
 
     instructionReplaceArgByType(trackName, selectedIndices, argType, newArgValue) {
         const song = this.song;
-        selectedIndices = this.values.parseSelectedIndices(selectedIndices);
+        selectedIndices = Values.instance.parseSelectedIndices(selectedIndices);
 
         // console.log('instructionReplaceArg', trackName, selectedIndices, argIndex, newArgValue, selectedInstructionData);
 
@@ -851,6 +851,15 @@ class ASComposerActions extends ASComposerMenu {
 
 
     /** Programs **/
+
+    programSelect(programID) {
+        const [type, id] = this.state.selectedComponent;
+        if(type !== 'program' || id !== programID) {
+            this.setState({
+                selectedComponent: ['program', programID],
+            }, () => this.ref.panelProgram.current.forceUpdate());
+        }
+    }
 
     programGetRef(programID) {
         const programRef = this.ref.activePrograms[programID];

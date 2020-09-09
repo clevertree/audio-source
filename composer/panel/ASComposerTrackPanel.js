@@ -156,7 +156,7 @@ export default class ASComposerTrackPanel extends React.Component {
         const composer = this.props.composer;
 
         return <ASUIForm key={argIndex} header={header}>
-            {composer.renderInputVelocity((newVelocity) => {
+            {Values.instance.renderInputVelocity((newVelocity) => {
                 composer.instructionReplaceArgByType(composer.getSelectedTrackName(), this.state.selectedIndices, argType, newVelocity);
             }, paramValue, title)}
         </ASUIForm>;

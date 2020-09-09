@@ -76,21 +76,22 @@ export default class AudioBufferInstrument {
 
     playFrequency(destination, frequency, startTime=null, duration=null, velocity=null, onended=null) {
         const config = this.config;
-        if (config.range) {
-            let [rangeStart, rangeEnd] = config.range;
-            if(rangeStart) {
-                rangeStart = Values.instance.parseFrequencyString(rangeStart);
-                if(rangeStart < frequency) {
-                    // console.log("Skipping out of range note: ", rangeStart, "<", frequency, config);
-                    return false;
-                }
+        if(config.rangeStart) {
+            let rangeStart = config.rangeStart;
+            if(typeof rangeStart === "string")
+                rangeStart = Values.instance.parseFrequencyString(config.rangeStart);
+            if(rangeStart < frequency) {
+                // console.log("Skipping out of range note: ", rangeStart, "<", frequency, config);
+                return false;
             }
-            if(rangeEnd) {
-                rangeEnd = Values.instance.parseFrequencyString(rangeEnd);
-                if(rangeEnd > frequency) {
-                    // console.log("Skipping out of range note: ", rangeEnd, ">", frequency, config);
-                    return false;
-                }
+        }
+        if(config.rangeEnd) {
+            let rangeEnd = config.rangeEnd;
+            if(typeof rangeStart === "string")
+                rangeEnd = Values.instance.parseFrequencyString(config.rangeEnd);
+            if(rangeEnd > frequency) {
+                // console.log("Skipping out of range note: ", rangeEnd, ">", frequency, config);
+                return false;
             }
         }
 

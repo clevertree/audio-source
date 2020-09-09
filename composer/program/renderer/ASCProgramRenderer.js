@@ -16,6 +16,8 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
         let programIDHTML = (programID < 10 ? "0" : "") + (programID);
 
         let className = 'asc-instrument-renderer';
+        if(this.props.selected)
+            className += ' selected';
 
         // let contentClass = 'error';
         let titleHTML = '', renderProgram = false;

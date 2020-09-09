@@ -27,7 +27,7 @@ export default class TrackPlayback extends TrackIterator {
         this.endPromise = new Promise((resolve, reject) => {
             this.endResolve = resolve;
         });
-        console.log('TrackPlayback', startingTrackName, song);
+        // console.log('TrackPlayback', startingTrackName, song);
     }
 
     isActive() { return this.active; }
@@ -132,7 +132,7 @@ export default class TrackPlayback extends TrackIterator {
 
 
     play(startPosition=null) {
-        console.log('TrackPlayback.play', startPosition);
+        // console.log('TrackPlayback.play', startPosition);
         const stats = this.activeIterators[0].stats;
         this.active = true;
 
@@ -196,7 +196,7 @@ export default class TrackPlayback extends TrackIterator {
     }
 
     stopPlayback(stopAllNotes=true) {
-        console.log('TrackPlayback.stopPlayback', stopAllNotes);
+        // console.log('TrackPlayback.stopPlayback', stopAllNotes);
         if(this.active) {
             this.active = false;
             this.endResolve();
