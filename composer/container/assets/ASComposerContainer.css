@@ -158,7 +158,7 @@ div.audio-source-composer.portrait div.asc-container {
 
 
 div.audio-source-composer.portrait div.asui-panel > div.container {
-    /*flex-wrap: nowrap;*/
+    flex-wrap: nowrap;
     /*overflow-y: visible;*/
 }
 
@@ -206,6 +206,11 @@ div.audio-source-composer.landscape div.asui-panel.instruction {
         /*right: 0;*/
     }
 }
+
+div.audio-source-composer.portrait div.asui-panel.programs > div.container {
+    flex-wrap: wrap;
+}
+
 div.asui-panel.programs div.program-add {
     /*transform: rotate(90deg);*/
 }

@@ -7,6 +7,7 @@ import ASComposerSongProgramsPanel from "./panel/ASComposerSongProgramsPanel";
 import ASComposerTrackPanel from "./panel/ASComposerTrackPanel";
 import ASComposerBase from "./ASComposerBase";
 import ASUIGlobalContext from "../components/context/ASUIGlobalContext";
+import ASComposerSessionPanel from "./panel/ASComposerSessionPanel";
 
 export default class ASComposerRenderer extends ASComposerBase {
 
@@ -20,6 +21,7 @@ export default class ASComposerRenderer extends ASComposerBase {
                     composer={this}
                     >
                     {this.state.portrait ? this.renderSongPanelPortrait() : this.renderSongPanelLandscape()}
+                    <ASComposerSessionPanel composer={this} ref={this.ref.panelSession} />
                     <ASComposerSongProgramsPanel composer={this} ref={this.ref.panelProgram}/>
 
                     <ASCTracksContainer

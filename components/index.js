@@ -24,6 +24,7 @@ import ASUIIcon from "./icon/ASUIIcon";
 
 import ASUIForm from "./form/ASUIForm";
 import ASUIPanel from "./form/ASUIPanel";
+import ASUIModal from "./modal/ASUIModal";
 
 import ASUIInputRange from "./input-range/ASUIInputRange";
 

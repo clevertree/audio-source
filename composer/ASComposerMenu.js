@@ -294,6 +294,7 @@ class ASComposerMenu extends ASComposerRenderer {
             <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:track')}>Track Panel</ASUIMenuDropDown>
             <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:instruction')}>Instruction Panel</ASUIMenuDropDown>
             <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:programs')}>Program Panel</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:session')}>Session Panel</ASUIMenuDropDown>
         </>);
 
     }

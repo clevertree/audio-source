@@ -50,7 +50,9 @@ class ASComposerBase extends React.Component {
             programStates: [],
 
             // View Modes
-            viewModes: {},
+            viewModes: {
+                "panel:session": "none"
+            },
             // selectedViewKey: null,
 
             /** UI **/
@@ -87,6 +89,7 @@ class ASComposerBase extends React.Component {
             panelSong: React.createRef(),
             panelTrack: React.createRef(),
             panelProgram: React.createRef(),
+            panelSession: React.createRef(),
             activeTracks: [],
             activePrograms: [],
         }
