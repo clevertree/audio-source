@@ -27,6 +27,8 @@ export default class ASUIClickable extends ASUIClickableBase {
             className += ' selected';
         if(this.props.loading)
             className += ' loading';
+        if(this.props.large)
+            className += ' large';
         if(this.state && this.state.open)
             className += ' open';
 

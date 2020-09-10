@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 import "./assets/ASUIInputRange.css";
 
-class ASUIInputRange extends React.Component {
+export default class ASUIInputRange extends React.Component {
     /** Default Properties **/
     static defaultProps = {
     };
@@ -85,22 +85,4 @@ class ASUIInputRange extends React.Component {
     }
 
 
-    /** Overlay Context **/
-    // static contextType = ASUIContextMenuContext;
-    //
-    // getOverlay() { return this.context.overlay; }
-    //
-    // closeAllOpenMenus() {
-    //     const overlay = this.getOverlay();
-    //     if(overlay.getOpenMenuCount() > 0) {
-    //         overlay.closeAllMenus();
-    //         overlay.restoreActiveElementFocus();
-    //     }
-    // }
-
-
 }
-
-
-/** Export this script **/
-export default ASUIInputRange;

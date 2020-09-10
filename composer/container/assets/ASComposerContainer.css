@@ -158,7 +158,7 @@ div.audio-source-composer.portrait div.asc-container {
 
 
 div.audio-source-composer.portrait div.asui-panel > div.container {
-    flex-wrap: nowrap;
+    /*flex-wrap: nowrap;*/
     /*overflow-y: visible;*/
 }
 
@@ -191,11 +191,19 @@ div.audio-source-composer.portrait div.asui-panel-container-horizontal > div.asu
     flex: 1;
 }
 
+/** No-Wrap Portrait Panels **/
+div.audio-source-composer.portrait div.asui-panel.song > div.container,
+div.audio-source-composer.portrait div.asui-panel.track > div.container,
+div.audio-source-composer.portrait div.asui-panel.instruction > div.container,
+div.audio-source-composer.portrait div.asui-panel.instruction > div.container {
+    flex-wrap: nowrap;
+}
 /** Instruction Panel **/
 div.audio-source-composer.landscape div.asui-panel.instruction {
     /*min-width: 480px;*/
 }
 
+/** Song Panel **/
 
 
 /** Program Panel **/

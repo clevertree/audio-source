@@ -1,9 +1,8 @@
 
 div.asui-modal {
-  background-color: rgba(0, 0, 0, 0.50);
 
   z-index: 3;
-  position: absolute;
+  position: fixed;
   left: 0;
   right: 0;
   top: 0;
@@ -12,5 +11,21 @@ div.asui-modal {
   align-items: center;
   justify-content: center;
 
+}
+div.asui-modal > div.content {
+  background-color: #AAAA;
+  border-radius: 1em;
+  z-index: 4;
+  padding: 3vw;
+}
+
+div.asui-modal > div.overlay {
+  background-color: rgba(0, 0, 0, 0.50);
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
   cursor: pointer;
+
 }

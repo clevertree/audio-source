@@ -3,17 +3,12 @@
 /** Editor Panels **/
 
 div.asui-panel {
-    background-color: #CCC;
-    border-radius: 4px;
+    /*background-color: #CCC;*/
+    /*border-radius: 4px;*/
     vertical-align: top;
     /*display: inline-block;*/
     margin: 1px;
     /*width: 100%;*/
-}
-
-div.asui-panel:not(.minimize) > div.container {
-
-    animation: slideOpen 0.4s ease-in;
 }
 
 /** Transition **/
@@ -36,37 +31,74 @@ div.asui-panel:not(.minimize) > div.container {
     }
 }
 
-
+/** Header / Footer **/
+div.asui-panel > div.footer,
 div.asui-panel > div.header {
-    background-color: #333;
     color: #FFF;
     font-size: 11px;
     font-weight: bold;
     text-align: center;
     margin: 0;
+}
+
+/** Header **/
+div.asui-panel > div.header {
+    background-color: #333;
     border-radius: 8px 8px 0 0;
     border-bottom: 1px solid #BBB;
 }
 
+
 div.asui-panel > div.header > div.text {
     white-space: nowrap;
-    cursor: pointer;
     padding: 3px 2em 0px 2em;
-
 }
+
+div.asui-panel.view-mode > div.header > div.text {
+    cursor: pointer;
+}
+div.asui-panel.large > div.header > div.text {
+    padding: 1em;
+}
+
 div.asui-panel > div.header > div.config {
     float: right;
     padding-right: 4px;
 }
 
+
+/** Footer **/
+
+div.asui-panel > div.footer {
+    background: linear-gradient(to bottom, #CCC 0%,#666 100%);
+    border-radius: 0 0 8px 8px ;
+    min-height: 5px;
+}
+div.asui-panel.large > div.footer {
+    min-height: 1em;
+}
+
 /** Container **/
 div.asui-panel > div.container {
-        /*overflow-y: auto;*/
+    background-color: #CCC;
+    /*border-radius: 0 0 8px 8px;*/
+    /*overflow-y: auto;*/
     display: flex;
     flex-wrap: wrap;
     min-height: 1.4em;
 }
+div.asui-panel.horizontal > div.container {
+    flex-direction: column;
+}
+div.asui-panel.large > div.container {
+    padding: 0.5em;
+}
 
+
+div.asui-panel:not(.minimize) > div.container {
+
+    animation: slideOpen 0.4s ease-in;
+}
 
 
 

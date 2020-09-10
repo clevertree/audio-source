@@ -14,9 +14,13 @@ export default class ASUIModal extends React.Component {
         let className = "asui-modal";
         return <div
             className={className}
-            onClick={this.props.onClose}
             {...this.props}>
-            {this.props.children}
+            <div className="overlay"
+                 onClick={this.props.onClose}
+                />
+                <div className="content">
+                    {this.props.children}
+                </div>
         </div>;
     }
 }

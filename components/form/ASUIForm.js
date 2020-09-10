@@ -22,6 +22,7 @@ class ASUIForm extends React.Component {
         if(this.props.horizontal)
             className += ' horizontal';
 
+        // TODO: refactor into form entry
         return (
             <div className={className}>
                 {this.props.header ? <div className="header">{this.props.header}</div> : null}

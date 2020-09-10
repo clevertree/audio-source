@@ -52,12 +52,16 @@ class ASUIPanel extends React.Component {
         let className = 'asui-panel';
         if(this.props.className)
             className += ' ' + this.props.className;
+        if(this.props.horizontal)
+            className += ' horizontal';
+        if(this.props.large)
+            className += ' large';
 
         let viewMode = null;
         const viewKey = this.props.viewKey;
         if(viewKey) {
             viewMode = this.getViewMode(viewKey);
-            className += ' ' + viewKey;
+            className += ' view-mode ' + viewKey;
         }
         switch(viewMode) {
             case false:
@@ -83,12 +87,13 @@ class ASUIPanel extends React.Component {
                     /> : null}
                     <div
                         className="text"
-                        onClick={this.cb.onClick}
+                        onClick={this.props.viewKey ? this.cb.onClick : null}
                     >{this.props.header}</div>
                 </div>
                 {viewMode !== 'minimize' ? <div className="container">
                     {this.props.children}
                 </div> : null}
+                <div className="footer"/>
             </div>
         )
     }

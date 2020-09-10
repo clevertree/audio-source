@@ -47,6 +47,34 @@ div.asui-clickable.loading {
     }
 }
 
+div.asui-clickable:hover {
+    background: linear-gradient(#ddd, #bbb);
+}
+
+div.asui-clickable.selected,
+div.asui-clickable.stick {
+    background: linear-gradient(#ccc, #aaa);
+    border: 1px inset;
+}
+div.asui-clickable.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+/** Styles **/
+div.asui-clickable.wide {
+    padding: 0 6px;
+}
+div.asui-clickable.small {
+    font-size: small;
+}
+
+div.asui-clickable.large {
+    padding: 1em;
+    font-weight: bold;
+}
+
 
 /** Hover **/
 div.asui-clickable:hover {

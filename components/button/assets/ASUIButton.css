@@ -7,7 +7,7 @@ div.asui-button {
     /*position: relative;*/
     display: inline-flex;
     align-items: center;
-    /*justify-content: center;*/
+    justify-content: center;
     /*cursor: pointer;*/
     white-space: nowrap;
 
@@ -15,28 +15,6 @@ div.asui-button {
     border: 1px outset #EEE;
 }
 
-div.asui-button:hover {
-    background: linear-gradient(#ddd, #bbb);
-}
-
-div.asui-button.selected,
-div.asui-button.stick {
-    background: linear-gradient(#ccc, #aaa);
-    border: 1px inset;
-}
-div.asui-button.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-
-/** Styles **/
-div.asui-button.wide {
-    padding: 0 6px;
-}
-div.asui-button.small {
-    font-size: small;
-}
 
 /** Menu Arrow **/
 /*div.asui-button > div.arrow {*/

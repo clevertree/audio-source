@@ -27,6 +27,8 @@ import ASUIPanel from "./form/ASUIPanel";
 import ASUIModal from "./modal/ASUIModal";
 
 import ASUIInputRange from "./input-range/ASUIInputRange";
+import ASUIInputText from "./input-text/ASUIInputText";
+import ASUIInputPassword from "./input-text/ASUIInputPassword";
 
 export {
     ASUIClickable,
@@ -40,6 +42,8 @@ export {
     ASUIButtonDropDown,
 
     ASUIInputRange,
+    ASUIInputText,
+    ASUIInputPassword,
 
     ASUIMenuItem,
     ASUIMenuAction,
@@ -50,6 +54,8 @@ export {
     ASUIContextMenu,
     ASUIContextMenuContext,
     ASUIContextMenuContainer,
+
+    ASUIModal,
 
     ASUIStateManager,
     ASUIGlobalContext
