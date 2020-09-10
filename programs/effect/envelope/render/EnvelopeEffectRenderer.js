@@ -1,5 +1,5 @@
 import React from 'react';
-import {ASUIButton, ASUIButtonDropDown, ASUIIcon} from "../../../../components/";
+import {ASUIClickable, ASUIClickableDropDown, ASUIIcon} from "../../../../components/";
 
 import EnvelopeEffectRendererBase from "./EnvelopeEffectRendererBase";
 import "./EnvelopeEffectRenderer.css";
@@ -32,7 +32,8 @@ export default class EnvelopeEffectRenderer extends EnvelopeEffectRendererBase {
             <div className="header"
                  title={`Envelope Effect`}
             >
-                <ASUIButton
+                <ASUIClickable
+                    button
                     title={`Envelope Effect`}
                     className="toggle-container small"
                     selected={open}
@@ -40,15 +41,16 @@ export default class EnvelopeEffectRenderer extends EnvelopeEffectRendererBase {
                 >
                     <ASUIIcon source="effect-envelope"/>
                     Envelope
-                </ASUIButton>
-                <ASUIButtonDropDown
+                </ASUIClickable>
+                <ASUIClickableDropDown
+                    button
                     arrow={false}
                     vertical={false}
                     className="program-config"
                     options={this.cb.renderMenuRoot}
                 >
                     <ASUIIcon source="config"/>
-                </ASUIButtonDropDown>
+                </ASUIClickableDropDown>
             </div>
             {parameterContent}
             {/*{this.renderVoice()}*/}

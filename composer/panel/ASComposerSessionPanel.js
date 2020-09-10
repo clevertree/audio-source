@@ -1,6 +1,6 @@
 import React from "react";
 
-import {ASUIPanel, ASUIForm, ASUIButton, ASUIInputText, ASUIInputPassword, ASUIModal} from "../../components";
+import {ASUIPanel, ASUIForm, ASUIFormEntry, ASUIClickable, ASUIInputText, ASUIInputPassword, ASUIModal} from "../../components";
 
 export default class ASComposerSessionPanel extends React.Component {
     constructor(props) {
@@ -23,12 +23,13 @@ export default class ASComposerSessionPanel extends React.Component {
             <ASUIPanel
                 viewKey="session"
                 header="session">
-                <ASUIButton
+                <ASUIClickable
+                    button wide
                     arrow={'▼'}
                     className="keyboard-octave"
                     onAction={this.cb.toggleLogin}
                     title="Log in"
-                >Log in</ASUIButton>
+                >Log in</ASUIClickable>
                 {this.state.showLogin ? <ASUIModal
                     onClose={this.cb.toggleLogin}
                 >
@@ -44,23 +45,27 @@ export default class ASComposerSessionPanel extends React.Component {
                 large
                 horizontal
                 header="Log in">
-            <ASUIForm className="username" header="Username">
-                <ASUIInputText
-                    large
-                    placeholder="user@place.com"
-                    ref={this.ref.username}
+            <ASUIForm>
+                <ASUIFormEntry className="username" header="Username">
+                    <ASUIInputText
+                        large
+                        placeholder="user@place.com"
+                        ref={this.ref.username}
+                        />
+                </ASUIFormEntry>
+                <ASUIFormEntry className="password" header="Password">
+                    <ASUIInputPassword
+                        large
+                        ref={this.ref.password}
                     />
+                </ASUIFormEntry>
+                <ASUIFormEntry className="submit" header="Submit">
+                    <ASUIClickable
+                        button large
+                        onAction={this.cb.onSubmit}
+                    >Submit</ASUIClickable>
+                </ASUIFormEntry>
             </ASUIForm>
-            <ASUIForm className="password" header="Password">
-                <ASUIInputPassword
-                    large
-                    ref={this.ref.password}
-                />
-            </ASUIForm>
-                <ASUIButton
-                    large
-                    onAction={this.cb.onSubmit}
-                >Submit</ASUIButton>
         </ASUIPanel>);
 
     }

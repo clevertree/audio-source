@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import {ASUIButton, ASUIButtonDropDown} from "../../components/";
+import {ASUIClickable, ASUIClickableDropDown} from "../../components/";
 import ASCTrackInstruction from "./instruction/ASCTrackInstruction";
 import ASCTrackRow from "./row/ASCTrackRow";
 import ASCTrackBase from "./ASCTrackBase";
@@ -218,7 +218,8 @@ export default class ASCTrackRenderer extends ASCTrackBase {
             buttonProps.push(props);
         }
 
-        return buttonProps.map((props, i) => <ASUIButton
+        return buttonProps.map((props, i) => <ASUIClickable
+            button wide
             key={i}
             {...props}
         />);
@@ -230,7 +231,8 @@ export default class ASCTrackRenderer extends ASCTrackBase {
 
         const quantizationTicks = this.getQuantizationTicks();
         const rowDeltaDuration = Values.instance.formatDuration(quantizationTicks, composer.getSong().getTimeDivision());
-        return <ASUIButtonDropDown
+        return <ASUIClickableDropDown
+            button
             className="row-quantization"
             title={`Quantization (Duration = ${rowDeltaDuration})`}
             arrow="▼"
@@ -240,7 +242,7 @@ export default class ASCTrackRenderer extends ASCTrackBase {
     }
 
     // renderSelectTrackButton() {
-    //     return <ASUIButton
+    //     return <ASUIClickable
     //         className="select-track"
     //         title={`Select Track: ${this.getTrackName()}`}
     //         onAction={() => this.getComposer().trackSelectActive(this.getTrackName())}
@@ -254,7 +256,8 @@ export default class ASCTrackRenderer extends ASCTrackBase {
         const buttons = [];
 
         const rowLength = this.getRowLength();
-        buttons.push(<ASUIButtonDropDown
+        buttons.push(<ASUIClickableDropDown
+            button
             className="row-length"
             title={`Show ${rowLength} Rows`}
             arrow="▼"

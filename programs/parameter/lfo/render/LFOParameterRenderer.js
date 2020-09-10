@@ -1,7 +1,7 @@
 import React from 'react';
 
 import "./LFOParameterRenderer.css";
-import {ASUIIcon, ASUIButton, ASUIButtonDropDown} from "../../../../components/";
+import {ASUIIcon, ASUIClickable, ASUIClickableDropDown} from "../../../../components/";
 import LFOParameterRendererBase from "./LFOParameterRendererBase";
 
 
@@ -30,22 +30,24 @@ export default class LFOParameterRenderer extends LFOParameterRendererBase {
         return <div className={className}>
             <div className="header"
                  title={title}>
-                <ASUIButton
+                <ASUIClickable
+                    button
                     className="toggle-container small"
                     selected={open}
                     onAction={this.cb.onClick}
                 >
                     <ASUIIcon source="lfo-parameter"/>
                     {title}
-                </ASUIButton>
-                <ASUIButtonDropDown
+                </ASUIClickable>
+                <ASUIClickableDropDown
+                    button
                     arrow={false}
                     vertical={false}
                     className="program-config"
                     options={this.cb.renderMenu.root}
                 >
                     <ASUIIcon source="config"/>
-                </ASUIButtonDropDown>
+                </ASUIClickableDropDown>
             </div>
             {parameterContent}
         </div>;

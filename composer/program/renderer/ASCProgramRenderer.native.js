@@ -29,18 +29,18 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <ASUIButton
+                    <ASUIClickable
                         selected={this.state.open}
                         onAction={e => this.toggleContainer()}
                         children={`${programIDHTML}: ${titleHTML}`}
                         />
-                    <ASUIButtonDropDown
+                    <ASUIClickableDropDown
                         style={styles.config}
                         arrow={false}
                         options={() => this.renderMenuRoot()}
                     >
                         <ASUIIcon source="config"/>
-                    </ASUIButtonDropDown>
+                    </ASUIClickableDropDown>
                 </View>
                 {this.state.open ? <View style={styles.content}>
                     {this.renderProgramContent()}

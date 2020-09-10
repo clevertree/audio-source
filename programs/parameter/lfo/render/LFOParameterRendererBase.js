@@ -2,7 +2,7 @@ import React from 'react';
 import {
     ASUIMenuAction,
     ASUIMenuBreak,
-    ASUIInputRange, ASUIButtonDropDown, ASUIMenuItem,
+    ASUIInputRange, ASUIClickableDropDown, ASUIMenuItem,
 } from "../../../../components";
 import LibraryProcessor from "../../../../song/library/LibraryProcessor";
 import PropTypes from "prop-types";
@@ -95,10 +95,10 @@ export default class LFOParameterRendererBase extends React.Component {
         switch(paramName) {
 
             case 'parameter':
-                return <ASUIButtonDropDown
+                return <ASUIClickableDropDown
                     // className="small"
                     options={this.cb.renderParamMenu.parameter}
-                >{config.parameter ? config.parameter : "No Param"}</ASUIButtonDropDown>
+                >{config.parameter ? config.parameter : "No Param"}</ASUIClickableDropDown>
 
 
             case 'frequency':

@@ -1,19 +1,15 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import "./assets/ASUIForm.css"
+import "./assets/ASUIFormEntry.css"
 
-class ASUIForm extends React.Component {
-    /** Default Properties **/
-    static defaultProps = {
-    };
-
-    /** Property validation **/
-    static propTypes = {
-        className: PropTypes.string,
-        header: PropTypes.any,
-    };
-
+export default class ASUIForm extends React.Component {
+    constructor(props) {
+        super(props);
+        this.cb = {
+            onSubmit: e => this.onSubmit(e),
+        }
+    }
 
     render() {
         let className = 'asui-form';
@@ -22,17 +18,18 @@ class ASUIForm extends React.Component {
         if(this.props.horizontal)
             className += ' horizontal';
 
-        // TODO: refactor into form entry
-        return (
-            <div className={className}>
-                {this.props.header ? <div className="header">{this.props.header}</div> : null}
-                <div className="container">
-                    {this.props.children}
-                </div>
-            </div>
-        )
+        return <form
+                className={className}
+                onSubmit={e => e.preventDefault()}
+                {...this.props}
+            />;
+    }
+
+    /** Actions **/
+
+    onSubmit(e) {
+        console.log(e.type, e);
+        e.preventDefault();
     }
 }
 
-/** Export this script **/
-export default ASUIForm;

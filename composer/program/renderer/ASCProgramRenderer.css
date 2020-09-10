@@ -24,6 +24,12 @@ div.asc-instrument-renderer:focus {
 div.asc-instrument-renderer > div.header {
     display: flex;
 }
+div.asc-instrument-renderer.open > div.header {
+    /*background: linear-gradient(#FFF, #999);*/
+    /*border-radius: 8px;*/
+}
+
+
 div.asc-instrument-renderer > div.header > div.toggle-container {
     flex-basis: 100%;
 }

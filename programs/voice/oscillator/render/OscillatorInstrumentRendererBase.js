@@ -3,7 +3,7 @@ import {
     ASUIMenuAction,
     ASUIMenuBreak,
     ASUIInputRange,
-    ASUIMenuDropDown, ASUIButtonDropDown, ASUIMenuItem, ASUIGlobalContext,
+    ASUIMenuDropDown, ASUIClickableDropDown, ASUIMenuItem, ASUIGlobalContext,
 } from "../../../../components";
 import {LibraryProcessor, ProgramLoader} from "../../../../song";
 
@@ -184,10 +184,10 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
                     source = getNameFromURL(config.url);
                 if(source && source.length > 16)
                     source = '...' + source.substr(-16);
-                return <ASUIButtonDropDown
+                return <ASUIClickableDropDown
                     className="small"
                     options={this.cb.renderParamMenu.source}
-                >{source}</ASUIButtonDropDown>
+                >{source}</ASUIClickableDropDown>
 
 
             case 'mixer':
@@ -213,22 +213,22 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
                 />
 
             // case 'root':
-            //     return <ASUIButtonDropDown
+            //     return <ASUIClickableDropDown
             //         className="small"
             //         options={this.cb.renderParamMenu.root}
-            //     >{config.root ? config.root : "-"}</ASUIButtonDropDown>
+            //     >{config.root ? config.root : "-"}</ASUIClickableDropDown>
 
             // case 'alias':
-            //     return <ASUIButtonDropDown
+            //     return <ASUIClickableDropDown
             //         className="small"
             //         options={this.cb.renderParamMenu.alias}
-            //     >{config.alias ? config.alias : "-"}</ASUIButtonDropDown>
+            //     >{config.alias ? config.alias : "-"}</ASUIClickableDropDown>
 
             // case 'range':
-            //     return <ASUIButtonDropDown
+            //     return <ASUIClickableDropDown
             //         className="small"
             //         options={this.cb.renderParamMenu.range}
-            //     >{config.range ? config.range : "[any]"}</ASUIButtonDropDown>
+            //     >{config.range ? config.range : "[any]"}</ASUIClickableDropDown>
 
             default:
                 return 'Unknown';

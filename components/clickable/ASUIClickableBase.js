@@ -49,9 +49,9 @@ export default class ASUIClickable extends React.Component {
                 break;
 
             case 'Tab':
-                e.preventDefault();
+                // e.preventDefault();
                 // const tabIndexItem = this.getOverlay().getNextTabIndexItem(this, 1);
-                // console.log('TODO tabIndexItem', tabIndexItem);
+                // console.log('TODO tabIndexItem');
                 break;
 
             // case 'ArrowLeft':

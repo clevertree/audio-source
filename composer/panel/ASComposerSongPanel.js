@@ -1,6 +1,6 @@
 import React from "react";
 
-import {ASUIIcon, ASUIForm, ASUIPanel, ASUIInputRange, ASUIButton} from "../../components";
+import {ASUIIcon, ASUIFormEntry, ASUIPanel, ASUIInputRange, ASUIClickable} from "../../components";
 import {Values} from "../../song";
 
 export default class ASComposerSongPanel extends React.Component {
@@ -30,46 +30,51 @@ export default class ASComposerSongPanel extends React.Component {
         // const positionString = composer.values.formatPlaybackPosition(songStats.position);
         return (
             <ASUIPanel viewKey="song" header="Song Information">
-                <ASUIForm className="playback" horizontal header="Playback">
-                    <ASUIButton
-                        className="song-play wide"
+                <ASUIFormEntry className="playback" horizontal header="Playback">
+                    <ASUIClickable
+                        button wide
+                        className="song-play"
                         onAction={cb.songPlay}
                     >
                         <ASUIIcon source="play"/>
-                    </ASUIButton>
-                    <ASUIButton
+                    </ASUIClickable>
+                    <ASUIClickable
+                        button wide
                         className="song-pause wide"
                         onAction={cb.songPause}
                     >
                         <ASUIIcon source="pause"/>
-                    </ASUIButton>
-                    <ASUIButton
+                    </ASUIClickable>
+                    <ASUIClickable
+                        button wide
                         className="song-stop wide"
                         onAction={cb.songStop}
                     >
                         <ASUIIcon source="stop"/>
-                    </ASUIButton>
-                </ASUIForm>
+                    </ASUIClickable>
+                </ASUIFormEntry>
 
-                {state.portrait ? null : <ASUIForm className="file" horizontal header="File">
-                    <ASUIButton
-                        className="file-load wide"
+                {state.portrait ? null : <ASUIFormEntry className="file" horizontal header="File">
+                    <ASUIClickable
+                        button wide
+                        className="file-load"
                         onAction={cb.openSongFromFileDialog}
                         accept=".json,.mid,.midi"
                         title="Load Song from File"
                     >
                         <ASUIIcon source="file-load"/>
-                    </ASUIButton>
-                    <ASUIButton
-                        className="file-save wide"
+                    </ASUIClickable>
+                    <ASUIClickable
+                        button wide
+                        className="file-save"
                         onAction={cb.saveSongToMemory}
                         title="Save Song to File"
                     >
                         <ASUIIcon source="file-save"/>
-                    </ASUIButton>
-                </ASUIForm>}
+                    </ASUIClickable>
+                </ASUIFormEntry>}
 
-                <ASUIForm className="volume" horizontal header="Volume">
+                <ASUIFormEntry className="volume" horizontal header="Volume">
                     <ASUIInputRange
                         className="volume"
                         onChange={this.cb.setVolume}
@@ -79,9 +84,9 @@ export default class ASComposerSongPanel extends React.Component {
                         max={100}
                         title="Song Volume"
                     />
-                </ASUIForm>
+                </ASUIFormEntry>
 
-                <ASUIForm className="position" header="Position">
+                <ASUIFormEntry className="position" header="Position">
                     <ASUIInputRange
                         className="position"
                         onChange={this.cb.setSongPositionPercentage}
@@ -92,43 +97,46 @@ export default class ASComposerSongPanel extends React.Component {
                         // ref={ref => this.fieldSongPosition = ref}
                         title="Song Position"
                     />
-                </ASUIForm>
+                </ASUIFormEntry>
 
-                {/*<ASUIForm className="timing" header="Timing">*/}
-                {/*    <ASUIButton*/}
+                {/*<ASUIFormEntry className="timing" header="Timing">*/}
+                {/*    <ASUIClickable*/}
                 {/*        className="timing wide"*/}
                 {/*        onAction={(e, timingString) => composer.setSongPositionPrompt(timingString)}*/}
                 {/*        title="Song Timing"*/}
                 {/*        children={positionString}*/}
                 {/*    />*/}
-                {/*</ASUIForm>*/}
+                {/*</ASUIFormEntry>*/}
 
-                {state.portrait ? null : <ASUIForm className="name" header="Name">
-                    <ASUIButton
-                        className="name wide"
+                {state.portrait ? null : <ASUIFormEntry className="name" header="Name">
+                    <ASUIClickable
+                        button wide
+                        className="name"
                         onAction={this.cb.setSongNamePrompt}
                         title="Song Name"
                         children={song ? song.data.title : "no song loaded"}
                     />
-                </ASUIForm>}
+                </ASUIFormEntry>}
 
-                <ASUIForm className="version" header="Version">
-                    <ASUIButton
-                        className="version wide"
+                <ASUIFormEntry className="version" header="Version">
+                    <ASUIClickable
+                        button wide
+                        className="version"
                         onAction={this.cb.setSongVersionPrompt}
                         title="Song Version"
                         children={song ? song.data.version : "0.0.0"}
                     />
-                </ASUIForm>
+                </ASUIFormEntry>
 
-                <ASUIForm className="beatsPerMinute" header="BPM">
-                    <ASUIButton
-                        className="beats-per-minute wide"
+                <ASUIFormEntry className="beatsPerMinute" header="BPM">
+                    <ASUIClickable
+                        button wide
+                        className="beats-per-minute"
                         onAction={this.cb.setSongStartingBPMPrompt}
                         title="Song Beats Per Minute"
                         children={song ? song.data.beatsPerMinute : "N/A"}
                     />
-                </ASUIForm>
+                </ASUIFormEntry>
             </ASUIPanel>
         );
     }

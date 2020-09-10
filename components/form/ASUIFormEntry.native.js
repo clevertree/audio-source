@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import {StyleSheet, Text, View} from 'react-native';
 
 
-export default class ASUIForm extends React.Component {
+export default class ASUIFormEntry extends React.Component {
     /** Default Properties **/
     static defaultProps = {
     };

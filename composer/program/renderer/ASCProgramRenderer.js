@@ -1,8 +1,8 @@
 import React from "react";
 import {
     ASUIIcon,
-    ASUIButtonDropDown,
-    ASUIButton,
+    ASUIClickableDropDown,
+    ASUIClickable,
 } from "../../../components";
 import ASCProgramRendererBase from "./ASCProgramRendererBase";
 
@@ -30,29 +30,36 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
             className += ' empty';
         }
         const open = this.props.open;
+        if(open)
+            className += ' open';
         return (
-            <div className={className} tabIndex={0} onFocus={this.cb.onFocus}>
+            <div className={className}
+                 // tabIndex={0}
+                 onFocus={this.cb.onFocus}>
                 <div className="header">
-                    <ASUIButton
+                    <ASUIClickable
+                        button
                         className="toggle-container"
                         selected={!!open}
                         onAction={this.cb.toggleContainer}
                     >
                         {programIDHTML}: {titleHTML}
-                    </ASUIButton>
-                    {open !== 'browser' ? <ASUIButtonDropDown
+                    </ASUIClickable>
+                    {open !== 'browser' ? <ASUIClickableDropDown
+                        button
                         arrow={false}
                         vertical={false}
                         className="program-config"
                         options={this.cb.menuRoot}
                     >
                         <ASUIIcon source="config"/>
-                    </ASUIButtonDropDown> : <ASUIButton
+                    </ASUIClickableDropDown> : <ASUIClickable
+                        button
                         className="preset-browser-close"
                         onAction={this.cb.togglePresetBrowser}
                     >
                         <ASUIIcon source="close"/>
-                    </ASUIButton>}
+                    </ASUIClickable>}
                 </div>
                 {open ? <div className="content">
                     {open === 'browser' || !renderProgram ? this.renderPresetBrowser() : this.renderProgramContent()}

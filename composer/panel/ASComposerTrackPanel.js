@@ -1,6 +1,6 @@
 import React from "react";
 
-import {ASUIIcon, ASUIForm, ASUIPanel, ASUIButton, ASUIButtonDropDown} from "../../components";
+import {ASUIIcon, ASUIFormEntry, ASUIPanel, ASUIClickable, ASUIClickableDropDown} from "../../components";
 import Instruction from "../../song/instruction/Instruction";
 import {ArgType, Values} from "../../song";
 
@@ -51,52 +51,57 @@ export default class ASComposerTrackPanel extends React.Component {
                 key="track"
                 viewKey="track"
                 header={`Selected Track`}>
-                <ASUIForm className="track-name" header="Current">
-                    <ASUIButtonDropDown
+                <ASUIFormEntry className="track-name" header="Current">
+                    <ASUIClickableDropDown
+                        button wide
                         // className="track-selection"
                         options={this.cb.renderMenuSelectTrack}
                         title="Current Track"
                         children={this.state.selectedTrackName || "N/A"}
                     />
-                </ASUIForm>
-                <ASUIForm className="track-selection" header="Selection">
-                    <ASUIButton
+                </ASUIFormEntry>
+                <ASUIFormEntry className="track-selection" header="Selection">
+                    <ASUIClickable
+                        button wide
                         // className="track-selection"
                         onAction={this.cb.trackSelectIndicesPrompt}
                         title="Selected Track Notes"
                         children={selectedIndices.length > 0 ? getSelectedIndicesString(selectedIndices) : "None"}
                     />
-                </ASUIForm>
+                </ASUIFormEntry>
 
-                <ASUIForm className="track-insert" header="Add">
-                    <ASUIButton
+                <ASUIFormEntry className="track-insert" header="Add">
+                    <ASUIClickable
+                        button wide
                         // className="instruction-insert"
                         onAction={this.cb.instructionInsertAtSelectedTrackCursor}
                         title="Insert Instruction"
                         // disabled={selectedIndices.length > 0}
                     >
                         <ASUIIcon source="insert"/>
-                    </ASUIButton>
-                </ASUIForm>
-                <ASUIForm className="track-delete" header="Rem">
-                    <ASUIButton
+                    </ASUIClickable>
+                </ASUIFormEntry>
+                <ASUIFormEntry className="track-delete" header="Rem">
+                    <ASUIClickable
+                        button wide
                         // className="instruction-delete"
                         onAction={this.cb.instructionDeleteSelected}
                         title="Delete Instruction"
                         disabled={selectedIndices.length === 0}
                     >
                         <ASUIIcon source="remove"/>
-                    </ASUIButton>
-                </ASUIForm>
+                    </ASUIClickable>
+                </ASUIFormEntry>
 
-                <ASUIForm className="keyboard-octave" header="Octave">
-                    <ASUIButtonDropDown
+                <ASUIFormEntry className="keyboard-octave" header="Octave">
+                    <ASUIClickableDropDown
+                        button wide
                         arrow={'▼'}
                         className="keyboard-octave"
                         options={this.cb.renderMenuKeyboardSetOctave}
                         title="Change Keyboard Octave"
-                    >{this.state.keyboardOctave}</ASUIButtonDropDown>
-                </ASUIForm>
+                    >{this.state.keyboardOctave}</ASUIClickableDropDown>
+                </ASUIFormEntry>
             </ASUIPanel>,
             <ASUIPanel
                 key="instruction"
@@ -143,23 +148,24 @@ export default class ASComposerTrackPanel extends React.Component {
     renderDropDownForm(instructionData, argType, argIndex, paramValue, formatStats={}) {
         let header = argType.title.split(' ').pop(); // Long text hack
         const composer = this.props.composer;
-        return <ASUIForm key={argIndex} header={header}>
-            <ASUIButtonDropDown
+        return <ASUIFormEntry key={argIndex} header={header}>
+            <ASUIClickableDropDown
+                button wide
                 arrow={'▼'}
                 title={`Change ${argType.title}`}
                 options={() => composer.renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue)}
-            >{argType.format(paramValue, formatStats)}</ASUIButtonDropDown>
-        </ASUIForm>
+            >{argType.format(paramValue, formatStats)}</ASUIClickableDropDown>
+        </ASUIFormEntry>
     }
 
     renderVelocityForm(instructionData, argType, argIndex, paramValue, header="Velocity", title="Instruction Velocity") {
         const composer = this.props.composer;
 
-        return <ASUIForm key={argIndex} header={header}>
+        return <ASUIFormEntry key={argIndex} header={header}>
             {Values.instance.renderInputVelocity((newVelocity) => {
                 composer.instructionReplaceArgByType(composer.getSelectedTrackName(), this.state.selectedIndices, argType, newVelocity);
             }, paramValue, title)}
-        </ASUIForm>;
+        </ASUIFormEntry>;
     }
 
     /** Menu **/

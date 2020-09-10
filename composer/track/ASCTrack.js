@@ -100,7 +100,7 @@ export default class ASCTrack extends ASCTrackInput {
                     elm && elm.addEventListener('wheel', this.cb.onWheel, {passive: false});
                     this.ref.rowContainer.current = elm;
                 }}
-                tabIndex={0}
+                // tabIndex={0}
                 onKeyDown={this.cb.onKeyDown}
                 onTouchStart={this.cb.onTouchStart}
                 onTouchEnd={this.cb.onTouchEnd}

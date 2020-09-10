@@ -3,7 +3,7 @@ import {
     ASUIMenuAction,
     ASUIMenuBreak,
     ASUIInputRange,
-    ASUIMenuDropDown, ASUIButtonDropDown, ASUIMenuItem, ASUIGlobalContext
+    ASUIMenuDropDown, ASUIClickableDropDown, ASUIMenuItem, ASUIGlobalContext
 } from "../../../../components";
 import {LibraryProcessor, ProgramLoader, Values} from "../../../../song";
 
@@ -180,10 +180,10 @@ class AudioBufferInstrumentRendererBase extends React.Component {
                     source = getNameFromURL(config.url); // .split('/').pop();
                 if(source && source.length > 16)
                     source = source.substr(0, 16) + '...';
-                return <ASUIButtonDropDown
+                return <ASUIClickableDropDown
                     className="small"
                     options={this.cb.renderParamMenu.source}
-                >{source}</ASUIButtonDropDown>
+                >{source}</ASUIClickableDropDown>
 
 
             case 'mixer':
@@ -209,16 +209,16 @@ class AudioBufferInstrumentRendererBase extends React.Component {
                 />
 
             case 'root':
-                return <ASUIButtonDropDown
+                return <ASUIClickableDropDown
                     className="small"
                     options={this.cb.renderParamMenu.root}
-                >{config.root ? config.root : "-"}</ASUIButtonDropDown>
+                >{config.root ? config.root : "-"}</ASUIClickableDropDown>
 
             // case 'alias':
-            //     return <ASUIButtonDropDown
+            //     return <ASUIClickableDropDown
             //         className="small"
             //         options={this.cb.renderParamMenu.alias}
-            //     >{config.alias ? config.alias : "-"}</ASUIButtonDropDown>
+            //     >{config.alias ? config.alias : "-"}</ASUIClickableDropDown>
 
             case 'range':
                 let rangeText = '[all]';
@@ -228,10 +228,10 @@ class AudioBufferInstrumentRendererBase extends React.Component {
                     if(config.rangeStart === config.rangeEnd)
                         rangeText = config.rangeStart;
                 }
-                return <ASUIButtonDropDown
+                return <ASUIClickableDropDown
                     className="small"
                     options={this.cb.renderParamMenu.range}
-                >{rangeText}</ASUIButtonDropDown>
+                >{rangeText}</ASUIClickableDropDown>
 
             default:
                 return 'Unknown';

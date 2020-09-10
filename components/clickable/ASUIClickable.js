@@ -29,23 +29,27 @@ export default class ASUIClickable extends ASUIClickableBase {
             className += ' loading';
         if(this.props.large)
             className += ' large';
+        // if(this.props.button)
+        //     className += ' button';
+        if(this.props.wide)
+            className += ' wide';
         if(this.state && this.state.open)
             className += ' open';
 
-        return (
-            <div
-                title={this.props.title}
-                className={className}
-                onClick={this.cb.onMouseInput}
-                onKeyDown={this.cb.onKeyDown}
-                onMouseEnter={this.cb.onMouseEnter}
-                onMouseLeave={this.cb.onMouseLeave}
-                // tabIndex={0}
-                ref={this.ref.container}
-            >
-                {this.renderChildren()}
-            </div>
-        );
+        const props = {
+            title: this.props.title,
+            className,
+            onClick: this.cb.onMouseInput,
+            onKeyDown: this.cb.onKeyDown,
+            onMouseEnter: this.cb.onMouseEnter,
+            onMouseLeave: this.cb.onMouseLeave,
+            ref: this.ref.container,
+            children: this.renderChildren()
+        }
+
+        if(this.props.button)
+            return <button {...props} />;
+        return <div {...props} />;
     }
 
     renderChildren(props={}) {

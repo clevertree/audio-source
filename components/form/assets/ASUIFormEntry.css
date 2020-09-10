@@ -1,7 +1,7 @@
 
 /** Song Forms **/
 
-form.asui-form {
+div.asui-form-entry {
     background: #DDD;
     border: 1px outset #FFF;
     padding: 0px 0px;
@@ -9,7 +9,7 @@ form.asui-form {
     /*display: inline-block;*/
     /*vertical-align: top;*/
 }
-form.asui-form > div.header {
+div.asui-form-entry > div.header {
     font-size: smaller;
     border-bottom: 1px solid #BBB;
     margin-bottom: 1px;
@@ -17,11 +17,11 @@ form.asui-form > div.header {
     height: 1em;
 }
 
-form.asui-form > div.container {
+div.asui-form-entry > div.container {
     display: flex;
     /*min-height: 1.4em;*/
 }
 
-form.asui-form:not(.horizontal) > div.container {
+div.asui-form-entry:not(.horizontal) > div.container {
     flex-direction: column;
 }

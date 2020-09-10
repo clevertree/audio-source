@@ -2,8 +2,8 @@ import React from 'react';
 
 import {
     ASUIIcon,
-    ASUIButton,
-    ASUIButtonDropDown
+    ASUIClickable,
+    ASUIClickableDropDown
 } from "../../../../components";
 
 import OscillatorInstrumentRendererBase from "./OscillatorInstrumentRendererBase";
@@ -57,22 +57,24 @@ export default class OscillatorInstrumentRenderer extends OscillatorInstrumentRe
         return <div className={className}>
             <div className="header"
                  title={title}>
-                <ASUIButton
+                <ASUIClickable
+                    button
                     className="toggle-container"
                     selected={open}
                     onAction={this.cb.onClick}
                 >
                     <ASUIIcon source="instrument-oscillator"/>
                     {title}
-                </ASUIButton>
-                <ASUIButtonDropDown
+                </ASUIClickable>
+                <ASUIClickableDropDown
+                    button
                     arrow={false}
                     vertical={false}
                     className="program-config"
                     options={this.cb.renderMenu.root}
                 >
                     <ASUIIcon source="config"/>
-                </ASUIButtonDropDown>
+                </ASUIClickableDropDown>
             </div>
             {parameterContent}
             {envelopeContent}

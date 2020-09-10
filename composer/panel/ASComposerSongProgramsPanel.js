@@ -1,6 +1,6 @@
 import React from "react";
 
-import {ASUIPanel, ASUIButtonDropDown, ASUIIcon} from "../../components";
+import {ASUIPanel, ASUIClickableDropDown, ASUIIcon, ASUIClickable} from "../../components";
 import {ASCProgramRenderer} from "../program";
 
 export default class ASComposerSongProgramsPanel extends React.Component {
@@ -41,7 +41,8 @@ export default class ASComposerSongProgramsPanel extends React.Component {
                        selected={selectedProgramID === programID}
                    />;
                })}
-               <ASUIButtonDropDown
+               <ASUIClickableDropDown
+                   button wide
                    arrow={false}
                    vertical={false}
                    className="program-add"
@@ -49,7 +50,7 @@ export default class ASComposerSongProgramsPanel extends React.Component {
                    title="Add new Program"
                >
                    <ASUIIcon source="insert" />
-               </ASUIButtonDropDown>
+               </ASUIClickableDropDown>
             </ASUIPanel>
         );
     }
