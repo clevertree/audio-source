@@ -14,12 +14,13 @@ export default class ClientUserSession {
 
     static async postJSON(url, jsonObject) {
         return await fetch(url, {
+            credentials: 'include',
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json;charset=utf-8'
             },
-            body: JSON.stringify(jsonObject)
+            body: JSON.stringify(jsonObject),
         });
     }
 
@@ -34,7 +35,7 @@ export default class ClientUserSession {
             throw new Error(response.statusText)
 
         console.log("Login Response: ", json, response);
-        return json;
+        return json.session;
     }
 
     static async register(email, password, username=null) {
@@ -49,6 +50,23 @@ export default class ClientUserSession {
             throw new Error(response.statusText)
 
         console.log("Registration Response: ", json, response);
+
+        return json.session;
+    }
+
+    static async session() {
+        console.log("Submitting Session Request");
+        const response = await fetch(serverBaseURL + '/session', {
+            credentials: 'include',
+        })
+        const json = await response.json();
+        if(response.status !== 200)
+            throw new Error(response.statusText)
+
+        console.log("Session Response: ", json, response);
+
         return json;
     }
 }
+
+ClientUserSession.session();

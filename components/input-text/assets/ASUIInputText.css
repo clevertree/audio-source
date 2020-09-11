@@ -1,26 +1,7 @@
 
 input.asui-input-text {
   position: relative;
-}
-
-input.asui-input-text > input[type='range'] {
-  position: relative;
-  -webkit-appearance: none;
-  background-color: #9999;
-  border-radius: 0.3em;
-  cursor: col-resize;
-  z-index: 2;
-  width: 100%;
-  margin: 3px 0 0 0;
-}
-
-input.asui-input-text > input[type='range']::-webkit-slider-thumb {
-  vertical-align: middle;
-  -webkit-appearance: none;
-  background-color: #444;
-  width: 0.5em;
-  height: 15px;
-  border-radius: 1em;
+  border-width: 0px;
 }
 
 

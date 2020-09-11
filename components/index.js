@@ -22,7 +22,7 @@ import ASUIIcon from "./icon/ASUIIcon";
 
 
 import ASUIFormEntry from "./form/ASUIFormEntry";
-import ASUIFormError from "./form/ASUIFormError";
+import ASUIFormMessage from "./form/ASUIFormMessage";
 import ASUIForm from "./form/ASUIForm";
 import ASUIPanel from "./form/ASUIPanel";
 import ASUIModal from "./modal/ASUIModal";
@@ -41,7 +41,7 @@ export {
     ASUIPanel,
     ASUIForm,
     ASUIFormEntry,
-    ASUIFormError,
+    ASUIFormMessage,
 
     ASUIInputRange,
     ASUIInputText,

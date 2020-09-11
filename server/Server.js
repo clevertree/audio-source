@@ -1,8 +1,8 @@
 import UserAPI from "./api/UserAPI";
 
-
 const express = require('express');
-const session = require('express-session');
+// const session = require('express-session');
+const clientSessions = require('client-sessions')
 const cors = require('cors');
 
 const serverConfig = require('./.server.json')
@@ -16,13 +16,23 @@ export default class Server {
         this.app = app;
         app.use(express.json());
         app.use(express.urlencoded({ extended: false }));
-        app.use(cors({origin: '*'}));
-
-        app.use(session({
-            secret: 'cb1fbb07079625629cf5858918f33713',
-            saveUninitialized: true,
-            resave: true
+        app.use(cors({
+            credentials: true,
+            origin: 'http://localhost:3000'
         }));
+
+        app.use(clientSessions({
+            cookieName: 'session', // cookie name dictates the key name added to the request object
+            secret: 'cb1fbb07079625629cf5858718f33713', // should be a large unguessable string
+            duration: 24 * 60 * 60 * 1000, // how long the session will stay valid in ms
+            activeDuration: 1000 * 60 * 5 // if expiresIn < activeDuration, the session will be extended by activeDuration milliseconds
+        }));
+
+        // app.use(session({
+        //     secret: 'cb1fbb07079625629cf5858918f33713',
+        //     saveUninitialized: true,
+        //     resave: true
+        // }));
         new UserAPI().connectApp(app);
 
 

@@ -16,6 +16,7 @@ class ASComposerActions extends ASComposerMenu {
         this.setStatus(statusText, 'error');
     }
 
+
     /** Library **/
 
     setLibrary(library) {

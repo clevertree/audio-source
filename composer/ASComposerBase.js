@@ -23,6 +23,8 @@ class ASComposerBase extends React.Component {
             showTrackRowPositionInTicks: false,
             showTrackRowDurationInTicks: false,
 
+            // User Session
+            // session: null,
 
             // Playback
             volume: Song.DEFAULT_VOLUME,

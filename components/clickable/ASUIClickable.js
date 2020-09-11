@@ -29,8 +29,8 @@ export default class ASUIClickable extends ASUIClickableBase {
             className += ' loading';
         if(this.props.size)
             className += ' ' + this.props.size;
-        // if(this.props.button)
-        //     className += ' button';
+        if(this.props.center)
+            className += ' center';
         if(this.props.wide)
             className += ' wide';
         if(this.state && this.state.open)

@@ -38,7 +38,7 @@ export default class ServerUser {
         if(await this.isRegistered())
             throw new Error("User is already registered: " + this.email);
 
-        if(username === null)
+        if(!username)
             username = this.email.split('@')[0];
         const userPath = this.getPrivateUserDirectory();
         const userFile = path.resolve(this.getPrivateUserDirectory(), FILE_USER);
@@ -52,6 +52,7 @@ export default class ServerUser {
         console.log("Registering User:", this.email, userFile);
         fs.mkdirSync(userPath, { recursive: true });
         fs.writeFileSync(userFile, JSON.stringify(userJSON))
+
     }
 
     async unregister() {

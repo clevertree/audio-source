@@ -1,6 +1,6 @@
 import React from "react";
 
-import {ASUIPanel, ASUIForm, ASUIFormEntry, ASUIFormError, ASUIClickable, ASUIInputText, ASUIInputPassword, ASUIModal, ASUIAnchor} from "../../components";
+import {ASUIPanel, ASUIForm, ASUIFormEntry, ASUIFormMessage, ASUIClickable, ASUIInputText, ASUIInputPassword, ASUIModal, ASUIAnchor} from "../../components";
 import ClientUserSession from "../../server/client/ClientUserSession";
 
 export default class ASComposerSessionPanel extends React.Component {
@@ -23,7 +23,10 @@ export default class ASComposerSessionPanel extends React.Component {
             password: React.createRef(),
             password_confirm: React.createRef(),
         }
+
     }
+
+    getComposer() { return this.props.composer; }
 
     render() {
         return (
@@ -47,105 +50,127 @@ export default class ASComposerSessionPanel extends React.Component {
     }
 
     renderModalContent() {
-        return this.state.form === 'registration'
-            ? this.renderRegistrationContent()
-            : this.renderLoginContent();
-    }
+        switch(this.state.form) {
+            default:
+            case 'login':
+                return (<ASUIPanel
+                    large
+                    horizontal
+                    header="Log in">
+                    <ASUIForm>
+                        {this.state.error ? <ASUIFormMessage error children={this.state.error}/> : null}
+                        <ASUIFormEntry className="email" header="Email">
+                            <ASUIInputText
+                                size="large"
+                                type="email"
+                                required
+                                placeholder="user@place.com"
+                                ref={this.ref.email}
+                            />
+                        </ASUIFormEntry>
+                        <ASUIFormEntry className="password" header="Password">
+                            <ASUIInputPassword
+                                size="large"
+                                ref={this.ref.password}
+                            />
+                        </ASUIFormEntry>
+                        <ASUIFormEntry className="submit" header="Submit">
+                            <ASUIClickable
+                                button
+                                size="large"
+                                onAction={this.cb.onSubmitLoginForm}
+                            >Log In</ASUIClickable>
+                        </ASUIFormEntry>
+                        <ASUIAnchor
+                            className="register"
+                            onClick={this.cb.showRegistrationForm}
+                        >Need to register?</ASUIAnchor>
+                    </ASUIForm>
+                </ASUIPanel>);
+            case 'registration':
+                return (<ASUIPanel
+                    large
+                    horizontal
+                    header="Register a new account">
+                    <ASUIForm>
+                        {this.state.error ? <ASUIFormMessage error children={this.state.error}/> : null}
+                        <ASUIFormEntry className="email" header="Email">
+                            <ASUIInputText
+                                size="large"
+                                type="email"
+                                required
+                                placeholder="user@place.com"
+                                ref={this.ref.email}
+                            />
+                        </ASUIFormEntry>
+                        <ASUIFormEntry className="username" header="Username">
+                            <ASUIInputText
+                                size="large"
+                                placeholder="username"
+                                pattern="([A-z0-9À-ž]){2,}"
+                                ref={this.ref.username}
+                            />
+                        </ASUIFormEntry>
+                        <ASUIFormEntry className="password" header="Password">
+                            <ASUIInputPassword
+                                size="large"
+                                ref={this.ref.password}
+                            />
+                        </ASUIFormEntry>
+                        <ASUIFormEntry className="password_confirm" header="Confirm">
+                            <ASUIInputPassword
+                                size="large"
+                                ref={this.ref.password_confirm}
+                            />
+                        </ASUIFormEntry>
+                        <ASUIFormEntry className="submit" header="Register">
+                            <ASUIClickable
+                                button
+                                size="large"
+                                onAction={this.cb.onSubmitRegistrationForm}
+                            >Register</ASUIClickable>
+                        </ASUIFormEntry>
+                        <ASUIAnchor
+                            className="login"
+                            onClick={this.cb.showLoginForm}
+                        >Already have an account?</ASUIAnchor>
+                    </ASUIForm>
+                </ASUIPanel>);
 
-    renderLoginContent() {
-        return (<ASUIPanel
-                large
-                horizontal
-                header="Log in">
-            <ASUIForm>
-                {this.state.error ? <ASUIFormError children={this.state.error} /> : null}
-                <ASUIFormEntry className="email" header="Email">
-                    <ASUIInputText
-                        size="large"
-                        type="email"
-                        required
-                        placeholder="user@place.com"
-                        ref={this.ref.email}
-                        />
-                </ASUIFormEntry>
-                <ASUIFormEntry className="password" header="Password">
-                    <ASUIInputPassword
-                        size="large"
-                        ref={this.ref.password}
-                    />
-                </ASUIFormEntry>
-                <ASUIFormEntry className="submit" header="Submit">
+            case 'registration-success':
+                return (<ASUIPanel
+                    large
+                    horizontal
+                    header="Registration Successful">
+                    <ASUIFormMessage children="Registration Successful"/>
                     <ASUIClickable
                         button
                         size="large"
-                        onAction={this.cb.onSubmitLoginForm}
-                    >Log In</ASUIClickable>
-                </ASUIFormEntry>
-                <ASUIAnchor
-                    className="register"
-                    onClick={this.cb.showRegistrationForm}
-                >Need to register?</ASUIAnchor>
-            </ASUIForm>
-        </ASUIPanel>);
+                        onAction={this.cb.toggleModal}
+                    >Close</ASUIClickable>
+                </ASUIPanel>);
 
-    }
-
-    renderRegistrationContent() {
-        return (<ASUIPanel
-            large
-            horizontal
-            header="Register a new account">
-            <ASUIForm>
-                {this.state.error ? <ASUIFormError children={this.state.error} /> : null}
-                <ASUIFormEntry className="email" header="Email">
-                    <ASUIInputText
-                        size="large"
-                        type="email"
-                        required
-                        placeholder="user@place.com"
-                        ref={this.ref.email}
-                    />
-                </ASUIFormEntry>
-                <ASUIFormEntry className="username" header="Username">
-                    <ASUIInputText
-                        size="large"
-                        placeholder="username"
-                        pattern="([A-z0-9À-ž]){2,}"
-                        ref={this.ref.username}
-                    />
-                </ASUIFormEntry>
-                <ASUIFormEntry className="password" header="Password">
-                    <ASUIInputPassword
-                        size="large"
-                        ref={this.ref.password}
-                    />
-                </ASUIFormEntry>
-                <ASUIFormEntry className="password_confirm" header="Confirm">
-                    <ASUIInputPassword
-                        size="large"
-                        ref={this.ref.password_confirm}
-                    />
-                </ASUIFormEntry>
-                <ASUIFormEntry className="submit" header="Register">
+            case 'login-success':
+                return (<ASUIPanel
+                    large
+                    horizontal
+                    header="Login Successful">
+                    <ASUIFormMessage children="Login Successful"/>
                     <ASUIClickable
                         button
                         size="large"
-                        onAction={this.cb.onSubmitRegistrationForm}
-                    >Register</ASUIClickable>
-                </ASUIFormEntry>
-                <ASUIAnchor
-                    className="login"
-                    onClick={this.cb.showLoginForm}
-                >Already have an account?</ASUIAnchor>
-            </ASUIForm>
-        </ASUIPanel>);
+                        onAction={this.cb.toggleModal}
+                    >Close</ASUIClickable>
+                </ASUIPanel>);
+        }
     }
 
     /** Actions **/
 
     toggleModal() {
         this.setState({
-            showModal: !this.state.showLogin
+            showModal: !this.state.showModal,
+            form: 'null'
         })
     }
 
@@ -179,7 +204,12 @@ export default class ASComposerSessionPanel extends React.Component {
                 if (password !== password_confirm)
                     throw new Error("Confirmation password doesn't match");
             }
-            const user = await ClientUserSession.register(email, password, username);
+            await ClientUserSession.register(email, password, username);
+
+            this.setState({
+                showModal: true,
+                form: 'registration-success'
+            })
         } catch (e) {
             console.error(e);
             this.setState({
@@ -197,7 +227,13 @@ export default class ASComposerSessionPanel extends React.Component {
             })
             const email = this.ref.email.current.getValue();
             const password = this.ref.password.current.getValue();
-            const user = await ClientUserSession.login(email, password);
+            await ClientUserSession.login(email, password);
+            await ClientUserSession.session();
+
+            this.setState({
+                showModal: true,
+                form: 'login-success'
+            })
         } catch (e) {
             console.error(e);
             this.setState({

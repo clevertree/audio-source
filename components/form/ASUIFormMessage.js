@@ -1,14 +1,15 @@
 import React from "react";
-import PropTypes from "prop-types";
 
-import "./assets/ASUIFormError.css"
+import "./assets/ASUIFormMessage.css"
 
-export default class ASUIFormError extends React.Component {
+export default class ASUIFormMessage extends React.Component {
 
     render() {
-        let className = 'asui-form-error';
+        let className = 'asui-form-message';
         if(this.props.className)
             className += ' ' + this.props.className;
+        if(this.props.error)
+            className += ' error';
 
         return (
             <div className={className}>

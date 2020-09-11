@@ -5,6 +5,7 @@ export default class UserAPI {
     connectApp(app) {
         app.post("/login", this.postUserLogin.bind(this))
         app.post("/register", this.postUserRegister.bind(this))
+        app.get("/session", this.getUserSession.bind(this))
         app.get("/user/:id", this.getUser.bind(this))
     }
 
@@ -12,6 +13,11 @@ export default class UserAPI {
         res.json({"Message": "Welcome to User", params: req.params, session: req.session});
     }
 
+    getUserSession(req, res) {
+        res.json(req.session);
+    }
+
+    // TODO: remember cookie
     async postUserLogin(req, res) {
         try {
             const {
@@ -21,10 +27,11 @@ export default class UserAPI {
             const serverUser = new ServerUser(email);
             await serverUser.login(password);
 
-            const session = new ServerUserSession(req.session);
+            req.session.email = email;
+            req.session.startTime = new Date().getTime();
             res.json({
                 "message": "Logged In",
-                email
+                session: req.session
             });
         } catch (e) {
             console.error(e);
@@ -32,6 +39,7 @@ export default class UserAPI {
             res.status(400)
             res.json({
                 "message": e.message,
+                session: req.session,
                 body: req.body
             });
         }
@@ -46,9 +54,14 @@ export default class UserAPI {
             } = req.body;
 
             const serverUser = new ServerUser(email);
-            await serverUser.register(username, password);
+            await serverUser.register(password, username);
+
+            req.session.email = email;
+            req.session.startTime = new Date().getTime();
+
             res.json({
                 "message": "Registered",
+                session: req.session,
                 username
             });
         } catch (e) {
@@ -57,6 +70,7 @@ export default class UserAPI {
             res.status(400)
             res.json({
                 "message": e.message,
+                session: req.session,
                 body: req.body
             });
         }
