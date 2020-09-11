@@ -17,9 +17,12 @@ import ASUIGlobalContext from "./context/ASUIGlobalContext";
 import ASUIStateManager from "./context/ASUIStateManager";
 
 import ASUIDiv from "./div/ASUIDiv";
+import ASUIAnchor from "./anchor/ASUIAnchor";
 import ASUIIcon from "./icon/ASUIIcon";
 
+
 import ASUIFormEntry from "./form/ASUIFormEntry";
+import ASUIFormError from "./form/ASUIFormError";
 import ASUIForm from "./form/ASUIForm";
 import ASUIPanel from "./form/ASUIPanel";
 import ASUIModal from "./modal/ASUIModal";
@@ -32,11 +35,13 @@ export {
     ASUIClickable,
     ASUIClickableDropDown,
     ASUIDiv,
+    ASUIAnchor,
     ASUIIcon,
 
     ASUIPanel,
     ASUIForm,
     ASUIFormEntry,
+    ASUIFormError,
 
     ASUIInputRange,
     ASUIInputText,

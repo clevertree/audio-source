@@ -28,21 +28,20 @@ export default class ASUIInputText extends React.Component {
         let className = "asui-input-text";
         if(this.props.className)
             className += ' ' + this.props.className;
-        if(this.props.large)
-            className += ' large';
-        return {
+        if(this.props.size)
+            className += ' ' + this.props.size;
+        return Object.assign({}, this.props, {
             ref: this.ref.input,
             className,
             key: 'input-text',
-            type: 'text',
             onChange: this.cb.onChange,
-            placeholder: this.props.placeholder
-        }
+        });
     }
 
     render() {
         const props = this.getInputProps();
         return <input
+            {...this.props}
             {...props}
             />;
     }
