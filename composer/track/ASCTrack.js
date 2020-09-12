@@ -1,8 +1,8 @@
 import * as React from "react";
 
 import ASUIClickableDropDown from "../../components/clickable/ASUIClickableDropDown";
-import "./ASCTrack.css";
 import ASCTrackInput from "./ASCTrackInput";
+import "./ASCTrack.css";
 
 export default class ASCTrack extends ASCTrackInput {
 
@@ -30,7 +30,7 @@ export default class ASCTrack extends ASCTrackInput {
         const trackLength = composer.getSong().data.tracks[trackName].length;
         const viewMode = this.state.viewMode;
         // console.log('ASCTrack.render', trackName);
-        let content = null;
+        let content = null, footer = null;
         let className = "asc-track";
 
         switch(viewMode) {
@@ -41,6 +41,7 @@ export default class ASCTrack extends ASCTrackInput {
                 if(viewMode && !portrait)
                     className += ' ' + viewMode;
                 content = this.renderContent();
+                footer = <div className="footer" />;
                 break;
             case 'minimize':
                 className += ' ' + viewMode;
@@ -69,6 +70,7 @@ export default class ASCTrack extends ASCTrackInput {
                     >{trackName} ({trackLength} note{trackLength === 1 ? '' : 's'})</div>
                 </div>
                 {content}
+                {footer}
             </div>
         )
     }

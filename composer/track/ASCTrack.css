@@ -22,7 +22,7 @@ div.asc-track {
     vertical-align: top;
     /* height: 100%; */
     /*overflow: auto;*/
-    /*display: inline-block;*/
+    display: inline-block;
 }
 
 div.audio-source-composer.landscape div.asc-track:not(.minimize) {
@@ -60,6 +60,16 @@ div.asc-track:not(.selected) > div.header {
     background-color: #777;
 }
 
+/** Footer **/
+
+div.asc-track > div.footer {
+    background: linear-gradient(to bottom, #CCC 0%,#666 100%);
+    border-radius: 0 0 8px 8px ;
+    min-height: 5px;
+}
+div.asc-track.large > div.footer {
+    min-height: 1em;
+}
 
 /** Selected Track **/
 

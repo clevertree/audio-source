@@ -73,8 +73,10 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
     renderMenuFilePublish() {
-        if(!this.sessionIsUserLoggedIn())
+        if(!this.sessionIsUserLoggedIn()) {
             return <ASUIMenuAction onAction={e => this.toggleModal('login')}>Log in</ASUIMenuAction>
+        }
+
         const server = document.location.hostname;
         return <ASUIMenuAction onAction={e => this.toggleModal('publish')}>to {server}</ASUIMenuAction>
     }

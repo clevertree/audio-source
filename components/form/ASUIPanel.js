@@ -63,6 +63,7 @@ class ASUIPanel extends React.Component {
             viewMode = this.getViewMode(viewKey);
             className += ' view-mode ' + viewKey;
         }
+        let footer = null;
         switch(viewMode) {
             case false:
             case 'none':
@@ -70,6 +71,7 @@ class ASUIPanel extends React.Component {
             default:
                 if(viewMode && !portrait)
                     className += ' ' + viewMode;
+                footer = <div className="footer" />;
                 break;
             case 'minimize':
                 className += ' ' + viewMode;
@@ -93,7 +95,7 @@ class ASUIPanel extends React.Component {
                 {viewMode !== 'minimize' ? <div className="container">
                     {this.props.children}
                 </div> : null}
-                <div className="footer"/>
+                {footer}
             </div>
         )
     }

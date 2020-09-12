@@ -1,8 +1,15 @@
 import React from "react";
 
-import {ASUIPanel, ASUIFormMessage, ASUIClickable, ASUIModal} from "../../components";
+import {ASUIPanel, ASUIFormMessage, ASUIClickable, ASUIModal, ASUIAnchor} from "../../components";
+import PropTypes from "prop-types";
 
 export default class ASComposerPublishSuccessModal extends React.Component {
+
+    /** Property validation **/
+    static propTypes = {
+        modalArgs: PropTypes.any,
+    };
+
     constructor(props) {
         super(props);
         this.state = {};
@@ -19,6 +26,10 @@ export default class ASComposerPublishSuccessModal extends React.Component {
     getComposer() { return this.props.composer; }
 
     render() {
+        const {
+            message,
+            songURL
+        } = this.props.modalArgs || {}
         return (
             <ASUIModal
                 onClose={this.cb.closeModal}
@@ -27,7 +38,8 @@ export default class ASComposerPublishSuccessModal extends React.Component {
                     large
                     horizontal
                     header="Publish Successful">
-                    <ASUIFormMessage children="Publish Successful"/>
+                    <ASUIFormMessage children={message || "Publish Successful"}/>
+                    <ASUIAnchor href={songURL} target="_blank">{songURL}</ASUIAnchor>
                     <ASUIClickable
                         button center
                         size="large"

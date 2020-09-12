@@ -60,21 +60,25 @@ export default class ASComposerRenderer extends ASComposerBase {
 
     /** Render Modals **/
     renderModals() {
+        const props = {
+            composer: this,
+            modalArgs: this.state.modalArgs
+        }
         switch(this.state.showModal) {
             case "login":
-                return <ASComposerLoginModal composer={this}/>
+                return <ASComposerLoginModal {...props}/>
             case "login-success":
-                return <ASComposerLoginSuccessModal composer={this}/>
+                return <ASComposerLoginSuccessModal {...props}/>
 
             case "registration":
-                return <ASComposerRegistrationModal composer={this}/>
+                return <ASComposerRegistrationModal {...props}/>
             case "registration-success":
-                return <ASComposerRegistrationSuccessModal composer={this}/>
+                return <ASComposerRegistrationSuccessModal {...props}/>
 
             case "publish":
-                return <ASComposerPublishModal composer={this}/>
+                return <ASComposerPublishModal {...props}/>
             case "publish-success":
-                return <ASComposerPublishSuccessModal composer={this}/>
+                return <ASComposerPublishSuccessModal {...props}/>
             default:
                 throw new Error("Invalid modal: " + this.state.showModal);
         }

@@ -39,25 +39,6 @@ export default class ClientUserAPI {
 
     }
 
-    async publish(songData) {
-        console.log("Publishing Song: ", songData);
-        const response = await fetch(serverBaseURL + '/publish', {
-            credentials: 'include',
-            method: 'POST',
-            body: JSON.stringify(songData),
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8'
-            },
-        })
-        // const response = await postJSON(serverBaseURL + '/publish', songData)
-        if(response.status !== 200)
-            throw new Error(response.statusText)
-
-        const json = await response.json();
-        console.log("Publish Response: ", json, response);
-
-    }
-
 
     /** Static **/
 
@@ -84,6 +65,7 @@ async function getJSON(url) {
     });
 }
 async function postJSON(url, jsonObject) {
+    console.log('POST', url, jsonObject);
     return await fetch(url, {
         credentials: 'include',
         method: 'POST',
@@ -93,5 +75,5 @@ async function postJSON(url, jsonObject) {
         },
         body: JSON.stringify(jsonObject),
         redirect: 'error'
-    });
+    }).then();
 }

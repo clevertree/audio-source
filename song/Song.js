@@ -34,6 +34,7 @@ class Song {
             uuid: new Values().generateUUID(),
             version: '0.0.1',
             created: new Date().getTime(),
+            comment: null,
             timeDivision: 96 * 4,
             beatsPerMinute: 120,
             beatsPerMeasure: 4,

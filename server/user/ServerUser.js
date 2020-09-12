@@ -85,11 +85,11 @@ export default class ServerUser {
     /** Files Files **/
 
 
-    getPublicUsersDirectory() { return path.resolve(serverConfig.publicDirectory, DIRECTORY_USERS_PUBLIC); }
-    getPublicUserDirectory() {
-        const username = this.getUsername();
-        return path.resolve(this.getPublicUsersDirectory(), username);
-    }
+    getPublicUsersDirectory()   { return path.resolve(serverConfig.publicDirectory, DIRECTORY_USERS_PUBLIC); }
+    getPublicUsersURL()         { return path.resolve(serverConfig.publicURL, DIRECTORY_USERS_PUBLIC); }
+
+    getPublicUserDirectory()    { return path.resolve(this.getPublicUsersDirectory(), this.getUsername()); }
+    getPublicUserURL()          { return path.resolve(this.getPublicUsersURL(), this.getUsername()); }
 
     getPrivateUsersDirectory() { return path.resolve(serverConfig.privateDirectory, DIRECTORY_USERS_PRIVATE); }
     getPrivateUserDirectory() {
@@ -97,6 +97,7 @@ export default class ServerUser {
         return path.resolve(this.getPrivateUsersDirectory(), domain, emailUser);
     }
 
+    getPublicFileURL(fileName) { return path.resolve(this.getPublicUserURL(), fileName); }
 
     getPublicFilePath(fileName) { return path.resolve(this.getPublicUserDirectory(), fileName); }
     getPrivateFilePath(fileName) { return path.resolve(this.getPrivateUserDirectory(), fileName); }

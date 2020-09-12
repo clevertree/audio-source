@@ -2,7 +2,7 @@ import {LibraryProcessor, ProgramLoader, Song, ClientStorage, FileService, FileS
 import {Instruction, Values} from "../song";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
-import ClientUserAPI from "../server/client/ClientUserAPI";
+import ClientUserAPI from "../server/user/ClientUserAPI";
 
 // import {TrackInfo} from "./track/";
 
@@ -36,6 +36,14 @@ class ASComposerActions extends ASComposerMenu {
         this.setState({
             showModal: this.state.showModal === modalName ? null : modalName
         })
+    }
+
+    showModal(modalName, modalArgs=null) {
+        const state = {
+            showModal: modalName,
+            modalArgs
+        };
+        this.setState(state);
     }
 
     /** Library **/

@@ -1,7 +1,7 @@
 import React from "react";
 
 import {ASUIPanel, ASUIForm, ASUIFormEntry, ASUIFormMessage, ASUIClickable, ASUIInputText, ASUIInputPassword, ASUIModal, ASUIAnchor} from "../../components";
-import ClientUserAPI from "../../server/client/ClientUserAPI";
+import ClientUserAPI from "../../server/user/ClientUserAPI";
 
 export default class ASComposerRegistrationModal extends React.Component {
     constructor(props) {

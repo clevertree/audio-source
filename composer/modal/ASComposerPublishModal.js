@@ -1,8 +1,7 @@
 import React from "react";
-import compareVersions from 'compare-versions';
 
-import {ASUIPanel, ASUIForm, ASUIFormEntry, ASUIFormMessage, ASUIClickable, ASUIInputText, ASUIInputTextArea, ASUIModal, ASUIAnchor} from "../../components";
-import ClientUserAPI from "../../server/client/ClientUserAPI";
+import {ASUIPanel,  ASUIFormEntry, ASUIFormMessage, ASUIClickable, ASUIInputText, ASUIInputTextArea, ASUIModal, ASUIAnchor} from "../../components";
+import ClientSongAPI from "../../server/song/ClientSongAPI";
 
 export default class ASComposerLoginModal extends React.Component {
     constructor(props) {
@@ -108,8 +107,8 @@ export default class ASComposerLoginModal extends React.Component {
             proxiedData.title = this.ref.title.current.getValue();
             proxiedData.version = this.ref.version.current.getValue();
             proxiedData.comment = this.ref.comment.current.getValue();
-            const userAPI = new ClientUserAPI();
-            await userAPI.publish({
+            const songAPI = new ClientSongAPI();
+            const publishResponse = await songAPI.publish({
                 song: song.data,
                 filename
             });
@@ -121,7 +120,7 @@ export default class ASComposerLoginModal extends React.Component {
             })
 
             const composer = this.getComposer();
-            composer.toggleModal('publish-success');
+            composer.showModal('publish-success', publishResponse);
 
         } catch (e) {
             console.error(e);

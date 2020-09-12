@@ -28,6 +28,8 @@ export default class ServerSongAPI {
             let oldVersion = "[No old version]";
             if(userSession.publicFileExists(filename)) {
                 const oldSongData = userSession.readPublicFile(filename);
+                if(oldSongData.uuid !== songData.uuid)
+                    throw new Error("Published song must have the same UUID as existing song: " + songData.uuid);
                 oldVersion = oldSongData.version;
                 const newVersion = songData.version;
                 if(!compareVersions.compare(newVersion, oldVersion, '>'))
@@ -36,11 +38,12 @@ export default class ServerSongAPI {
 
 
             const filePath = userSession.writePublicFile(filename, formatSongAsJSONString(songData));
+            const songURL = userSession.getPublicFileURL(filename);
 
             console.log("Published Song:", songData.title, `${oldVersion} => ${songData.version}`);
             res.json({
                 "message": "Song Published",
-                filePath
+                songURL,
             });
         } catch (e) {
             console.error(e);
