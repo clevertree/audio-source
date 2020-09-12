@@ -1,9 +1,9 @@
-import UserAPI from "./api/UserAPI";
+import ServerUserAPI from "./api/ServerUserAPI";
+import ServerSongAPI from "./api/ServerSongAPI";
 
 const express = require('express');
 // const session = require('express-session');
 const clientSessions = require('client-sessions')
-const cors = require('cors');
 
 const serverConfig = require('./.server.json')
 
@@ -16,25 +16,30 @@ export default class Server {
         this.app = app;
         app.use(express.json());
         app.use(express.urlencoded({ extended: false }));
-        app.use(cors({
-            credentials: true,
-            origin: 'http://localhost:3000'
-        }));
 
-        app.use(clientSessions({
+        // CORS
+        app.use(function(req, res, next) {
+            const origin = req.get('Origin');
+            if(origin) {
+                // console.log('origin', origin);
+                res.header("Access-Control-Allow-Origin", req.get('Origin')); // update to match the domain you will make the request from
+                res.header("Access-Control-Allow-Credentials", true);
+                res.header("Access-Control-Allow-Methods", 'POST, GET, PUT, DELETE, OPTIONS');
+                res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            }
+            next();
+        });
+
+        app.use(clientSessions(Object.assign({
             cookieName: 'session', // cookie name dictates the key name added to the request object
             secret: 'cb1fbb07079625629cf5858718f33713', // should be a large unguessable string
-            duration: 24 * 60 * 60 * 1000, // how long the session will stay valid in ms
-            activeDuration: 1000 * 60 * 5 // if expiresIn < activeDuration, the session will be extended by activeDuration milliseconds
-        }));
+            duration: 30 * 24 * 60 * 60 * 1000, // how long the session will stay valid in ms
+            activeDuration: 24 * 1000 * 60 * 60 // if expiresIn < activeDuration, the session will be extended by activeDuration milliseconds
+        }, serverConfig.session || {})));
 
-        // app.use(session({
-        //     secret: 'cb1fbb07079625629cf5858918f33713',
-        //     saveUninitialized: true,
-        //     resave: true
-        // }));
-        new UserAPI().connectApp(app);
-
+        // APIs
+        new ServerUserAPI().connectApp(app);
+        new ServerSongAPI().connectApp(app);
 
         // app.use(express.static(ROOT_DIR));
 

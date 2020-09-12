@@ -30,6 +30,7 @@ import ASUIModal from "./modal/ASUIModal";
 import ASUIInputRange from "./input-range/ASUIInputRange";
 import ASUIInputText from "./input-text/ASUIInputText";
 import ASUIInputPassword from "./input-text/ASUIInputPassword";
+import ASUIInputTextArea from "./input-text/ASUIInputTextArea";
 
 export {
     ASUIClickable,
@@ -46,6 +47,7 @@ export {
     ASUIInputRange,
     ASUIInputText,
     ASUIInputPassword,
+    ASUIInputTextArea,
 
     ASUIMenuItem,
     ASUIMenuAction,

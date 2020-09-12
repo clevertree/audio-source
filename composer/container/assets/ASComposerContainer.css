@@ -131,7 +131,7 @@ div.asui-contextmenu-dropdown > div.asui-menu-item {
 
 
 /** Landscape **/
-div.audio-source-composer.landscape div.asc-content-container > div {
+div.audio-source-composer.landscape div.asc-content-container > div.asui-panel {
     display: inline-block;
 }
 

@@ -22,9 +22,10 @@ class ASComposerBase extends React.Component {
             // showPanelKeyboard: true,
             showTrackRowPositionInTicks: false,
             showTrackRowDurationInTicks: false,
+            showModal: null,
 
             // User Session
-            // session: null,
+            session: {loggedIn: false},
 
             // Playback
             volume: Song.DEFAULT_VOLUME,
@@ -118,7 +119,6 @@ class ASComposerBase extends React.Component {
         this.lastVolumeGain = null;
 
 
-
         // setTimeout(async () => {
         //     const midiFilePath = require('../../assets/files/midi/amarbule.mid');
         //     const response = await fetch(midiFilePath);
@@ -159,6 +159,7 @@ class ASComposerBase extends React.Component {
 
         this.loadMIDIInterface(this.cb.onInput);
         // TODO: get default library url from composer?
+        this.sessionRefresh();
     }
 
     componentWillUnmount() {
@@ -181,12 +182,6 @@ class ASComposerBase extends React.Component {
 
     openMenuByKey(menuName) {
         this.ref.container.current.openMenuByKey(menuName);
-    }
-
-
-    /** Render WebView Proxy **/
-    renderWebViewProxy() {
-        return null;
     }
 
 }

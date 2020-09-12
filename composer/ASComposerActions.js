@@ -2,11 +2,14 @@ import {LibraryProcessor, ProgramLoader, Song, ClientStorage, FileService, FileS
 import {Instruction, Values} from "../song";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
+import ClientUserAPI from "../server/client/ClientUserAPI";
 
 // import {TrackInfo} from "./track/";
 
 class ASComposerActions extends ASComposerMenu {
 
+
+    /** Status **/
     setStatus(statusText, statusType='log') {
         // console.log(`ASC.${statusType}`, statusText);
         this.setState({statusText, statusType: statusType + ''});
@@ -16,6 +19,24 @@ class ASComposerActions extends ASComposerMenu {
         this.setStatus(statusText, 'error');
     }
 
+
+    /** User Session **/
+    async sessionRefresh() {
+        const userAPI = new ClientUserAPI();
+        const session = await userAPI.getSession();
+        console.log('session', session);
+        this.setState({
+            session
+        })
+    }
+
+    sessionIsUserLoggedIn() { return this.state.session.loggedIn; }
+
+    toggleModal(modalName) {
+        this.setState({
+            showModal: this.state.showModal === modalName ? null : modalName
+        })
+    }
 
     /** Library **/
 
@@ -170,6 +191,7 @@ class ASComposerActions extends ASComposerMenu {
             delete state.songUUID;
             delete state.songLength;
             delete state.recentValues;
+            delete state.session;
             await this.setStateAsync(state);
             // this.updateCurrentSong();
             // this.setCurrentSong(this.song); // Hack: resetting current song after setting state, bad idea

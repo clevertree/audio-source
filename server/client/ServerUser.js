@@ -73,7 +73,7 @@ export default class ServerUser {
             throw new Error("This account has no password. Email login is required");
 
         if(!await ServerUser.compare(password, userJSON.password))
-            throw new Error("Password Mismatch");
+            throw new Error("Invalid password");
         console.log("Login Successful:", this.email);
     }
 

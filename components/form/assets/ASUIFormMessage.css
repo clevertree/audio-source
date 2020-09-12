@@ -4,15 +4,15 @@
 div.asui-form-message {
     font-size: smaller;
     font-weight: bold;
-    padding: 0.5em;
+    padding: 1em 2em;
     margin: 0.5em;
-    border-radius: 0.5em;
+    border-radius: 6px;
 
-    background: #629ade;
+    background: #a0c2ea;
 
     box-shadow: 0px 0px 8px #FFF;
 }
 
 div.asui-form-message.error {
-    background: #de629a;
+    background: #de6262;
 }

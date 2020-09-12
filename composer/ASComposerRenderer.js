@@ -7,7 +7,12 @@ import ASComposerSongProgramsPanel from "./panel/ASComposerSongProgramsPanel";
 import ASComposerTrackPanel from "./panel/ASComposerTrackPanel";
 import ASComposerBase from "./ASComposerBase";
 import ASUIGlobalContext from "../components/context/ASUIGlobalContext";
-import ASComposerSessionPanel from "./panel/ASComposerSessionPanel";
+import ASComposerLoginModal from "./modal/ASComposerLoginModal";
+import ASComposerRegistrationModal from "./modal/ASComposerRegistrationModal";
+import ASComposerLoginSuccessModal from "./modal/ASComposerLoginSuccessModal";
+import ASComposerRegistrationSuccessModal from "./modal/ASComposerRegistrationSuccessModal";
+import ASComposerPublishModal from "./modal/ASComposerPublishModal";
+import ASComposerPublishSuccessModal from "./modal/ASComposerPublishSuccessModal";
 
 export default class ASComposerRenderer extends ASComposerBase {
 
@@ -21,13 +26,12 @@ export default class ASComposerRenderer extends ASComposerBase {
                     composer={this}
                     >
                     {this.state.portrait ? this.renderSongPanelPortrait() : this.renderSongPanelLandscape()}
-                    <ASComposerSessionPanel composer={this} ref={this.ref.panelSession} />
                     <ASComposerSongProgramsPanel composer={this} ref={this.ref.panelProgram}/>
 
                     <ASCTracksContainer
                         composer={this}
                         />
-                    {this.renderWebViewProxy()}
+                    {this.state.showModal ? this.renderModals() : null}
                 </ASComposerContainer>
             </ASUIGlobalContext.Provider>
         );
@@ -53,5 +57,34 @@ export default class ASComposerRenderer extends ASComposerBase {
         </>
 
     }
+
+    /** Render Modals **/
+    renderModals() {
+        switch(this.state.showModal) {
+            case "login":
+                return <ASComposerLoginModal composer={this}/>
+            case "login-success":
+                return <ASComposerLoginSuccessModal composer={this}/>
+
+            case "registration":
+                return <ASComposerRegistrationModal composer={this}/>
+            case "registration-success":
+                return <ASComposerRegistrationSuccessModal composer={this}/>
+
+            case "publish":
+                return <ASComposerPublishModal composer={this}/>
+            case "publish-success":
+                return <ASComposerPublishSuccessModal composer={this}/>
+            default:
+                throw new Error("Invalid modal: " + this.state.showModal);
+        }
+    }
+
+
+    /** Render WebView Proxy **/
+    renderWebViewProxy() {
+        return null;
+    }
+
 }
 

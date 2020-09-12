@@ -1,7 +1,6 @@
-import ServerUserSession from "../client/ServerUserSession";
 import ServerUser from "../client/ServerUser";
 
-export default class UserAPI {
+export default class ServerUserAPI {
     connectApp(app) {
         app.post("/login", this.postUserLogin.bind(this))
         app.post("/register", this.postUserRegister.bind(this))
@@ -17,9 +16,10 @@ export default class UserAPI {
         res.json(req.session);
     }
 
-    // TODO: remember cookie
     async postUserLogin(req, res) {
         try {
+            req.session.loggedIn = true;
+
             const {
                 email,
                 password,
@@ -27,8 +27,7 @@ export default class UserAPI {
             const serverUser = new ServerUser(email);
             await serverUser.login(password);
 
-            req.session.email = email;
-            req.session.startTime = new Date().getTime();
+            this.doSessionLogin(email, req.session)
             res.json({
                 "message": "Logged In",
                 session: req.session
@@ -47,6 +46,8 @@ export default class UserAPI {
 
     async postUserRegister(req, res) {
         try {
+            req.session.loggedIn = true;
+
             const {
                 email,
                 username,
@@ -56,8 +57,7 @@ export default class UserAPI {
             const serverUser = new ServerUser(email);
             await serverUser.register(password, username);
 
-            req.session.email = email;
-            req.session.startTime = new Date().getTime();
+            this.doSessionLogin(email, req.session)
 
             res.json({
                 "message": "Registered",
@@ -76,4 +76,8 @@ export default class UserAPI {
         }
     }
 
+    doSessionLogin(email, session) {
+        session.email = email;
+        session.loggedIn = true;
+    }
 }

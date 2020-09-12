@@ -45,10 +45,14 @@ class ASComposerMenu extends ASComposerRenderer {
     renderMenuFile() {
         return (<>
             <ASUIMenuAction onAction={e => this.loadNewSongData(e)}             >New song</ASUIMenuAction>
+            <ASUIMenuBreak/>
             <ASUIMenuDropDown options={() => this.renderMenuFileOpen()}           >Open song</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuFileSave()}           >Save song</ASUIMenuDropDown>
+            <ASUIMenuBreak/>
             <ASUIMenuDropDown options={() => this.renderMenuFileImport()}         >Import song</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuFileExport()}         >Export song</ASUIMenuDropDown>
+            <ASUIMenuBreak/>
+            <ASUIMenuDropDown options={() => this.renderMenuFilePublish()}           >Publish song</ASUIMenuDropDown>
         </>);
     }
 
@@ -66,8 +70,15 @@ class ASComposerMenu extends ASComposerRenderer {
             <ASUIMenuAction onAction={e => this.saveSongToMemory(e)}                        >to Memory</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.saveSongToFile(e)}                          >to File</ASUIMenuAction>
         </>);
-
     }
+
+    renderMenuFilePublish() {
+        if(!this.sessionIsUserLoggedIn())
+            return <ASUIMenuAction onAction={e => this.toggleModal('login')}>Log in</ASUIMenuAction>
+        const server = document.location.hostname;
+        return <ASUIMenuAction onAction={e => this.toggleModal('publish')}>to {server}</ASUIMenuAction>
+    }
+
 
     renderMenuFileImport() {
         return (<>
