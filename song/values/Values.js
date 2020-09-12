@@ -3,6 +3,7 @@ import PromptManager from "../../common/prompt/PromptManager.native";
 import React from "react";
 
 class Values {
+    static UUID_FORMAT = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
     static FREQ_A4 = 432;
     static instance = new Values();
     static lastModeKey = 'fraction';
@@ -19,12 +20,12 @@ class Values {
     /** Values **/
 
     /** UUID **/
-    generateUUID() {
+    generateUUID(uuidFormat = Values.UUID_FORMAT) {
         var d = new Date().getTime();
         if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
             d += performance.now(); //use high-precision timer if available
         }
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        return uuidFormat.replace(/[xy]/g, function (c) {
             var r = (d + Math.random() * 16) % 16 | 0;
             d = Math.floor(d / 16);
             // eslint-disable-next-line no-mixed-operators

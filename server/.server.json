@@ -4,5 +4,8 @@
     "privateDirectory": ".",
     "session": {
         "secret": "cb1fbb07079625629cf5858718f33713"
+    },
+    "request": {
+        "origin": null
     }
 }

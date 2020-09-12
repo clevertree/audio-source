@@ -1,4 +1,4 @@
-import ServerUser from "../client/ServerUser";
+import ServerUser from "./ServerUser";
 
 export default class ServerUserAPI {
     connectApp(app) {
@@ -25,9 +25,8 @@ export default class ServerUserAPI {
                 password,
             } = req.body;
             const serverUser = new ServerUser(email);
-            await serverUser.login(password);
+            await serverUser.login(password, req.session);
 
-            this.doSessionLogin(email, req.session)
             res.json({
                 "message": "Logged In",
                 session: req.session
@@ -56,8 +55,8 @@ export default class ServerUserAPI {
 
             const serverUser = new ServerUser(email);
             await serverUser.register(password, username);
+            await serverUser.login(password, req.session);
 
-            this.doSessionLogin(email, req.session)
 
             res.json({
                 "message": "Registered",
@@ -76,8 +75,4 @@ export default class ServerUserAPI {
         }
     }
 
-    doSessionLogin(email, session) {
-        session.email = email;
-        session.loggedIn = true;
-    }
 }

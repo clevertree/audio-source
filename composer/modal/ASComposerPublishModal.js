@@ -19,6 +19,7 @@ export default class ASComposerLoginModal extends React.Component {
         }
         this.ref = {
             title: React.createRef(),
+            filename: React.createRef(),
             version: React.createRef(),
             comment: React.createRef(),
             // password_confirm: React.createRef(),
@@ -27,6 +28,7 @@ export default class ASComposerLoginModal extends React.Component {
 
         this.state = {
             title: song.data.title,
+            filename: getSongFileNameFromTitle(song.data.title),
             version: song.data.version,
             comment: song.data.comment,
         }
@@ -35,7 +37,7 @@ export default class ASComposerLoginModal extends React.Component {
     getComposer() { return this.props.composer; }
 
     render() {
-        const song = this.getComposer().getSong();
+        // const song = this.getComposer().getSong();
         return (
             <ASUIModal
                 onClose={this.cb.closeModal}
@@ -44,40 +46,47 @@ export default class ASComposerLoginModal extends React.Component {
                     large
                     horizontal
                     header="Publish Song">
-                    <ASUIForm>
-                        {this.state.error ? <ASUIFormMessage error children={this.state.error}/> : null}
-                        <ASUIFormEntry className="title" header="Title">
-                            <ASUIInputText
-                                size="large"
-                                required
-                                placeholder="Song Title"
-                                defaultValue={this.state.title}
-                                ref={this.ref.title}
-                            />
-                        </ASUIFormEntry>
-                        <ASUIFormEntry className="version" header="Version">
-                            <ASUIInputText
-                                size="large"
-                                required
-                                defaultValue={this.state.version}
-                                ref={this.ref.version}
-                            />
-                        </ASUIFormEntry>
-                        <ASUIFormEntry className="comment" header="Comment">
-                            <ASUIInputTextArea
-                                defaultValue={this.state.comment}
-                                ref={this.ref.comment}
-                                rows={8}
-                            />
-                        </ASUIFormEntry>
-                        <ASUIFormEntry className="submit" header="Submit">
-                            <ASUIClickable
-                                button center
-                                size="large"
-                                onAction={this.cb.onSubmitForm}
-                            >Publish</ASUIClickable>
-                        </ASUIFormEntry>
-                    </ASUIForm>
+                    {this.state.error ? <ASUIFormMessage error children={this.state.error}/> : null}
+                    <ASUIFormEntry className="title" header="Title">
+                        <ASUIInputText
+                            size="large"
+                            required
+                            placeholder="Song Title"
+                            defaultValue={this.state.title}
+                            ref={this.ref.title}
+                        />
+                    </ASUIFormEntry>
+                    <ASUIFormEntry className="filename" header="File Name">
+                        <ASUIInputText
+                            size="large"
+                            required
+                            placeholder="my_song.json"
+                            defaultValue={this.state.filename}
+                            ref={this.ref.filename}
+                        />
+                    </ASUIFormEntry>
+                    <ASUIFormEntry className="version" header="Version">
+                        <ASUIInputText
+                            size="large"
+                            required
+                            defaultValue={this.state.version}
+                            ref={this.ref.version}
+                        />
+                    </ASUIFormEntry>
+                    <ASUIFormEntry className="comment" header="Comment">
+                        <ASUIInputTextArea
+                            defaultValue={this.state.comment}
+                            ref={this.ref.comment}
+                            rows={8}
+                        />
+                    </ASUIFormEntry>
+                    <ASUIFormEntry className="submit" header="Submit">
+                        <ASUIClickable
+                            button center
+                            size="large"
+                            onAction={this.cb.onSubmitForm}
+                        >Publish</ASUIClickable>
+                    </ASUIFormEntry>
                 </ASUIPanel>
             </ASUIModal>
         );
@@ -91,14 +100,19 @@ export default class ASComposerLoginModal extends React.Component {
                 error: null,
                 loading: true
             })
+
             const song = this.getComposer().getSong();
             const proxiedData = song.getProxiedData()
 
+            const filename = this.ref.filename.current.getValue();
             proxiedData.title = this.ref.title.current.getValue();
             proxiedData.version = this.ref.version.current.getValue();
             proxiedData.comment = this.ref.comment.current.getValue();
             const userAPI = new ClientUserAPI();
-            await userAPI.publish(song.data);
+            await userAPI.publish({
+                song: song.data,
+                filename
+            });
 
             proxiedData.version = bumpVersion(proxiedData.version)
 
@@ -117,8 +131,12 @@ export default class ASComposerLoginModal extends React.Component {
             })
         }
     }
+
 }
 
+function getSongFileNameFromTitle(title) {
+    return title.replace(/\W+/g, '_') + '.json';
+}
 
 
 function bumpVersion(version) {

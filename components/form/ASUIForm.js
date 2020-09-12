@@ -7,7 +7,7 @@ export default class ASUIForm extends React.Component {
     constructor(props) {
         super(props);
         this.cb = {
-            // onSubmit: e => this.onSubmit(e),
+            onSubmit: e => this.onSubmit(e),
         }
     }
 
@@ -19,7 +19,9 @@ export default class ASUIForm extends React.Component {
             className += ' horizontal';
 
         return <form
+            action="#"
                 className={className}
+                onSubmit={this.cb.onSubmit}
                 {...this.props}
             />;
     }

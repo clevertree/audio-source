@@ -1,5 +1,5 @@
-import ServerUserAPI from "./api/ServerUserAPI";
-import ServerSongAPI from "./api/ServerSongAPI";
+import ServerUserAPI from "./user/ServerUserAPI";
+import ServerSongAPI from "./song/ServerSongAPI";
 
 const express = require('express');
 // const session = require('express-session');
@@ -22,7 +22,7 @@ export default class Server {
             const origin = req.get('Origin');
             if(origin) {
                 // console.log('origin', origin);
-                res.header("Access-Control-Allow-Origin", req.get('Origin')); // update to match the domain you will make the request from
+                res.header("Access-Control-Allow-Origin", serverConfig.request.origin || req.get('Origin')); // update to match the domain you will make the request from
                 res.header("Access-Control-Allow-Credentials", true);
                 res.header("Access-Control-Allow-Methods", 'POST, GET, PUT, DELETE, OPTIONS');
                 res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
