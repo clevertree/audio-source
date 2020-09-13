@@ -1,6 +1,6 @@
 {
     "port": 3001,
-    "publicURL": "/",
+    "publicURL": "http://localhost:3000/",
     "publicDirectory": ".",
     "privateDirectory": ".",
     "session": {

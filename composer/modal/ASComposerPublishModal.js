@@ -28,9 +28,15 @@ export default class ASComposerPublishModal extends React.Component {
         this.state = {
             title: song.data.title,
             filename: getSongFileNameFromTitle(song.data.title),
-            version: bumpVersion(song.data.version || '0.0.0'),
+            version: song.data.version || '0.0.1',
             comment: song.data.comment,
+            isPublished: false
         }
+
+    }
+
+    componentDidMount() {
+        this.updateIsPublished()
     }
 
     getComposer() { return this.props.composer; }
@@ -60,6 +66,7 @@ export default class ASComposerPublishModal extends React.Component {
                             size="large"
                             required
                             placeholder="my_song.json"
+                            disabled={this.state.isPublished}
                             defaultValue={this.state.filename}
                             ref={this.ref.filename}
                         />
@@ -108,10 +115,7 @@ export default class ASComposerPublishModal extends React.Component {
             proxiedData.version = this.ref.version.current.getValue();
             proxiedData.comment = this.ref.comment.current.getValue();
             const songAPI = new ClientSongAPI();
-            const publishResponse = await songAPI.publish({
-                song: song.data,
-                filename
-            });
+            const publishResponse = await songAPI.publish(song.data, filename);
 
             // proxiedData.version = (proxiedData.version)
 
@@ -131,6 +135,21 @@ export default class ASComposerPublishModal extends React.Component {
         }
     }
 
+    async updateIsPublished() {
+        const song = this.getComposer().getSong();
+
+        const songAPI = new ClientSongAPI();
+        const publishResponse = await songAPI.isPublished(song.data.uuid);
+        let version = this.state.version;
+        if(publishResponse.isPublished) {
+            version = bumpVersion(version);
+            this.ref.version.current.setValue(version); // Ugly
+        }
+        this.setState({
+            isPublished: publishResponse.isPublished,
+            version
+        })
+    }
 }
 
 function getSongFileNameFromTitle(title) {

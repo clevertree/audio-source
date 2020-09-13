@@ -16,6 +16,9 @@ export default class ASUIInputText extends React.Component {
     getValue() {
         return this.ref.input.current.value;
     }
+    setValue(value) {
+        this.ref.input.current.value = value;
+    }
 
     onChange(e) {
         e.preventDefault();

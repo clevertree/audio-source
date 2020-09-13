@@ -37,6 +37,7 @@ export default class ASComposerPublishSuccessModal extends React.Component {
             songURL = songURL.substr(origin.length);
 
         const composerURL = origin + '/composer#url=' + (songURL);
+        console.log('composerURL', composerURL, origin, songURL, songURL.startsWith(origin));
 
         return (
             <ASUIModal
@@ -77,11 +78,11 @@ export default class ASComposerPublishSuccessModal extends React.Component {
         document.body.appendChild(textarea);
         textarea.select();
         try {
-            return document.execCommand("copy");  // Security exception may be thrown by some browsers.
+            document.execCommand("copy");  // Security exception may be thrown by some browsers.
+            this.getComposer().setStatus("Copy to clipboard successful.");
         }
         catch (ex) {
-            console.warn("Copy to clipboard failed.", ex);
-            return false;
+            this.getComposer().setError("Copy to clipboard failed.");
         }
         finally {
             document.body.removeChild(textarea);

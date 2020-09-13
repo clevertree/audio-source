@@ -1,91 +1,150 @@
-import fs from "fs";
+import path from "path";
 import compareVersions from 'compare-versions';
 
 import ServerUser from "../user/ServerUser";
-import ServerSong from "./ServerSong";
+import ServerSongFile from "./ServerSongFile";
+import ServerPlaylistFile from "./ServerPlaylistFile";
 
+// noinspection ExceptionCaughtLocallyJS
 export default class ServerSongAPI {
     connectApp(app) {
         app.post("/publish", this.postPublish.bind(this))
+        app.get("/isPublished/:uuid", this.getIsPublished.bind(this))
     }
 
 
     async postPublish(req, res) {
         try {
+            const startTime = new Date().getTime();
             const userSession = ServerUser.getSession(req.session);
 
             let {
                 song: songData,
                 filename,
             } = req.body;
+            if(!songData)
+                throw new Error("Invalid parameter: song")
 
-            // TODO identify song by UUID
-            let existingSong = null;
-            for (const song of ServerSong.eachSong()) {
-                const existingSongData = song.readSongData();
-                if(existingSongData.uuid === songData.uuid) {
-                    existingSong = song;
-                    break;
-                }
+            /** @var {ServerSongFile} **/
+            let publishingSongFile = this.findSongByUUID(songData.uuid);
+
+            const songFileAbsolutePath = userSession.getPublicFilePath(ServerSongFile.DIRECTORY_SONGS + '/' + filename);
+            console.log("Publishing Song:", songData.title, songFileAbsolutePath);
+
+            let versionChange = `${songData.version}`;
+            if(publishingSongFile) {
+                const existingSongPath = publishingSongFile.getAbsolutePath();
+                // TODO: allow song renaming
+                // if(publishingSongFile.getAbsolutePath() !== existingSongPath)
+                //     throw new Error("file path mismatch");
+
+                const userSongsDirectory = userSession.getPublicFilePath(ServerSongFile.DIRECTORY_SONGS);
+                if(!existingSongPath.startsWith(userSongsDirectory))
+                    throw new Error("Invalid permission to modify " + existingSongPath);
+
+                console.log("Found existing song UUID:", publishingSongFile.songData.uuid);
+
+                const oldSongData = publishingSongFile.readSongData();
+                versionChange = `${oldSongData.version} => ${songData.version}`;
+                const newVersion = songData.version;
+                if(!compareVersions.compare(newVersion, oldSongData.version, '>'))
+                    throw new Error("New song version must be greater than " + oldSongData.version);
+
+                // Set new song data
+                publishingSongFile.setSongData(songData);
+            } else {
+                console.log("Song UUID not found. Publishing new file:", songData.uuid);
+                publishingSongFile = new ServerSongFile(songFileAbsolutePath, songData);
             }
-
-            // TODO Allow renaming of old file?
-
 
             if(!filename)
                 throw new Error("Invalid song filename");
             if(!filename.match(/^[\w_]+\.json$/))
                 throw new Error("Invalid song filename: " + filename);
-            const songFilePath = userSession.getPublicFilePath(ServerSong.DIRECTORY_SONGS + '/' + filename);
-            const song = new ServerSong(songFilePath, songData);
 
-            song.validateSongData(songData);
-            song.sanitizeObject(songData);
+            publishingSongFile.validateSongData(songData);
+            publishingSongFile.sanitizeObject(songData);
 
-            // const {username} = userSession.loadPrivateUserJSON();
-            // const userPath = userSession.getPublicUserDirectory();
-            let oldVersion = "[No old version]";
-            if(fs.existsSync(songFilePath)) {
-                const oldSongData = JSON.parse(fs.readFileSync(songFilePath, 'utf8'));
-                if(oldSongData.uuid !== songData.uuid)
-                    throw new Error("Published song must have the same UUID as existing song: " + songData.uuid);
-                oldVersion = oldSongData.version;
-                const newVersion = songData.version;
-                if(!compareVersions.compare(newVersion, oldVersion, '>'))
-                    throw new Error("New song version must be greater than " + oldVersion);
-            } else {
 
-                for (const song of ServerSong.eachSong()) {
-                    console.log('songFilePath', songFilePath, song.path);
-                    if(song.path === songFilePath)
-                        continue;
-                    const existingSongData = song.readSongData();
-                    if(existingSongData.uuid === songData.uuid)
-                        throw new Error(`UUID must be unique (${songFilePath} !== ${song.path})`);
-                }
-            }
+            // Write Song file
+            publishingSongFile.writeSongData(songData);
 
-            userSession.writePublicFile(songFilePath, song.formatAsJSONString());
-            const songURL = new URL(userSession.getPublicFileURL(songFilePath), req.get("Origin")).toString();
 
-            const versionChange = `${oldVersion} => ${songData.version}`;
+            this.addToPlaylist(publishingSongFile, ServerPlaylistFile.FILE_PL_MASTER);
+            // TODO: add to playlists?
+
+
+            const songURL = new URL(publishingSongFile.getPublicURL(), req.get("Origin")).toString();
+
             console.log("Published Song:", songData.title, versionChange);
             res.json({
                 "message": `Song Published (${versionChange})`,
                 songURL,
+                duration: new Date().getTime() - startTime
             });
         } catch (e) {
-            console.error(e);
-            res.statusMessage = e.message;
-            res.status(400)
-            res.json({
-                "message": e.message,
-                session: req.session,
-                body: req.body
-            });
+            sendError(req, res, e)
         }
+    }
+
+
+    async getIsPublished(req, res) {
+        try {
+            const startTime = new Date().getTime();
+            let {
+                uuid,
+            } = req.params;
+
+            if(!uuid)
+                throw new Error("Invalid UUID");
+
+            let publishingSongFile = this.findSongByUUID(uuid);
+            const responseJSON = {
+                isPublished: false,
+                duration: new Date().getTime() - startTime
+            }
+            if(publishingSongFile) {
+                responseJSON.isPublished = true;
+                responseJSON.url = publishingSongFile.getPublicURL();
+            }
+            // console.log(`Song UUID ${uuid} is${responseJSON.isPublished?'':' not'} published`);
+            res.json(responseJSON);
+
+        } catch (e) {
+            sendError(req, res, e)
+        }
+    }
+
+    /** Actions **/
+
+    addToPlaylist(publishingSongFile, playlistRelativeFilePath) {
+        const playlistAbsoluteFile = path.resolve(ServerPlaylistFile.getPublicPlaylistsDirectory(), playlistRelativeFilePath);
+        const playlistFile = new ServerPlaylistFile(playlistAbsoluteFile);
+        if(playlistFile.addSong(publishingSongFile)) {
+            console.log("Added to playlist: ", playlistRelativeFilePath);
+            playlistFile.writePlaylistData();
+        }
+    }
+
+    // TODO: cache?
+    findSongByUUID(uuid) {
+        for (const songFile of ServerSongFile.eachSongFile()) {
+            const existingSongData = songFile.readSongData();
+            if(existingSongData.uuid === uuid) {
+                return songFile;
+            }
+        }
+        return null;
     }
 
 }
 
 
+function sendError(req, res, e) {
+    console.error(e);
+    res.statusMessage = e.message;
+    res.status(400)
+    res.json({
+        "message": e.message,
+    });
+}
