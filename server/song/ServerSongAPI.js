@@ -1,4 +1,6 @@
 import compareVersions from 'compare-versions';
+import sanitizeHtml from 'sanitize-html';
+
 import ServerUser from "../user/ServerUser";
 
 export default class ServerSongAPI {
@@ -21,7 +23,8 @@ export default class ServerSongAPI {
             if(!filename.match(/^[\w_]+\.json$/))
                 throw new Error("Invalid song filename: " + filename);
 
-            this.validateSongData(songData);
+            validateSongData(songData);
+            sanitizeObject(songData);
 
             // const {username} = userSession.loadPrivateUserJSON();
             // const userPath = userSession.getPublicUserDirectory();
@@ -36,13 +39,13 @@ export default class ServerSongAPI {
                     throw new Error("New song version must be greater than " + oldVersion);
             }
 
+            userSession.writePublicFile(filename, formatSongAsJSONString(songData));
+            const songURL = new URL(userSession.getPublicFileURL(filename), req.get("Origin")).toString();
 
-            const filePath = userSession.writePublicFile(filename, formatSongAsJSONString(songData));
-            const songURL = userSession.getPublicFileURL(filename);
-
-            console.log("Published Song:", songData.title, `${oldVersion} => ${songData.version}`);
+            const versionChange = `${oldVersion} => ${songData.version}`;
+            console.log("Published Song:", songData.title, versionChange);
             res.json({
-                "message": "Song Published",
+                "message": `Song Published (${versionChange})`,
                 songURL,
             });
         } catch (e) {
@@ -57,26 +60,6 @@ export default class ServerSongAPI {
         }
     }
 
-
-    validateSongData(songData) {
-        if(typeof songData !== "object")
-            throw new Error("Invalid song data object");
-
-        [
-            'title',
-            'uuid',
-            'version',
-            'created',
-            'timeDivision',
-            'beatsPerMinute',
-            'programs',
-            'tracks',
-        ].forEach(param => {
-            if(!songData[param])
-                throw new Error("Song data is missing required parameter: " + param);
-        })
-
-    }
 }
 
 
@@ -88,4 +71,42 @@ function formatSongAsJSONString(songData) {
         tracks: instructionsKey
     }), null, "\t");
     return jsonString.replace('"' + instructionsKey + '"', jsonStringInstructions);
+}
+
+
+function validateSongData(songData) {
+    if(typeof songData !== "object")
+        throw new Error("Invalid song data object");
+
+    [
+        'title',
+        'uuid',
+        'version',
+        'created',
+        'timeDivision',
+        'beatsPerMinute',
+        'programs',
+        'tracks',
+    ].forEach(param => {
+        if(!songData[param])
+            throw new Error("Song data is missing required parameter: " + param);
+    })
+}
+
+function sanitizeObject(obj) {
+    for (var property in obj) {
+        if (obj.hasOwnProperty(property)) {
+            const value = obj[property];
+            if (typeof value == "object") {
+                sanitizeObject(value);
+            }
+            else if(typeof value === "string") {
+                const sanitized = sanitizeHtml(value)
+                if(sanitized !== value) {
+                    console.warn("Sanitized HTML characters: ", property, value)
+                    obj[property] = sanitized;
+                }
+            }
+        }
+    }
 }

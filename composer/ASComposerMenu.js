@@ -61,7 +61,7 @@ class ASComposerMenu extends ASComposerRenderer {
         return (<>
             <ASUIMenuDropDown options={() => this.renderMenuFileOpenMemory()}     >from Memory</ASUIMenuDropDown>
             <ASUIMenuAction onAction={e => this.openSongFromFileDialog(e)}      >from File</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.loadSongFromURL(e)}             >from URL</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.loadSongFromURLPrompt(e)}             >from URL</ASUIMenuAction>
         </>);
     }
 

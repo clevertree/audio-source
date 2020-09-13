@@ -28,7 +28,7 @@ export default class ASComposerLoginModal extends React.Component {
         this.state = {
             title: song.data.title,
             filename: getSongFileNameFromTitle(song.data.title),
-            version: song.data.version,
+            version: bumpVersion(song.data.version || '0.0.0'),
             comment: song.data.comment,
         }
     }
@@ -113,7 +113,7 @@ export default class ASComposerLoginModal extends React.Component {
                 filename
             });
 
-            proxiedData.version = bumpVersion(proxiedData.version)
+            proxiedData.version = (proxiedData.version)
 
             this.setState({
                 loading: false

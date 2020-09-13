@@ -16,6 +16,7 @@ export default class ASComposerPublishSuccessModal extends React.Component {
         const composer = props.composer;
         this.cb = {
             closeModal: () => composer.toggleModal(null),
+            copyToClipboard: () => this.copyToClipboard()
         }
         this.ref = {
             // email: React.createRef(),
@@ -26,10 +27,17 @@ export default class ASComposerPublishSuccessModal extends React.Component {
     getComposer() { return this.props.composer; }
 
     render() {
-        const {
-            message,
-            songURL
-        } = this.props.modalArgs || {}
+        let {
+            songURL,
+            message
+        } = this.props.modalArgs || {};
+
+        const origin = document.location.origin;
+        if(songURL.startsWith(origin))
+            songURL = songURL.substr(origin.length);
+
+        const composerURL = origin + '/composer#url=' + (songURL);
+
         return (
             <ASUIModal
                 onClose={this.cb.closeModal}
@@ -38,8 +46,20 @@ export default class ASComposerPublishSuccessModal extends React.Component {
                     large
                     horizontal
                     header="Publish Successful">
-                    <ASUIFormMessage children={message || "Publish Successful"}/>
-                    <ASUIAnchor href={songURL} target="_blank">{songURL}</ASUIAnchor>
+                    <ASUIFormMessage>
+                        <ASUIAnchor href={composerURL} target="_blank">{message}</ASUIAnchor>
+                    </ASUIFormMessage>
+                    {/*<ASUIFormMessage>*/}
+                    {/*    <ASUIAnchor href={composerURL} target="_blank">Player URL</ASUIAnchor>*/}
+                    {/*</ASUIFormMessage>*/}
+                    {/*<ASUIFormMessage>*/}
+                    {/*    <ASUIAnchor href={songURL} target="_blank">Source File: {songURL.split('/').pop()}</ASUIAnchor>*/}
+                    {/*</ASUIFormMessage>*/}
+                    <ASUIClickable
+                        button center
+                        size="large"
+                        onAction={() => this.copyToClipboard(composerURL)}
+                    >Copy URL to clipboard</ASUIClickable>
                     <ASUIClickable
                         button center
                         size="large"
@@ -48,6 +68,24 @@ export default class ASComposerPublishSuccessModal extends React.Component {
                 </ASUIPanel>
             </ASUIModal>
         );
+    }
+
+    copyToClipboard(textContent) {
+        var textarea = document.createElement("textarea");
+        textarea.textContent = textContent;
+        textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in Microsoft Edge.
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            return document.execCommand("copy");  // Security exception may be thrown by some browsers.
+        }
+        catch (ex) {
+            console.warn("Copy to clipboard failed.", ex);
+            return false;
+        }
+        finally {
+            document.body.removeChild(textarea);
+        }
     }
 
 }

@@ -11,7 +11,7 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Status **/
     setStatus(statusText, statusType='log') {
-        // console.log(`ASC.${statusType}`, statusText);
+        console[statusType](statusText);
         this.setState({statusText, statusType: statusType + ''});
     }
 
@@ -385,10 +385,20 @@ class ASComposerActions extends ASComposerMenu {
         return false;
     }
 
+    async loadSongFromURLPrompt() {
+        const url = await PromptManager.openPromptDialog("URL:", 'https://');
+        return await this.loadSongFromURL(url);
+    }
     async loadSongFromURL(url) {
+        if(typeof url !== "string")
+            throw new Error("Invalid URL: " + typeof url);
+        this.setStatus("Loading song from url: " + url);
         const fileService = new FileService();
         const buffer = await fileService.loadBufferFromURL(url);
-        return await this.loadSongFromBuffer(buffer, url);
+        const song = await this.loadSongFromBuffer(buffer, url);
+        await this.saveSongToMemory();
+        this.setStatus("Song loaded from url: " + url);
+        return song;
     }
 
     async loadSongFromFileInput(e, file=null, accept=null) {
@@ -429,6 +439,7 @@ class ASComposerActions extends ASComposerMenu {
         await this.setCurrentSong(song);
         this.saveState();
         this.setStatus("Song loaded from memory: " + songUUID);
+        return song;
     }
 
 

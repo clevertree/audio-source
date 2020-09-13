@@ -3,7 +3,6 @@ import {Keyboard, LibraryProcessor, Song} from "../song";
 
 class ASComposerBase extends React.Component {
     constructor(props) {
-        // console.log('ASComposerRenderer.constructor', props);
         super(props);
         this.state = {
             title: "Audio Source Composer",
@@ -155,9 +154,25 @@ class ASComposerBase extends React.Component {
     // }
 
     componentDidMount() {
-        this.loadState();
 
         this.loadMIDIInterface(this.cb.onInput);
+
+        const hashString = this.props.location.hash || '';
+        const hashSplit = hashString.substr(1).split('&');
+        const params = {};
+        for (let i = 0; i < hashSplit.length; i++) {
+            let pair = hashSplit[i].split('=');
+            const param = decodeURIComponent(pair[0]);
+            params[param] = decodeURIComponent(pair[1]);
+        }
+        // console.log('hash', params, hashString, hashSplit);
+
+        if(params.url) {
+            this.loadSongFromURL(params.url);
+        } else {
+            this.loadState();
+        }
+
         // TODO: get default library url from composer?
         this.sessionRefresh();
     }

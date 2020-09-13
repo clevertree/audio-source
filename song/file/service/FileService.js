@@ -33,24 +33,22 @@ export default class FileService {
     }
 
     async loadBufferFromURL(url) {
-        let buffer = await fileCache.tryFile(url);
-        if(buffer)
-            return buffer;
+        console.log('Loading: ' + url);
 
         // this.log("Loading buffer from url: " + url);
         if(url.toString().startsWith('torrent://')) {
-            console.log('Loading: ' + url);
+            let buffer = await fileCache.tryFile(url);
+            if(buffer)
+                return buffer;
             buffer = await this.getFileBufferFromTorrent(url);
+            return await fileCache.putFile(buffer, url);
             // console.log('Loaded: ' + url, buffer);
         } else {
             // return buffer;
             const response = await fetch(url);
-            buffer = await response.arrayBuffer();
+            return await response.arrayBuffer();
 
         }
-
-        fileCache.putFile(buffer, url);
-        return buffer;
     }
 
     getMagnetURL(torrentID) {

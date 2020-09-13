@@ -13,10 +13,10 @@ div.asui-modal {
 
 }
 div.asui-modal > div.content {
-  background-color: #FFF2;
-  border-radius: 1em;
+  background-color: #555D;
+  border-radius: 1vw;
   z-index: 4;
-  padding: 1vw;
+  padding: 2vw;
 }
 
 div.asui-modal > div.overlay {

@@ -17,7 +17,7 @@ div.asct-container {
 
 /** Track **/
 div.asc-track {
-    margin: 0px;
+    margin: 1px;
     position: relative;
     vertical-align: top;
     /* height: 100%; */
