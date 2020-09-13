@@ -8,15 +8,16 @@ import {
 
 import {ASPlayer} from '../player';
 import {ASComposer} from "../composer/";
-import {MarkdownPage} from "./component";
+import {ASUIPageMarkdown} from "../components"
 
 import SongProxyWebViewClient from "../song/proxy/SongProxyWebViewClient";
 
-import {pageList} from "./pages";
+import {pageList as defaultPageList} from "./pages";
 
 export default class IndexRouter extends React.Component {
 
     render() {
+        const pageList = this.props.pageList || defaultPageList;
         return (
             <BrowserRouter>
                 <Switch>
@@ -27,10 +28,14 @@ export default class IndexRouter extends React.Component {
                     {pageList.map(([page, path], i) => {
                         if (typeof page === "string")
                             return <Route path={path} key={i}>
-                                {props => <MarkdownPage file={page} {...props} />}
+                                {props => <ASUIPageMarkdown file={page} {...props} pageList={pageList} />}
                             </Route>;
-                        if (page.prototype instanceof React.Component)
-                            return <Route component={page} path={path} key={i}/>;
+                        if (page.prototype instanceof React.Component) {
+                            const Page = page;
+                            return <Route path={path} key={i}>
+                                {props => <Page {...props} pageList={pageList} />}
+                            </Route>;
+                        }
                         throw new Error("Invalid page type: " + typeof page);
                     })}
 

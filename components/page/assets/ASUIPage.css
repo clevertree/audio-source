@@ -3,7 +3,7 @@ body.themed {
 
 }
 
-div.aspage-container {
+div.asui-page-container {
     background-color: #333;
     /*margin: 1vw;*/
     min-height: 100vh;
@@ -15,7 +15,7 @@ div.aspage-container {
 }
 
 
-div.aspage-container a:not(:hover) {
+div.asui-page-container a:not(:hover) {
     text-decoration: none;
     color: white;
 
@@ -23,25 +23,25 @@ div.aspage-container a:not(:hover) {
 
 /** Header / Footer **/
 
-div.aspage-header,
-div.aspage-footer {
+div.asui-page-header,
+div.asui-page-footer {
     text-align: center;
 }
 
-img.aspage-header-image,
-img.aspage-footer-image {
+img.asui-page-header-image,
+img.asui-page-footer-image {
     margin-top: 4px;
     width: 95vw;
 }
 
-div.aspage-header-text,
-div.aspage-footer-text {
+div.asui-page-header > div.text,
+div.asui-page-footer > div.text {
     padding: 1vw;
 }
 
 
-div.aspage-header-links,
-div.aspage-footer-links {
+div.asui-page-header > div.links,
+div.asui-page-footer > div.links {
     display: flex;
     justify-content: center;
     background-color: #666;
@@ -50,8 +50,8 @@ div.aspage-footer-links {
 }
 
 
-div.aspage-header-links > a,
-div.aspage-footer-links > a {
+div.asui-page-header > div.links > a,
+div.asui-page-footer > div.links > a {
     text-decoration: none;
     display: block;
     padding: 0.2vw 3vw;
@@ -60,23 +60,23 @@ div.aspage-footer-links > a {
     border-radius: 1vw;
     transition: background-color 0.3s;
 }
-div.aspage-header-links > a:hover,
-div.aspage-footer-links > a:hover {
+div.asui-page-header > div.links > a:hover,
+div.asui-page-footer > div.links > a:hover {
     background-color: #777;
 }
-div.aspage-header-links > a.selected,
-div.aspage-footer-links > a.selected {
+div.asui-page-header > div.links > a.selected,
+div.asui-page-footer > div.links > a.selected {
     background-color: #888;
 }
 
 
 @media only screen and (min-width: 468px) {
-    img.aspage-header-image {
+    img.asui-page-header-image {
         width: 468px;
     }
 
-    div.aspage-header-links,
-    div.aspage-footer-links {
+    div.asui-page-header > div.links,
+    div.asui-page-footer > div.links {
         font-size: 18px;
     }
 
@@ -85,7 +85,7 @@ div.aspage-footer-links > a.selected {
 
 /** Page Content **/
 
-div.aspage-content {
+div.asui-page-content {
     /*position: relative;*/
     background-color: #444;
     min-height: 50vh;
@@ -96,7 +96,7 @@ div.aspage-content {
 
 /** Page Paragraphs **/
 
-div.aspage-content > p {
+div.asui-page-content > p {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     text-indent: 12px;
     text-align: justify;
@@ -106,16 +106,16 @@ div.aspage-content > p {
 /** Page Images **/
 
 
-div.aspage-content > p > img,
-div.aspage-content > p > a > img {
+div.asui-page-content > p > img,
+div.asui-page-content > p > a > img {
     display: flex;
     max-width: 640px;
     margin: 0 auto;
 }
 
 @media only screen and (max-width: 640px) {
-    div.aspage-content > p > img,
-    div.aspage-content > p > a > img {
+    div.asui-page-content > p > img,
+    div.asui-page-content > p > a > img {
         width: 90vw;
     }
 
@@ -125,7 +125,7 @@ div.aspage-content > p > a > img {
 
 /** Pre **/
 
-div.aspage-content > pre {
+div.asui-page-content > pre {
     padding: 1em;
     background-color: #222;
     border-radius: 1em;

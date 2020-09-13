@@ -23,8 +23,11 @@ div.asc-track {
     /* height: 100%; */
     /*overflow: auto;*/
     display: inline-block;
-}
 
+}
+div.audio-source-composer.landscape div.asc-content-container > div.asc-track {
+    display: inline-block;
+}
 div.audio-source-composer.landscape div.asc-track:not(.minimize) {
     width: 50%;
     max-width: 500px;

@@ -32,6 +32,13 @@ import ASUIInputText from "./input-text/ASUIInputText";
 import ASUIInputPassword from "./input-text/ASUIInputPassword";
 import ASUIInputTextArea from "./input-text/ASUIInputTextArea";
 
+import ASUIMarkdown from "./markdown/ASUIMarkdown";
+import ASUIPageMarkdown from "./markdown/ASUIPageMarkdown";
+
+import ASUIPageContainer from "./page/ASUIPageContainer";
+import ASUIPageHeader from "./page/ASUIPageHeader";
+import ASUIPageContent from "./page/ASUIPageContent";
+import ASUIPageFooter from "./page/ASUIPageFooter";
 export {
     ASUIClickable,
     ASUIClickableDropDown,
@@ -62,5 +69,14 @@ export {
     ASUIModal,
 
     ASUIStateManager,
-    ASUIGlobalContext
+    ASUIGlobalContext,
+
+
+    ASUIMarkdown,
+    ASUIPageMarkdown,
+
+    ASUIPageContainer,
+    ASUIPageContent,
+    ASUIPageHeader,
+    ASUIPageFooter,
 }

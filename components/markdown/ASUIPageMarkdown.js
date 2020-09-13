@@ -1,10 +1,10 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import PageContainer from "../page/PageContainer";
-import Markdown from "./Markdown";
+import ASUIPageContainer from "../page/ASUIPageContainer";
+import ASUIMarkdown from "./ASUIMarkdown";
 
 
-export default class MarkdownPage extends React.Component {
+export default class ASUIPageMarkdown extends React.Component {
     /** Property validation **/
     static propTypes = {
         file: PropTypes.string.isRequired,
@@ -28,12 +28,12 @@ export default class MarkdownPage extends React.Component {
 
     render() {
         return (
-            <PageContainer currentPath={this.props.location.pathname}>
-                <Markdown
+            <ASUIPageContainer {...this.props}>
+                <ASUIMarkdown
                     trim={false}>
                     {this.state.content || "Loading " + this.props.file}
-                </Markdown>
-            </PageContainer>
+                </ASUIMarkdown>
+            </ASUIPageContainer>
         );
     }
 }
