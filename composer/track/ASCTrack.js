@@ -51,8 +51,6 @@ export default class ASCTrack extends ASCTrackInput {
         //     className += ' ' + this.props.className;
         if(this.props.selected)
             className += ' selected';
-        if(viewMode && !portrait)
-            className += ' ' + viewMode;
 
         return (
             <div className={`${className}`}>

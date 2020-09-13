@@ -28,13 +28,13 @@ export default class ClientSongAPI {
 }
 
 
-async function getJSON(url) {
-    return await fetch(url, {
-        credentials: 'include',
-        method: 'GET',
-        redirect: 'error'
-    });
-}
+// async function getJSON(url) {
+//     return await fetch(url, {
+//         credentials: 'include',
+//         method: 'GET',
+//         redirect: 'error'
+//     });
+// }
 async function postJSON(url, jsonObject) {
     // console.log('POST', url, jsonObject);
     return await fetch(url, {

@@ -1,9 +1,9 @@
 import React from "react";
 
-import {ASUIPanel,  ASUIFormEntry, ASUIFormMessage, ASUIClickable, ASUIInputText, ASUIInputTextArea, ASUIModal, ASUIAnchor} from "../../components";
+import {ASUIPanel,  ASUIFormEntry, ASUIFormMessage, ASUIClickable, ASUIInputText, ASUIInputTextArea, ASUIModal} from "../../components";
 import ClientSongAPI from "../../server/song/ClientSongAPI";
 
-export default class ASComposerLoginModal extends React.Component {
+export default class ASComposerPublishModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -113,7 +113,7 @@ export default class ASComposerLoginModal extends React.Component {
                 filename
             });
 
-            proxiedData.version = (proxiedData.version)
+            // proxiedData.version = (proxiedData.version)
 
             this.setState({
                 loading: false

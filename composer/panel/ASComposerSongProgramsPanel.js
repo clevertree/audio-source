@@ -1,6 +1,6 @@
 import React from "react";
 
-import {ASUIPanel, ASUIClickableDropDown, ASUIIcon, ASUIClickable} from "../../components";
+import {ASUIPanel, ASUIClickableDropDown, ASUIIcon} from "../../components";
 import {ASCProgramRenderer} from "../program";
 
 export default class ASComposerSongProgramsPanel extends React.Component {

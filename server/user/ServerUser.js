@@ -15,20 +15,21 @@ export default class ServerUser {
         if(email.indexOf('@') === -1)
             throw new Error("Invalid user email: " + email);
         this.email = email;
-        this.username = null;
+        this.private = null;
+    }
+
+    readPrivateData() {
+        if(this.private)
+            return this.private;
+        return this.private = this.readPrivateFile(FILE_USER);
     }
 
     getUsername() {
-        if(this.username)
-            return this.username;
-        const {username} = this.readPrivateFile(FILE_USER);
+        const {username} = this.readPrivateData();
         if(!username)
             throw new Error("User has no username.");
-        this.username = username;
         return username;
     }
-
-
     async isRegistered() { return this.privateFileExists(FILE_USER); }
 
     /** Actions **/
@@ -45,6 +46,12 @@ export default class ServerUser {
         };
         if(password) {
             userJSON.password = await ServerUser.hash(password);
+        }
+
+        for(const user of ServerUser.eachUser()) {
+            const {username:existingUsername} = user.readPrivateFile(FILE_USER);
+            if(username === existingUsername)
+                throw new Error("Username already exists: " + username);
         }
 
         console.log("Registering User:", this.email);
@@ -85,16 +92,16 @@ export default class ServerUser {
     /** Files Files **/
 
 
-    getPublicUsersDirectory()   { return path.resolve(serverConfig.publicDirectory, DIRECTORY_USERS_PUBLIC); }
-    getPublicUsersURL()         { return path.resolve(serverConfig.publicURL, DIRECTORY_USERS_PUBLIC); }
+    static getPublicUsersDirectory()   { return path.resolve(serverConfig.publicDirectory, DIRECTORY_USERS_PUBLIC); }
+    static getPublicUsersURL()         { return path.resolve(serverConfig.publicURL, DIRECTORY_USERS_PUBLIC); }
 
-    getPublicUserDirectory()    { return path.resolve(this.getPublicUsersDirectory(), this.getUsername()); }
-    getPublicUserURL()          { return path.resolve(this.getPublicUsersURL(), this.getUsername()); }
+    getPublicUserDirectory()    { return path.resolve(ServerUser.getPublicUsersDirectory(), this.getUsername()); }
+    getPublicUserURL()          { return path.resolve(ServerUser.getPublicUsersURL(), this.getUsername()); }
 
-    getPrivateUsersDirectory() { return path.resolve(serverConfig.privateDirectory, DIRECTORY_USERS_PRIVATE); }
+    static getPrivateUsersDirectory() { return path.resolve(serverConfig.privateDirectory, DIRECTORY_USERS_PRIVATE); }
     getPrivateUserDirectory() {
         const [emailUser,domain] = this.email.split('@');
-        return path.resolve(this.getPrivateUsersDirectory(), domain, emailUser);
+        return path.resolve(ServerUser.getPrivateUsersDirectory(), domain, emailUser);
     }
 
     getPublicFileURL(fileName) { return path.resolve(this.getPublicUserURL(), fileName); }
@@ -108,8 +115,8 @@ export default class ServerUser {
     readPublicFile(fileName) { return readFile(this.getPublicFilePath(fileName)); }
     readPrivateFile(fileName) { return readFile(this.getPrivateFilePath(fileName)); }
 
-    writePublicFile(fileName, content) { return writeFile(this.getPublicUserDirectory(), fileName, content); }
-    writePrivateFile(fileName, content) { return writeFile(this.getPrivateUserDirectory(), fileName, content); }
+    writePublicFile(fileName, content) { return writeFile(this.getPublicUserDirectory() + '/' + fileName, content); }
+    writePrivateFile(fileName, content) { return writeFile(this.getPrivateUserDirectory() + '/' + fileName, content); }
 
 
 
@@ -147,6 +154,19 @@ export default class ServerUser {
         })
     }
 
+    static * eachUser() {
+        const privateUsersDirectory = this.getPrivateUsersDirectory();
+        const domains = fs.readdirSync(privateUsersDirectory);
+        for(const domain of domains) {
+            if(domain) {
+                const privateUserDomainDirectory = path.resolve(privateUsersDirectory, domain);
+                const users = fs.readdirSync(privateUserDomainDirectory);
+                for(const user of users) {
+                    yield new ServerUser(user + '@' + domain);
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -174,26 +194,29 @@ function readFile(userFile) {
     return JSON.parse(content);
 }
 
-function writeFile(directory, fileName, content) {
-    const filePath = path.resolve(directory, fileName);
-    // console.log("Writing Directory: ", userPath)
+function writeFile(filePath, content) {
+    const directory = path.resolve(filePath, '..');
+    // console.log("Writing Directory: ", directory)
     fs.mkdirSync(directory, { recursive: true });
-    // console.log("Writing File: ", userFile)
+    // console.log("Writing File: ", filePath)
     fs.writeFileSync(filePath, content);
     return filePath;
 }
 
 /** Test **/
-
-
-
 setTimeout(async () => {
-    const serverUser = new ServerUser('test@email.com');
-        try {
-            await serverUser.register('test', 'test')
-        } catch (e) {}
+        const serverUser = new ServerUser('test@email.com');
+        // const serverUser2 = new ServerUser('test2@email.com');
+        try { await serverUser.register('test', 'test') }
+        catch (e) { console.error(e); }
+        try { await serverUser.unregister() }
+        catch (e) { console.error(e); }
+
+        // try { await serverUser2.register('test', 'test') }
+        // catch (e) { console.error(e); }
+        // try { await serverUser2.unregister() }
+        // catch (e) { console.error(e); }
         // await serverUser.login('test')
-        await serverUser.unregister('test', 'test')
     },
     100
 );

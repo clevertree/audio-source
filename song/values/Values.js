@@ -1,5 +1,5 @@
 import {ASUIInputRange, ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../components";
-import PromptManager from "../../common/prompt/PromptManager.native";
+import PromptManager from "../../common/prompt/PromptManager";
 import React from "react";
 
 class Values {
@@ -475,7 +475,7 @@ class Values {
         const oldCallback = onSelectDuration;
         onSelectDuration = (selectedDuration, selectedDurationString) => {
             addRecentMenuItem(selectedDurationString, Values.recentDurations);
-            selectedDuration = this.parseDurationAsTicks(selectedDuration)
+            // selectedDuration = this.parseDurationAsTicks(selectedDuration, timeDivision)
             return oldCallback(selectedDuration);
         }
         return (<>

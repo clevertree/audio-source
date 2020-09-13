@@ -1,7 +1,6 @@
 import React from "react";
 
 import ASComposerContainer from "./container/ASComposerContainer";
-import ASCTracksContainer from "./track/container/ASCTracksContainer";
 import ASComposerSongPanel from "./panel/ASComposerSongPanel";
 import ASComposerSongProgramsPanel from "./panel/ASComposerSongProgramsPanel";
 import ASComposerTrackPanel from "./panel/ASComposerTrackPanel";
@@ -13,6 +12,7 @@ import ASComposerLoginSuccessModal from "./modal/ASComposerLoginSuccessModal";
 import ASComposerRegistrationSuccessModal from "./modal/ASComposerRegistrationSuccessModal";
 import ASComposerPublishModal from "./modal/ASComposerPublishModal";
 import ASComposerPublishSuccessModal from "./modal/ASComposerPublishSuccessModal";
+import ASCTrack from "./track/ASCTrack";
 
 export default class ASComposerRenderer extends ASComposerBase {
 
@@ -26,11 +26,7 @@ export default class ASComposerRenderer extends ASComposerBase {
                     composer={this}
                     >
                     {this.state.portrait ? this.renderSongPanelPortrait() : this.renderSongPanelLandscape()}
-                    <ASComposerSongProgramsPanel composer={this} ref={this.ref.panelProgram}/>
-
-                    <ASCTracksContainer
-                        composer={this}
-                        />
+                    {this.renderTracks()}
                     {this.state.showModal ? this.renderModals() : null}
                 </ASComposerContainer>
             </ASUIGlobalContext.Provider>
@@ -44,6 +40,7 @@ export default class ASComposerRenderer extends ASComposerBase {
             <div className="asui-panel-container-horizontal">
                 <ASComposerTrackPanel composer={this} ref={this.ref.panelTrack} />
             </div>
+            <ASComposerSongProgramsPanel composer={this} ref={this.ref.panelProgram}/>
         </>
     }
 
@@ -51,9 +48,11 @@ export default class ASComposerRenderer extends ASComposerBase {
         return <>
             <ASComposerSongPanel composer={this} ref={this.ref.panelSong} />
 
-            <br  className="asui-track-panel-break"/>
+            <br className="asui-track-panel-break"/>
             <ASComposerTrackPanel composer={this} ref={this.ref.panelTrack} />
-            <br  className="asui-track-panel-break"/>
+            <br className="asui-track-panel-break"/>
+            <ASComposerSongProgramsPanel composer={this} ref={this.ref.panelProgram}/>
+            <br />
         </>
 
     }
@@ -82,6 +81,44 @@ export default class ASComposerRenderer extends ASComposerBase {
             default:
                 throw new Error("Invalid modal: " + this.state.showModal);
         }
+    }
+
+    /** Render Tracks **/
+
+    // TODO: auto scroll to selected track when selected track changes?
+
+    renderTracks() {
+        const songTracks = this.getSong().data.tracks;
+        // composer.ref.activeTracks = {};
+        const activeTracks = this.ref.activeTracks;
+
+        const selectedTrack = this.getSelectedTrackName();
+        // const selectedIndices = composer.state.selectedIndices;
+        // let trackList = Object.keys(songData.tracks);
+        // let collapsed = false;
+        // if(composer.state.portrait) {
+        // collapsed = true;
+        // const selectedTrackID = trackList.indexOf(selectedTrackName);
+        // if (selectedTrackID !== -1)
+        //     trackList.unshift(trackList.splice(selectedTrackID, 1)[0])
+        // }
+        return Object.keys(songTracks).map((trackName) => {
+            // if(!songData.tracks[trackName])
+            //     return null;
+            if(!activeTracks[trackName])
+                activeTracks[trackName] = React.createRef(); // TODO: flaw?
+            const selected = trackName === selectedTrack;
+            return <ASCTrack
+                ref={activeTracks[trackName]}
+                key={trackName}
+                trackName={trackName}
+                // selectedIndices={selected ? selectedIndices : []}
+                // trackState={composer.state.activeTracks[trackName]}
+                selected={selected}
+                composer={this}
+                // collapsed={collapsed && !selected}
+            />
+        })
     }
 
 

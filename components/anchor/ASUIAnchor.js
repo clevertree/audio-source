@@ -9,7 +9,7 @@ export default class ASUIAnchor extends React.Component {
         let className = 'asui-anchor';
         if(this.props.className)
             className += ' ' + this.props.className;
-        return <a {...this.props} className={className} />;
+        return <a {...this.props} className={className} >{this.props.children}</a>;
     }
 }
 

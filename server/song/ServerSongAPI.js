@@ -1,7 +1,8 @@
+import fs from "fs";
 import compareVersions from 'compare-versions';
-import sanitizeHtml from 'sanitize-html';
 
 import ServerUser from "../user/ServerUser";
+import ServerSong from "./ServerSong";
 
 export default class ServerSongAPI {
     connectApp(app) {
@@ -13,34 +14,59 @@ export default class ServerSongAPI {
         try {
             const userSession = ServerUser.getSession(req.session);
 
-            const {
+            let {
                 song: songData,
-                filename
+                filename,
             } = req.body;
+
+            // TODO identify song by UUID
+            let existingSong = null;
+            for (const song of ServerSong.eachSong()) {
+                const existingSongData = song.readSongData();
+                if(existingSongData.uuid === songData.uuid) {
+                    existingSong = song;
+                    break;
+                }
+            }
+
+            // TODO Allow renaming of old file?
+
 
             if(!filename)
                 throw new Error("Invalid song filename");
             if(!filename.match(/^[\w_]+\.json$/))
                 throw new Error("Invalid song filename: " + filename);
+            const songFilePath = userSession.getPublicFilePath(ServerSong.DIRECTORY_SONGS + '/' + filename);
+            const song = new ServerSong(songFilePath, songData);
 
-            validateSongData(songData);
-            sanitizeObject(songData);
+            song.validateSongData(songData);
+            song.sanitizeObject(songData);
 
             // const {username} = userSession.loadPrivateUserJSON();
             // const userPath = userSession.getPublicUserDirectory();
             let oldVersion = "[No old version]";
-            if(userSession.publicFileExists(filename)) {
-                const oldSongData = userSession.readPublicFile(filename);
+            if(fs.existsSync(songFilePath)) {
+                const oldSongData = JSON.parse(fs.readFileSync(songFilePath, 'utf8'));
                 if(oldSongData.uuid !== songData.uuid)
                     throw new Error("Published song must have the same UUID as existing song: " + songData.uuid);
                 oldVersion = oldSongData.version;
                 const newVersion = songData.version;
                 if(!compareVersions.compare(newVersion, oldVersion, '>'))
                     throw new Error("New song version must be greater than " + oldVersion);
+            } else {
+
+                for (const song of ServerSong.eachSong()) {
+                    console.log('songFilePath', songFilePath, song.path);
+                    if(song.path === songFilePath)
+                        continue;
+                    const existingSongData = song.readSongData();
+                    if(existingSongData.uuid === songData.uuid)
+                        throw new Error(`UUID must be unique (${songFilePath} !== ${song.path})`);
+                }
             }
 
-            userSession.writePublicFile(filename, formatSongAsJSONString(songData));
-            const songURL = new URL(userSession.getPublicFileURL(filename), req.get("Origin")).toString();
+            userSession.writePublicFile(songFilePath, song.formatAsJSONString());
+            const songURL = new URL(userSession.getPublicFileURL(songFilePath), req.get("Origin")).toString();
 
             const versionChange = `${oldVersion} => ${songData.version}`;
             console.log("Published Song:", songData.title, versionChange);
@@ -63,50 +89,3 @@ export default class ServerSongAPI {
 }
 
 
-function formatSongAsJSONString(songData) {
-    // const song = this.data;
-    const instructionsKey = "/** INSTRUCTION_BLOCK **/";
-    let jsonStringInstructions = JSON.stringify(songData.tracks);
-    let jsonString = JSON.stringify(Object.assign({}, songData, {
-        tracks: instructionsKey
-    }), null, "\t");
-    return jsonString.replace('"' + instructionsKey + '"', jsonStringInstructions);
-}
-
-
-function validateSongData(songData) {
-    if(typeof songData !== "object")
-        throw new Error("Invalid song data object");
-
-    [
-        'title',
-        'uuid',
-        'version',
-        'created',
-        'timeDivision',
-        'beatsPerMinute',
-        'programs',
-        'tracks',
-    ].forEach(param => {
-        if(!songData[param])
-            throw new Error("Song data is missing required parameter: " + param);
-    })
-}
-
-function sanitizeObject(obj) {
-    for (var property in obj) {
-        if (obj.hasOwnProperty(property)) {
-            const value = obj[property];
-            if (typeof value == "object") {
-                sanitizeObject(value);
-            }
-            else if(typeof value === "string") {
-                const sanitized = sanitizeHtml(value)
-                if(sanitized !== value) {
-                    console.warn("Sanitized HTML characters: ", property, value)
-                    obj[property] = sanitized;
-                }
-            }
-        }
-    }
-}

@@ -389,6 +389,9 @@ export default class ASCTrackActions extends ASCTrackRenderer {
 
 
     changeQuantization(quantizationTicks) {
+        if(typeof quantizationTicks === "string")
+            quantizationTicks = Values.instance.parseDurationAsTicks(quantizationTicks, this.getTimeDivision())
+
         if(typeof quantizationTicks !== "number")
             throw new Error("Invalid quantizationTicks: " + quantizationTicks);
         this.setState({
@@ -433,7 +436,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
 
     renderMenuSetQuantization(title = "Select Quantization") {
         const quantizationTicks = this.getQuantizationTicks();
-        return this.props.composer.renderMenuSelectDuration(
+        return Values.instance.renderMenuSelectDuration(
             durationTicks => this.changeQuantization(durationTicks),
             this.getTimeDivision(),
             quantizationTicks,
@@ -445,7 +448,7 @@ export default class ASCTrackActions extends ASCTrackRenderer {
 
     renderMenuSetRowLength() {
         return (<>
-            {this.props.composer.getTrackerLengthInRows((length, title) =>
+            {Values.instance.getTrackerLengthInRows((length, title) =>
                 <ASUIMenuAction key={length} onAction={(e) => this.changeRowLength(length)}>{title}</ASUIMenuAction>
             )}
             <ASUIMenuAction onAction={(e) => this.changeRowLengthPrompt()} >Custom Length</ASUIMenuAction>
