@@ -4,7 +4,7 @@ import fs from "fs";
 
 const serverConfig = require('../.server.json')
 const DIRECTORY_USERS_PRIVATE = 'users';
-const DIRECTORY_USERS_PUBLIC = 'u';
+const DIRECTORY_USERS_PUBLIC = 'u'; // TODO: artist?
 const FILE_USER = 'user.json';
 
 export default class ServerUser {

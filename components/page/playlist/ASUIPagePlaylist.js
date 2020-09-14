@@ -1,9 +1,8 @@
 import * as React from "react";
 import PropTypes from "prop-types";
 
-import ASUIClickable from "../../clickable/ASUIClickable";
-import ASUIIcon from "../../icon/ASUIIcon";
 import PlaylistFile from "../../../song/playlist/PlaylistFile";
+import ASUIPagePlaylistEntry from "./ASUIPagePlaylistEntry";
 import "./ASUIPagePlaylist.css";
 
 export default class ASUIPagePlaylist extends React.Component {
@@ -19,10 +18,6 @@ export default class ASUIPagePlaylist extends React.Component {
         this.state = {
             playlist: null,
             error: "Empty Playlist"
-        }
-        this.cb = {
-            play: [],
-            navigate: [],
         }
     }
 
@@ -42,11 +37,6 @@ export default class ASUIPagePlaylist extends React.Component {
             return null;
 
         return this.state.playlist.map((entry, i) => {
-            if(!this.cb.play[i])
-                this.cb.play[i] = e => this.playEntry(e, i);
-            if(!this.cb.navigate[i])
-                this.cb.navigate[i] = e => this.navigateToSongPage(e, i);
-
             let artistURL = '#loading';
             if(entry.artistURL) {
                 artistURL = entry.artistURL;
@@ -55,29 +45,20 @@ export default class ASUIPagePlaylist extends React.Component {
                     artistURL = artistURL.substr(origin.length);
                 artistURL = origin + '/user#url=' + (artistURL);
             }
+            let datePublished = "N/A";
+            if(entry.datePublished) {
+                datePublished = new Date(entry.datePublished).toLocaleDateString("en-US");
+            }
 
-
-            return <div className="entry"
-                        key={i}>
-                <div className="background"
-                     onClick={this.cb.navigate[i]}
+            return <ASUIPagePlaylistEntry
+                key={i}
+                entryID={i}
+                playlist={this}
+                datePublished={datePublished}
+                artistURL={artistURL}
+                songTitle={entry.songTitle}
+                artistTitle={entry.artistTitle}
                 />
-                <div className="image" />
-                <div className="info">
-                    <div className="title">
-                        {`"${entry.title||"N/A"}"`}
-                    </div>
-                    <div className="artist">{"by "}
-                        <a href={artistURL}>{entry.artist || "N/A"}</a>
-                    </div>
-                </div>
-                <div className="play" >
-                    <ASUIClickable
-                        onAction={this.cb.play[i]}>
-                        <ASUIIcon source="play" size="large"/>
-                    </ASUIClickable>
-                </div>
-            </div>
         })
     }
 
@@ -114,10 +95,11 @@ export default class ASUIPagePlaylist extends React.Component {
         const response = await fetch(songURL);
         let songData = await response.json();
         return {
-            title: songData.title,
+            songTitle: songData.title,
             uuid: songData.uuid,
             url: songData.url,
             artistURL: songData.artistURL,
+            datePublished: songData.datePublished,
         }
     }
 
@@ -125,7 +107,7 @@ export default class ASUIPagePlaylist extends React.Component {
         const response = await fetch(new URL("./artist.json", artistURL + '/'));
         let artistData = await response.json();
         return {
-            artist: artistData.title,
+            artistTitle: artistData.title,
         }
     }
 
@@ -152,3 +134,4 @@ export default class ASUIPagePlaylist extends React.Component {
     }
 
 }
+

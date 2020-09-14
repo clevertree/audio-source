@@ -30,4 +30,7 @@ const icons = {
 
     'instrument-oscillator':    require('./img/instrument-oscillator.icon.png'),
     'instrument-audiobuffer':   require('./img/instrument-audiobuffer.icon.png'),
+
+    'file-song':                require('./img/file-song.icon.png'),
+
 }

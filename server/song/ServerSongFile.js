@@ -111,9 +111,9 @@ export default class ServerSongFile {
         const publicUsersDirectory = ServerUser.getPublicUsersDirectory();
         if(fs.existsSync(publicUsersDirectory)) {
             const users = fs.readdirSync(publicUsersDirectory);
-            for (const user of users) {
-                if (user) {
-                    const publicUserSongsDirectory = path.resolve(publicUsersDirectory, user, DIRECTORY_SONGS);
+            for (const username of users) {
+                if (username) {
+                    const publicUserSongsDirectory = this.getUserSongsDirectory(username);
                     const scanDirectories = [publicUserSongsDirectory];
                     while (scanDirectories.length > 0) {
                         const scanDirectory = scanDirectories.pop()
@@ -123,7 +123,7 @@ export default class ServerSongFile {
                                 songFile = path.resolve(scanDirectory, songFile);
                                 const fileStats = fs.statSync(songFile);
                                 if (fileStats.isDirectory()) {
-                                    console.log("adding directory", songFile)
+                                    console.log("scanning directory", songFile)
                                     scanDirectories.push(songFile)
                                 } else {
                                     yield new ServerSongFile(songFile);

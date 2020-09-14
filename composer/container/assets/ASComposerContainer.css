@@ -108,7 +108,8 @@ div.audio-source-composer.landscape div.asc-menu-container > div.asui-menu-item 
 /** Portrait Menu Button **/
 
 div.asc-menu-button-toggle {
-
+    position: relative;
+    z-index: 2;
 }
 
 div.asc-menu-button-toggle > div.asui-icon {

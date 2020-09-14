@@ -65,6 +65,7 @@ export default class ServerSongAPI {
                 songData.url = new URL(publishingSongFile.getPublicURL(), publishingDomain).toString();
             }
 
+            songData.datePublished = new Date().getTime();
 
             if(!filename)
                 throw new Error("Invalid song filename");

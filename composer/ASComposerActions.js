@@ -134,6 +134,8 @@ class ASComposerActions extends ASComposerMenu {
         console.log("Loading Song: ", song.data, songLength);
         await this.song.programLoadAll();
         console.log("Current Song: ", song.data, songLength);
+        if(this.props.onSongLoad)
+            this.props.onSongLoad(song);
     }
 
     updateCurrentSong() {
