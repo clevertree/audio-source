@@ -5,7 +5,7 @@ import PlaylistFile from "../../../song/playlist/PlaylistFile";
 const url = require('url');
 
 const serverConfig = require('../../.server.json')
-const DIRECTORY_PLAYLISTS = 'pls';
+const DIRECTORY_PLAYLISTS = 'playlists';
 const FILE_PL_MASTER = 'master.pls';
 
 export default class ServerPlaylistFile {

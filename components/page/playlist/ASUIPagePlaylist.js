@@ -16,6 +16,7 @@ export default class ASUIPagePlaylist extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            loaded: false,
             playlist: null,
             error: "Empty Playlist"
         }
@@ -27,6 +28,7 @@ export default class ASUIPagePlaylist extends React.Component {
     }
 
     render() {
+        // console.log(this.constructor.name, ".render()", this.state);
         return (<div className="asui-page-playlist">
             {this.state.playlist ? this.renderPlaylist() : <div className="error">{this.state.error}</div> }
         </div> )
@@ -37,14 +39,6 @@ export default class ASUIPagePlaylist extends React.Component {
             return null;
 
         return this.state.playlist.map((entry, i) => {
-            let artistURL = '#loading';
-            if(entry.artistURL) {
-                artistURL = entry.artistURL;
-                const origin = document.location.origin;
-                if (artistURL.startsWith(origin))
-                    artistURL = artistURL.substr(origin.length);
-                artistURL = origin + '/user#url=' + (artistURL);
-            }
             let datePublished = "N/A";
             if(entry.datePublished) {
                 datePublished = new Date(entry.datePublished).toLocaleDateString("en-US");
@@ -55,9 +49,9 @@ export default class ASUIPagePlaylist extends React.Component {
                 entryID={i}
                 playlist={this}
                 datePublished={datePublished}
-                artistURL={artistURL}
-                songTitle={entry.songTitle}
-                artistTitle={entry.artistTitle}
+                title={entry.title || (this.state.loaded ? "N/A" : "Loading...")}
+                artistURL={entry.artistURL}
+                artistTitle={entry.artistTitle || (this.state.loaded ? "N/A" : "Loading...")}
                 />
         })
     }
@@ -73,7 +67,7 @@ export default class ASUIPagePlaylist extends React.Component {
             .split("\n")
             .filter(v => !!v.trim())
             .map(entry => PlaylistFile.parseEntry(entry));
-        console.log('playlist', playlist);
+        // console.log('playlist', playlist);
         this.setState({playlist, error: null});
 
         const artistCache = {};
@@ -85,8 +79,8 @@ export default class ASUIPagePlaylist extends React.Component {
             artistCache[songInfo.artistURL] = artistInfo;
             Object.assign(entry, songInfo, artistInfo);
         }
-        console.log('playlist', playlist);
-        this.setState({playlist, error: null});
+        console.log('Playlist Loaded', playlist);
+        this.setState({playlist, error: null, loaded: true});
 
 
     }
@@ -95,7 +89,7 @@ export default class ASUIPagePlaylist extends React.Component {
         const response = await fetch(songURL);
         let songData = await response.json();
         return {
-            songTitle: songData.title,
+            title: songData.title,
             uuid: songData.uuid,
             url: songData.url,
             artistURL: songData.artistURL,

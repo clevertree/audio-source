@@ -9,11 +9,11 @@ export default class ASUIPagePlaylistEntry extends React.Component {
 
     /** Property validation **/
     static propTypes = {
-        songTitle: PropTypes.string.isRequired,
-        artistTitle: PropTypes.string.isRequired,
-        artistURL: PropTypes.string.isRequired,
-        datePublished: PropTypes.number.isRequired,
-        playlist: PropTypes.object.isRequired
+        title: PropTypes.string,
+        artistTitle: PropTypes.string,
+        artistURL: PropTypes.string,
+        datePublished: PropTypes.string,
+        playlist: PropTypes.object
     };
 
 
@@ -24,24 +24,11 @@ export default class ASUIPagePlaylistEntry extends React.Component {
             playEntry: e => playlist.playEntry(e, props.entryID),
             navigateToSongPage: e => playlist.navigateToSongPage(e, props.entryID),
         }
-        console.log(this.constructor.name, props);
     }
 
     render() {
-        let artistURL = '#loading';
-        if(this.props.artistURL) {
-            artistURL = this.props.artistURL;
-            const origin = document.location.origin;
-            if (artistURL.startsWith(origin))
-                artistURL = artistURL.substr(origin.length);
-            artistURL = origin + '/user#url=' + (artistURL);
-        }
-        let datePublished = "N/A";
-        if(this.props.datePublished) {
-            datePublished = new Date(this.props.datePublished).toLocaleDateString("en-US");
-        }
 
-
+        // console.log(this.constructor.name, this.props);
         return <div className="asui-page-playlist-entry">
             <div className="background"
                  onClick={this.cb.navigateToSongPage}
@@ -51,13 +38,13 @@ export default class ASUIPagePlaylistEntry extends React.Component {
             </div>
             <div className="info">
                 <div className="title">
-                    {`"${this.props.songTitle||"N/A"}"`}
+                    {`"${this.props.title || "N/A"}"`}
                 </div>
                 <div className="artist">{"by "}
-                    <a href={artistURL}>{this.props.artistTitle || "N/A"}</a>
+                    <a href={this.props.artistURL}>{this.props.artistTitle || "N/A"}</a>
                 </div>
                 <div className="datePublished">
-                    ({datePublished})
+                    ({this.props.datePublished})
                 </div>
             </div>
             <div className="play" >

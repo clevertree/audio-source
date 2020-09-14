@@ -21,7 +21,7 @@ export default class ASUIInputText extends React.Component {
     }
 
     onChange(e) {
-        e.preventDefault();
+        // e.preventDefault();
         if(this.props.onChange)
             this.props.onChange(e.target.value);
         // console.log(e.type, e.target.value);

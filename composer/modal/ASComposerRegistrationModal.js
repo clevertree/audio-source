@@ -1,6 +1,6 @@
 import React from "react";
 
-import {ASUIPanel, ASUIForm, ASUIFormEntry, ASUIFormMessage, ASUIClickable, ASUIInputText, ASUIInputPassword, ASUIModal, ASUIAnchor} from "../../components";
+import {ASUIPanel, ASUIForm, ASUIFormEntry, ASUIFormMessage, ASUIFormSubmit, ASUIInputText, ASUIInputPassword, ASUIModal, ASUIAnchor} from "../../components";
 import ClientUserAPI from "../../server/user/ClientUserAPI";
 
 export default class ASComposerRegistrationModal extends React.Component {
@@ -9,25 +9,40 @@ export default class ASComposerRegistrationModal extends React.Component {
         this.state = {
             error: null,
             loading: false,
+            autoUpdateUsername: true
         }
         const composer = props.composer;
         this.cb = {
-            closeModal: () => composer.toggleModal(null),
-            showLoginModal: () => composer.toggleModal('login'),
-            onSubmitForm: () => this.onSubmitForm(),
+            closeModal: e => composer.toggleModal(null),
+            showLoginModal: e => composer.toggleModal('login'),
+            onSubmitForm: e => this.onSubmitForm(e),
+            onChange: {}
         }
         this.ref = {
-            email: React.createRef(),
-            username: React.createRef(),
-            password: React.createRef(),
-            password_confirm: React.createRef(),
+            form: {}
         }
 
+    }
+    getFormRef(fieldName) {
+        if(!this.ref.form[fieldName])
+            this.ref.form[fieldName] = React.createRef();
+        return this.ref.form[fieldName];
+    }
+    getFormValues() {
+        const values = {};
+        const formRefs = this.ref.form;
+        for(const fieldName in formRefs) {
+            if(formRefs.hasOwnProperty(fieldName)) {
+                values[fieldName] = formRefs[fieldName].current.getValue();
+            }
+        }
+        return values;
     }
 
     getComposer() { return this.props.composer; }
 
     render() {
+        const userFields = ClientUserAPI.userFields;
         return (
             <ASUIModal
                 onClose={this.cb.closeModal}
@@ -36,7 +51,10 @@ export default class ASComposerRegistrationModal extends React.Component {
                     large
                     horizontal
                     header="Register a new account">
-                    <ASUIForm>
+                    <ASUIForm
+                        onSubmit={this.cb.onSubmitForm}
+                        action="#"
+                    >
                         {this.state.error ? <ASUIFormMessage error children={this.state.error}/> : null}
                         <ASUIFormEntry className="email" header="Email">
                             <ASUIInputText
@@ -44,39 +62,46 @@ export default class ASComposerRegistrationModal extends React.Component {
                                 type="email"
                                 required
                                 placeholder="user@place.com"
-                                ref={this.ref.email}
-                            />
-                        </ASUIFormEntry>
-                        <ASUIFormEntry className="username" header="Username">
-                            <ASUIInputText
-                                size="large"
-                                placeholder="username"
-                                pattern="([A-z0-9À-ž]){2,}"
-                                ref={this.ref.username}
+                                ref={this.getFormRef('email')}
                             />
                         </ASUIFormEntry>
                         <ASUIFormEntry className="password" header="Password">
                             <ASUIInputPassword
                                 size="large"
-                                ref={this.ref.password}
+                                ref={this.getFormRef('password')}
                             />
                         </ASUIFormEntry>
                         <ASUIFormEntry className="password_confirm" header="Confirm">
                             <ASUIInputPassword
                                 size="large"
-                                ref={this.ref.password_confirm}
+                                ref={this.getFormRef('password_confirm')}
                             />
                         </ASUIFormEntry>
+                        {Object.keys(userFields).map((fieldName, i) => {
+                            if(!this.cb.onChange[fieldName])
+                                this.cb.onChange[fieldName] = (value) => this.onChange(fieldName, value)
+                            const fieldInfo = userFields[fieldName];
+                            return <ASUIFormEntry
+                                key={i}
+                                className={fieldName}
+                                header={fieldInfo.label}>
+                                <ASUIInputText
+                                    size="large"
+                                    {...fieldInfo}
+                                    onChange={this.cb.onChange[fieldName]}
+                                    ref={this.getFormRef(fieldName)}
+                                />
+                            </ASUIFormEntry>
+                        })}
                         <ASUIFormEntry className="submit" header="Register">
-                            <ASUIClickable
+                            <ASUIFormSubmit
                                 button center
                                 size="large"
-                                onAction={this.cb.onSubmitForm}
-                            >Register</ASUIClickable>
+                            >Register</ASUIFormSubmit>
                         </ASUIFormEntry>
                         <ASUIAnchor
                             className="login"
-                            onClick={this.cb.showLoginForm}
+                            onClick={this.cb.showLoginModal}
                         >Already have an account?</ASUIAnchor>
                     </ASUIForm>
                 </ASUIPanel>
@@ -86,24 +111,47 @@ export default class ASComposerRegistrationModal extends React.Component {
 
     /** Actions **/
 
-    async onSubmitForm() {
+    onChange(fieldName, value) {
+        switch(fieldName) {
+            case 'artistTitle':
+                const usernameRef = this.getFormRef('username');
+                const artistTitleRef = this.getFormRef('artistTitle');
+                const artistTitle = value.replace(/[^A-z0-9À-ž _-]+/g, ' ');
+                if(this.state.autoUpdateUsername && usernameRef.current) {
+                    const username = value.replace(/[^A-z0-9À-ž_-]+/g, '_').toLowerCase();
+                    usernameRef.current.setValue(username)
+                }
+                if(artistTitle !== value)
+                    artistTitleRef.current.setValue(artistTitle);
+                break;
+            case 'username':
+                this.setState({
+                    autoUpdateUsername: false
+                })
+                break;
+            default:
+        }
+
+    }
+
+    async onSubmitForm(e) {
+        e.preventDefault();
         try {
             this.setState({
                 error: null,
                 loading: true
             })
-            const email = this.ref.email.current.getValue();
-            if(!email)
-                throw new Error("Email is required");
-            const username = this.ref.username.current.getValue();
-            const password = this.ref.password.current.getValue() || null;
-            if(password) {
-                const password_confirm = this.ref.password_confirm.current.getValue();
-                if (password !== password_confirm)
-                    throw new Error("Confirmation password doesn't match");
-            }
+            const {
+                email,
+                password,
+                password_confirm,
+                username,
+                artistTitle
+            } = this.getFormValues();
+            if (password && password !== password_confirm)
+                throw new Error("Confirmation password doesn't match");
             const userAPI = new ClientUserAPI();
-            await userAPI.register(email, password, username);
+            await userAPI.register(email, password, username, artistTitle);
 
             this.setState({
                 loading: false

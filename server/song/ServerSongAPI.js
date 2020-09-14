@@ -17,7 +17,7 @@ export default class ServerSongAPI {
         try {
             const startTime = new Date().getTime();
             const userSession = ServerUser.getSession(req.session);
-            const username = userSession.getUsername();
+            // const username = userSession.getUsername();
             const publishingDomain = req.get("Origin");
 
             let {
@@ -61,7 +61,7 @@ export default class ServerSongAPI {
                 console.log("Song UUID not found. Publishing new file:", songData.uuid);
                 publishingSongFile = new ServerSongFile(songFileAbsolutePath, songData);
 
-                songData.artistURL = publishingDomain + '/u/' + username;
+                songData.artistURL = userSession.getPublicUserURL();
                 songData.url = new URL(publishingSongFile.getPublicURL(), publishingDomain).toString();
             }
 

@@ -1,5 +1,4 @@
 
-
 const {
     port: defaultPort,
 } = require('../.server.json');
@@ -11,6 +10,21 @@ const serverBaseURL = document.location.protocol
 // console.log('serverBaseURL', serverBaseURL);
 
 export default class ClientUserAPI {
+    static userFields = {
+        artistTitle: {
+            label: "Artist title",
+            placeholder: "My Artist Name",
+            pattern: "([A-z0-9À-ž _-]){2,}",
+            required: true,
+        },
+        username: {
+            label: "User name",
+            placeholder: "artist_username",
+            pattern: "([A-z0-9À-ž_-]){2,}",
+            required: true,
+        }
+    };
+
     async login(email, password) {
         console.log("Submitting Login: ", email);
         const response = await postJSON(serverBaseURL + '/login', {
@@ -24,12 +38,13 @@ export default class ClientUserAPI {
         console.log("Login Response: ", json, response);
     }
 
-    async register(email, password, username=null) {
+    async register(email, password, username, artistTitle) {
         console.log("Submitting Registration: ", email);
         const response = await postJSON(serverBaseURL + '/register', {
-            username,
             email,
-            password
+            password,
+            username,
+            artistTitle
         })
         if(response.status !== 200)
             throw new Error(response.statusText)

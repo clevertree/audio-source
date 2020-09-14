@@ -395,12 +395,17 @@ class ASComposerActions extends ASComposerMenu {
         if(typeof url !== "string")
             throw new Error("Invalid URL: " + typeof url);
         this.setStatus("Loading song from url: " + url);
-        const fileService = new FileService();
-        const buffer = await fileService.loadBufferFromURL(url);
-        const song = await this.loadSongFromBuffer(buffer, url);
-        await this.saveSongToMemory();
-        this.setStatus("Song loaded from url: " + url);
-        return song;
+        try {
+            const fileService = new FileService();
+            const buffer = await fileService.loadBufferFromURL(url);
+            const song = await this.loadSongFromBuffer(buffer, url);
+            await this.saveSongToMemory();
+            this.setStatus("Song loaded from url: " + url);
+            return song;
+        } catch (e) {
+            this.setError(e.message);
+            throw e;
+        }
     }
 
     async loadSongFromFileInput(e, file=null, accept=null) {

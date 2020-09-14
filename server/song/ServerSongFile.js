@@ -67,7 +67,7 @@ export default class ServerSongFile {
             'title',
             'uuid',
             'version',
-            'created',
+            'dateCreated',
             'timeDivision',
             'beatsPerMinute',
             'programs',

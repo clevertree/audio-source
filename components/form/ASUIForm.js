@@ -3,12 +3,12 @@ import React from "react";
 import "./assets/ASUIFormEntry.css"
 
 export default class ASUIForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.cb = {
-            onSubmit: e => this.onSubmit(e),
-        }
-    }
+    // constructor(props) {
+    //      super(props);
+    //      this.cb = {
+    //          onSubmit: e => this.onSubmit(e),
+    //      }
+    // }
 
     render() {
         let className = 'asui-form';
@@ -18,18 +18,17 @@ export default class ASUIForm extends React.Component {
             className += ' horizontal';
 
         return <form
-            action="#"
                 className={className}
-                onSubmit={this.cb.onSubmit}
+                // onSubmit={this.cb.onSubmit}
                 {...this.props}
             />;
     }
 
     /** Actions **/
 
-    onSubmit(e) {
-        console.log(e.type, e);
-        e.preventDefault();
-    }
+    // onSubmit(e) {
+    //     console.log(e.type, e);
+    //     e.preventDefault();
+    // }
 }
 

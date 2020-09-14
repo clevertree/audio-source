@@ -31,7 +31,7 @@ export default class ASComposerRegistrationSuccessModal extends React.Component 
                     <ASUIClickable
                         button center
                         size="large"
-                        onAction={this.cb.toggleModal}
+                        onAction={this.cb.closeModal}
                     >Close</ASUIClickable>
                 </ASUIPanel>
             </ASUIModal>

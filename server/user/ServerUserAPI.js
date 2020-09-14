@@ -50,11 +50,12 @@ export default class ServerUserAPI {
             const {
                 email,
                 username,
+                artistTitle,
                 password,
             } = req.body;
 
             const serverUser = new ServerUser(email);
-            await serverUser.register(password, username);
+            await serverUser.register(password, username, artistTitle);
             await serverUser.login(password, req.session);
 
 
