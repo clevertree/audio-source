@@ -1,10 +1,12 @@
 import fs from "fs";
-const url = require('url');
 import path from "path";
+import PlaylistFile from "./PlaylistFile";
+
+const url = require('url');
 
 const serverConfig = require('../.server.json')
-const DIRECTORY_PLAYLISTS = 'pl';
-const FILE_PL_MASTER = 'master.pl.json';
+const DIRECTORY_PLAYLISTS = 'pls';
+const FILE_PL_MASTER = 'master.pls';
 
 export default class ServerPlaylistFile {
     constructor(playlistRelativePath) {
@@ -30,8 +32,8 @@ export default class ServerPlaylistFile {
         if(!fs.existsSync(absPath)) {
             this.playlistData = [];
         } else {
-            const jsonContent = fs.readFileSync(absPath, 'utf8') || '[]';
-            this.playlistData = JSON.parse(jsonContent);
+            const playlistContent = fs.readFileSync(absPath, 'utf8') || '';
+            this.playlistData = playlistContent.split("\n").filter(v => !!v.trim());
         }
         return this.playlistData;
     }
@@ -48,7 +50,17 @@ export default class ServerPlaylistFile {
 
     formatAsJSONString() {
         const playlistData = this.readPlaylistData();
-        return `[\n${playlistData.map(entry => JSON.stringify(entry)).join(",\n")}\n]`;
+        return playlistData.map(entry => {
+            if(typeof entry === "string")
+                return entry.trim();
+            return JSON.stringify(entry);
+        }).join("\n");
+    }
+
+    *eachEntry() {
+        for(let entry of this.readPlaylistData()) {
+            yield PlaylistFile.parseEntry(entry);
+        }
     }
 
     /**
@@ -57,12 +69,12 @@ export default class ServerPlaylistFile {
     addSong(serverSongFile) {
         const publicPath = '/' + serverSongFile.getRelativePath();
         const songData = serverSongFile.readSongData();
-        const playlistData = this.readPlaylistData();
-        for(const entry of playlistData) {
-            const [entryPath] = entry;
-            if(entryPath === publicPath)
+        for(const entry of this.eachEntry()) {
+            const {path} = entry;
+            if(path === publicPath)
                 return false;
         }
+        const playlistData = this.readPlaylistData();
         playlistData.push([
             publicPath,
             songData.title

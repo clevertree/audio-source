@@ -1,0 +1,43 @@
+
+/** Playlist Container **/
+div.asui-page-playlist {
+    color: #050f1a;
+}
+
+/** Entry **/
+div.asui-page-playlist > div {
+    background: #b9dabf;
+    display: flex;
+    border: 1px outset;
+    border-radius: 3px;
+    padding: 8px;
+    margin: 2px;
+}
+
+
+div.asui-page-playlist > div:hover {
+    background: #998bda;
+    cursor: pointer;
+}
+
+div.asui-page-playlist > div > div.image,
+div.asui-page-playlist > div > div.play,
+div.asui-page-playlist > div > div.edit {
+    width: 32px;
+    height: 32px;
+    border: 1px inset;
+
+}
+div.asui-page-playlist > div > div.image {
+    margin-right: 8px;
+}
+
+div.asui-page-playlist > div > div.info {
+}
+
+div.asui-page-playlist > div > div.play {
+    margin-left: auto;
+}
+div.asui-page-playlist > div > div.edit {
+    margin-left: 8px;
+}

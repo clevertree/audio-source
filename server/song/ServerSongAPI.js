@@ -3,7 +3,7 @@ import compareVersions from 'compare-versions';
 
 import ServerUser from "../user/ServerUser";
 import ServerSongFile from "./ServerSongFile";
-import ServerPlaylistFile from "./ServerPlaylistFile";
+import ServerPlaylistFile from "./ClientPlaylistFile";
 
 // noinspection ExceptionCaughtLocallyJS
 export default class ServerSongAPI {
@@ -71,7 +71,7 @@ export default class ServerSongAPI {
 
 
             this.addToPlaylist(publishingSongFile, ServerPlaylistFile.FILE_PL_MASTER);
-            // TODO: add to playlists?
+            // TODO: add to other playlists?
 
 
             const songURL = new URL(publishingSongFile.getPublicURL(), req.get("Origin")).toString();
