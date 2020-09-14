@@ -49,7 +49,7 @@ export default class ClientUserAPI {
             throw new Error(response.statusText)
 
         const jsonSession = await response.json();
-        console.log("Session Response: ", jsonSession, response);
+        // console.log("Session Response: ", jsonSession, response);
 
         return jsonSession;
     }

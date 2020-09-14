@@ -4,6 +4,7 @@ import HomePage from "./HomePage.md";
 import AboutPage from "./AboutPage.md";
 import DownloadsPage from "./DownloadsPage.md";
 import ContactPage from "./ContactPage.md";
+import SongPage from "./SongPage";
 
 const pageList = [
 
@@ -13,6 +14,8 @@ const pageList = [
     [DemoPage,      '/demo',        'Demo',         true,       false],
     [DownloadsPage, '/downloads',   'Downloads',    true,       false],
     [ContactPage,   '/contact',     'Contact',      false,      true],
+
+    [SongPage,      '/song',        'Song'],
 
 ]
 

@@ -1,10 +1,10 @@
 import fs from "fs";
 import path from "path";
-import PlaylistFile from "./PlaylistFile";
+import PlaylistFile from "../../../song/playlist/PlaylistFile";
 
 const url = require('url');
 
-const serverConfig = require('../.server.json')
+const serverConfig = require('../../.server.json')
 const DIRECTORY_PLAYLISTS = 'pls';
 const FILE_PL_MASTER = 'master.pls';
 
@@ -67,16 +67,16 @@ export default class ServerPlaylistFile {
      * @param {ServerSongFile} serverSongFile
      */
     addSong(serverSongFile) {
-        const publicPath = '/' + serverSongFile.getRelativePath();
+        const publicURL = '/' + serverSongFile.getRelativePath();
         const songData = serverSongFile.readSongData();
         for(const entry of this.eachEntry()) {
-            const {path} = entry;
-            if(path === publicPath)
+            const {url} = entry;
+            if(url === publicURL)
                 return false;
         }
         const playlistData = this.readPlaylistData();
         playlistData.push([
-            publicPath,
+            publicURL,
             songData.title
         ])
         return true;

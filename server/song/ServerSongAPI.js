@@ -3,7 +3,7 @@ import compareVersions from 'compare-versions';
 
 import ServerUser from "../user/ServerUser";
 import ServerSongFile from "./ServerSongFile";
-import ServerPlaylistFile from "./ClientPlaylistFile";
+import ServerPlaylistFile from "./playlist/ServerPlaylistFile";
 
 // noinspection ExceptionCaughtLocallyJS
 export default class ServerSongAPI {
@@ -17,6 +17,8 @@ export default class ServerSongAPI {
         try {
             const startTime = new Date().getTime();
             const userSession = ServerUser.getSession(req.session);
+            const username = userSession.getUsername();
+            const publishingDomain = req.get("Origin");
 
             let {
                 song: songData,
@@ -38,6 +40,9 @@ export default class ServerSongAPI {
                 // if(publishingSongFile.getAbsolutePath() !== existingSongPath)
                 //     throw new Error("file path mismatch");
 
+                // if(username !== publishingSongFile.songData.username)
+                //     throw new Error("Username mismatch");
+
                 const userSongsDirectory = userSession.getPublicFilePath(ServerSongFile.DIRECTORY_SONGS);
                 if(!existingSongPath.startsWith(userSongsDirectory))
                     throw new Error("Invalid permission to modify " + existingSongPath);
@@ -55,7 +60,11 @@ export default class ServerSongAPI {
             } else {
                 console.log("Song UUID not found. Publishing new file:", songData.uuid);
                 publishingSongFile = new ServerSongFile(songFileAbsolutePath, songData);
+
+                songData.artistURL = publishingDomain + '/u/' + username;
+                songData.url = new URL(publishingSongFile.getPublicURL(), publishingDomain).toString();
             }
+
 
             if(!filename)
                 throw new Error("Invalid song filename");
@@ -74,12 +83,11 @@ export default class ServerSongAPI {
             // TODO: add to other playlists?
 
 
-            const songURL = new URL(publishingSongFile.getPublicURL(), req.get("Origin")).toString();
 
             console.log("Published Song:", songData.title, versionChange);
             res.json({
                 "message": `Song Published (${versionChange})`,
-                songURL,
+                songURL: songData.url,
                 duration: new Date().getTime() - startTime
             });
         } catch (e) {

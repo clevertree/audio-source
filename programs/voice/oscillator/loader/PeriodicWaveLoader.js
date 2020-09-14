@@ -71,7 +71,7 @@ export default class PeriodicWaveLoader {
 
     addCache(url, periodicWave, expireTime) {
         cache[url] = [periodicWave, expireTime];
-        console.log("Cached: " + url, periodicWave);
+        // console.log("Cached: " + url, periodicWave);
         clearInterval(cacheClearInterval);
         cacheClearInterval = setInterval(() => this.clearCache(), PeriodicWaveLoader.CACHE_CLEAR_INTERVAL);
     }
@@ -81,7 +81,7 @@ export default class PeriodicWaveLoader {
         Object.keys(cache).forEach(function(cacheKey) {
             const [, expires] = cache[cacheKey];
             if(expireTime > expires) {
-                console.log("Uncached: " + cacheKey);
+                // console.log("Uncached: " + cacheKey);
                 delete cache[cacheKey];
                 delete promises[cacheKey];
             }

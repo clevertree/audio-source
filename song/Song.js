@@ -35,6 +35,8 @@ class Song {
             version: '0.0.1',
             created: new Date().getTime(),
             comment: null,
+            url: null,
+            artistURL: null,
             timeDivision: 96 * 4,
             beatsPerMinute: 120,
             beatsPerMeasure: 4,

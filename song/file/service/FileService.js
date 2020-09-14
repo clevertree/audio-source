@@ -33,7 +33,7 @@ export default class FileService {
     }
 
     async loadBufferFromURL(url) {
-        console.log('Loading: ' + url);
+        // console.log('Loading: ' + url);
 
         // this.log("Loading buffer from url: " + url);
         if(url.toString().startsWith('torrent://')) {

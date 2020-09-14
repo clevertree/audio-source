@@ -119,7 +119,7 @@ export default class ASUIClickable extends React.Component {
 
     closeAllOpenMenus() {
         const overlay = this.getOverlay();
-        if(overlay) overlay.closeAllOpenMenus()
+        overlay && overlay.closeAllOpenMenus()
     }
 
     // refreshParentMenu() {

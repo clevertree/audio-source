@@ -5,14 +5,16 @@ export default class PlaylistFile {
             if(entry[0] === '[' || entry[0] === '{') {
                 entry = JSON.parse(entry);
             } else {
-                return {path: entry, title: entry.split('/').pop()}
+                return {url: entry, title: entry.split('/').pop()}
             }
         }
         if(Array.isArray(entry)) {
-            const [path, title] = entry;
-            return {path, title};
+            const [url, title] = entry;
+
+            return {url, title};
         } else {
             return entry;
         }
     }
+
 }
