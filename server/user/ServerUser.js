@@ -2,19 +2,17 @@ import bcrypt from "bcrypt";
 import path from "path";
 import fs from "fs";
 
-const serverConfig = require('../.server.json')
-const DIRECTORY_USERS_PRIVATE = 'user';
-const DIRECTORY_USERS_PUBLIC = 'user';
-const FILE_PRIVATE_USER = 'user.json';
-const FILE_PUBLIC_ARTIST = 'artist.json';
 
 export default class ServerUser {
 
-    constructor(email) {
+    constructor(email, server) {
         if(!email)
             throw new Error("Invalid user email");
         if(email.indexOf('@') === -1)
             throw new Error("Invalid user email: " + email);
+        if(!server)
+            throw new Error("Invalid server instance");
+        this.server = server;
         this.email = email;
         this.private = null;
     }
@@ -22,7 +20,7 @@ export default class ServerUser {
     readPrivateData() {
         if(this.private)
             return this.private;
-        return this.private = this.readPrivateFile(FILE_PRIVATE_USER);
+        return this.private = readJSONFile(this.getPrivateUserJSONPath());
     }
 
     getUsername() {
@@ -31,7 +29,7 @@ export default class ServerUser {
             throw new Error("User has no username.");
         return username;
     }
-    async isRegistered() { return this.privateFileExists(FILE_PRIVATE_USER); }
+    async isRegistered() { return fs.existsSync(this.getPrivateUserJSONPath()); }
 
     /** Actions **/
 
@@ -47,8 +45,8 @@ export default class ServerUser {
             artistTitle = username;
 
 
-        for(const user of ServerUser.eachUser()) {
-            const {userName:existingUsername} = user.readPrivateFile(FILE_PRIVATE_USER);
+        for(const user of ServerUser.eachUser(this.server)) {
+            const {userName:existingUsername} = readJSONFile(user.getPrivateUserJSONPath());
             if(username === existingUsername)
                 throw new Error("Artist name already exists: " + username);
         }
@@ -62,8 +60,8 @@ export default class ServerUser {
             title: artistTitle
         };
 
-        this.writePrivateFile(FILE_PRIVATE_USER, JSON.stringify(privateJSON));
-        this.writePublicFile(FILE_PUBLIC_ARTIST, JSON.stringify(artistJSON));
+        writeFile(this.getPrivateUserJSONPath(), JSON.stringify(privateJSON));
+        writeFile(this.getPublicArtistJSONPath(), JSON.stringify(artistJSON));
 
         console.log("Registered User:", this.email);
     }
@@ -72,9 +70,8 @@ export default class ServerUser {
         if(!await this.isRegistered())
             throw new Error("User is not registered: " + this.email);
 
-        const userPath = this.getPrivateUserDirectory();
         console.log("Unregistering User:", this.email);
-        rimraf(userPath);
+        this.erasePrivateUserDirectory();
     }
 
     async login(password, session) {
@@ -87,7 +84,7 @@ export default class ServerUser {
         if(!await this.isRegistered())
             throw new Error("User is not registered: " + this.email);
 
-        const userJSON = this.readPrivateFile(FILE_PRIVATE_USER);
+        const userJSON = this.readPrivateData();
         // console.log('userJSON', userJSON);
         if(!userJSON.password)
             throw new Error("This account has no password. Email login is required");
@@ -105,36 +102,6 @@ export default class ServerUser {
         console.log("Logout Successful:", email);
     }
 
-    /** Files Files **/
-
-
-    static getPublicUsersDirectory()   { return path.resolve(serverConfig.publicDirectory, DIRECTORY_USERS_PUBLIC); }
-    static getPublicUsersURL()         { return new URL(DIRECTORY_USERS_PUBLIC, serverConfig.publicURL).toString(); }
-
-    getPublicUserDirectory()    { return path.resolve(ServerUser.getPublicUsersDirectory(), this.getUsername()); }
-    getPublicFileURL(appendFile='')          {
-        return new URL(this.getUsername() + (appendFile ? '/'+appendFile : ''), ServerUser.getPublicUsersURL() + '/').toString();
-    }
-
-    static getPrivateUsersDirectory() { return path.resolve(serverConfig.privateDirectory, DIRECTORY_USERS_PRIVATE); }
-    getPrivateUserDirectory() {
-        const [emailUser,domain] = this.email.split('@');
-        return path.resolve(ServerUser.getPrivateUsersDirectory(), domain, emailUser);
-    }
-
-
-    getPublicFilePath(fileName) { return path.resolve(this.getPublicUserDirectory(), fileName); }
-    getPrivateFilePath(fileName) { return path.resolve(this.getPrivateUserDirectory(), fileName); }
-
-    publicFileExists(fileName) { return fs.existsSync(this.getPublicFilePath(fileName)); }
-    privateFileExists(fileName) { return fs.existsSync(this.getPrivateFilePath(fileName)); }
-
-    readPublicFile(fileName) { return readFile(this.getPublicFilePath(fileName)); }
-    readPrivateFile(fileName) { return readFile(this.getPrivateFilePath(fileName)); }
-
-    writePublicFile(fileName, content) { return writeFile(this.getPublicUserDirectory() + '/' + fileName, content); }
-    writePrivateFile(fileName, content) { return writeFile(this.getPrivateUserDirectory() + '/' + fileName, content); }
-
 
 
     /** Static **/
@@ -142,13 +109,13 @@ export default class ServerUser {
     static hasSession(session) {
         return (session && session.loggedIn)
     }
-    static getSession(session) {
+    static getSession(server, session) {
         if(!this.hasSession(session))
             throw new Error("Invalid user session. Please log in");
 
         if(!session.email)
             throw new Error("Invalid session email. Please re-log in");
-        return new ServerUser(session.email);
+        return new ServerUser(session.email, server);
     }
 
     static async hash(password, saltRounds=10) {
@@ -171,8 +138,13 @@ export default class ServerUser {
         })
     }
 
-    static * eachUser() {
-        const privateUsersDirectory = this.getPrivateUsersDirectory();
+    /**
+     *
+     * @param {Server} server
+     * @returns {Generator<ServerUser, void, *>}
+     */
+    static * eachUser(server) {
+        const privateUsersDirectory = server.getPrivatePath(PATH_USERS_PRIVATE);
         if(fs.existsSync(privateUsersDirectory)) {
             const domains = fs.readdirSync(privateUsersDirectory);
             for (const domain of domains) {
@@ -186,7 +158,35 @@ export default class ServerUser {
             }
         }
     }
+
+    /** Paths **/
+    static getPublicUsersPath(server, ...paths) { return server.getPrivatePath(PATH_USERS_PRIVATE, ...paths); }
+    static getPublicUserSongPath(server, username, ...paths) { return server.getPrivatePath(PATH_USERS_PRIVATE, username, PATH_USER_SONG, ...paths); }
+    getPublicUserURL(...paths)                  { return this.server.getPublicURL(PATH_USERS_PUBLIC, this.getUsername(), ...paths); }
+    getPublicUserPath(...paths)                 { return this.server.getPublicPath(PATH_USERS_PUBLIC, this.getUsername(), ...paths); }
+    getPrivateUserPath(...paths) {
+        const [emailUser,domain] = this.email.split('@');
+        return this.server.getPrivatePath(PATH_USERS_PRIVATE, domain, emailUser, ...paths);
+    }
+
+
+    getPublicUserSongPath(...paths)   { return this.getPublicUserPath(PATH_USER_SONG, ...paths); }
+    getPublicUserSongURL(...paths)   { return this.getPublicUserURL(PATH_USER_SONG, ...paths); }
+    getPrivateUserJSONPath()   { return this.getPrivateUserPath(FILE_PRIVATE_USER); }
+    getPublicArtistJSONPath()   { return this.getPublicUserPath(FILE_PUBLIC_ARTIST); }
+
+    erasePrivateUserDirectory() {
+        const userPath = this.getPrivateUserPath();
+        console.log("Erasing ", userPath);
+        rimraf(userPath);
+    }
+
 }
+const PATH_USERS_PUBLIC = 'user';
+const PATH_USERS_PRIVATE = 'user';
+const PATH_USER_SONG = 'song';
+const FILE_PRIVATE_USER = 'user.json';
+const FILE_PUBLIC_ARTIST = 'artist.json';
 
 /**
  * Remove directory recursively
@@ -207,7 +207,7 @@ function rimraf(dir_path) {
     }
 }
 
-function readFile(userFile) {
+function readJSONFile(userFile) {
     const content = fs.readFileSync(userFile, 'utf8');
     // console.log("Reading File: ", userFile, content);
     return JSON.parse(content);
@@ -222,21 +222,21 @@ function writeFile(filePath, content) {
     return filePath;
 }
 
-/** Test **/
-setTimeout(async () => {
-        const serverUser = new ServerUser('test@email.com');
-        // const serverUser2 = new ServerUser('test2@email.com');
-        try { await serverUser.register('test', 'test') }
-        catch (e) { console.error(e); }
-        try { await serverUser.unregister() }
-        catch (e) { console.error(e); }
-
-        // try { await serverUser2.register('test', 'test') }
-        // catch (e) { console.error(e); }
-        // try { await serverUser2.unregister() }
-        // catch (e) { console.error(e); }
-        // await serverUser.login('test')
-    },
-    100
-);
+// /** Test **/
+// setTimeout(async () => {
+//         const serverUser = new ServerUser('test@email.com');
+//         // const serverUser2 = new ServerUser('test2@email.com');
+//         try { await serverUser.register('test', 'test') }
+//         catch (e) { console.error(e); }
+//         try { await serverUser.unregister() }
+//         catch (e) { console.error(e); }
+//
+//         // try { await serverUser2.register('test', 'test') }
+//         // catch (e) { console.error(e); }
+//         // try { await serverUser2.unregister() }
+//         // catch (e) { console.error(e); }
+//         // await serverUser.login('test')
+//     },
+//     100
+// );
 

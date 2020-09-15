@@ -4,26 +4,27 @@ import PlaylistFile from "../../../song/playlist/PlaylistFile";
 
 const url = require('url');
 
-const serverConfig = require('../../.server.json')
 const DIRECTORY_PLAYLISTS = 'playlists';
 const FILE_PL_MASTER = 'master.pls';
 
 export default class ServerPlaylistFile {
-    constructor(playlistRelativePath) {
-        const publicDirectory = serverConfig.publicDirectory;
+    constructor(playlistRelativePath, server) {
+        const publicDirectory = server.getPublicPath();
         if(playlistRelativePath.startsWith(publicDirectory)) {
             playlistRelativePath = playlistRelativePath.substr(publicDirectory.length);
             if(playlistRelativePath[0] === '/')
                 playlistRelativePath = playlistRelativePath.substr(1);
         }
-
         this.relativePath = playlistRelativePath;
         this.playlistData = null;
+        this.server = server;
         // console.log(this, serverConfig.publicURL, this.relativePath, this.getPublicURL());
     }
 
-    getAbsolutePath() { return path.resolve(serverConfig.publicDirectory, this.relativePath); }
-    getPublicURL() { return url.resolve(serverConfig.publicURL, this.relativePath); }
+    getRelativePath()               { return this.relativePath; }
+    getPublicURL(path=null)    { return this.server.getPublicURL(this.relativePath + (path ? '/' + path : '')); }
+    getAbsolutePath()               { return this.server.getPrivatePath(this.relativePath); }
+    getAbsolutePathDirectory()      { return this.server.getPrivatePath(this.relativePath, '..'); }
 
     readPlaylistData() {
         if(this.playlistData)
@@ -82,46 +83,4 @@ export default class ServerPlaylistFile {
         return true;
     }
 
-
-
-    static getPublicPlaylistPath(relativePlaylistPath)   {
-        return path.resolve(this.getPublicPlaylistsDirectory(), relativePlaylistPath);
-    }
-    static getPublicPlaylistsDirectory()   { return path.resolve(serverConfig.publicDirectory, DIRECTORY_PLAYLISTS); }
-    // static getPublicSongsURL()         { return path.resolve(serverConfig.publicURL, DIRECTORY_SONGS); }
-
-    static get DIRECTORY_PLAYLISTS() { return DIRECTORY_PLAYLISTS; }
-    static get FILE_PL_MASTER() { return FILE_PL_MASTER; }
-
-    static * eachPlaylistFile() {
-        const publicPlaylistsDirectory = this.getPublicPlaylistsDirectory();
-        if(fs.existsSync(publicPlaylistsDirectory)) {
-            const scanDirectories = [publicPlaylistsDirectory];
-            while (scanDirectories.length > 0) {
-                const scanDirectory = scanDirectories.pop();
-                if (fs.existsSync(scanDirectory)) {
-                    const files = fs.readdirSync(scanDirectory);
-                    for (let playlistFile of files) {
-                        playlistFile = path.resolve(scanDirectory, playlistFile);
-                        const fileStats = fs.statSync(playlistFile);
-                        if (fileStats.isDirectory()) {
-                            console.log("adding directory", playlistFile)
-                            scanDirectories.push(playlistFile)
-                        } else {
-                            yield new ServerPlaylistFile(playlistFile);
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
-
-/** Test **/
-setTimeout(async () => {
-    for (const playlistFile of ServerPlaylistFile.eachPlaylistFile()) {
-        const playlistData = playlistFile.readPlaylistData();
-        // console.log('song', song.relativePath, songData.title)
-    }
-}, 10);
-

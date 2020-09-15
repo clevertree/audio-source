@@ -78,7 +78,7 @@ $ npm start
 ~~~~
 
 ### Browse to Local Server
-[http://localhost:3000](http://localhost:3000)
+[http://localhost:8080](http://localhost:8080)
 
 
 ---

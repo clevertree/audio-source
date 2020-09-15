@@ -1,15 +1,18 @@
 import fs from "fs";
-const url = require('url');
 import path from "path";
 import ServerUser from "../user/ServerUser";
 import sanitizeHtml from "sanitize-html";
 
-const serverConfig = require('../.server.json')
 const DIRECTORY_SONG = 'song';
 
 export default class ServerSongFile {
-    constructor(songRelativePath, songData = null) {
-        const publicDirectory = serverConfig.publicDirectory;
+    /**
+     *
+     * @param songRelativePath
+     * @param {Server} server
+     */
+    constructor(songRelativePath, server) {
+        const publicDirectory = server.getPublicPath();
         if(songRelativePath.startsWith(publicDirectory)) {
             songRelativePath = songRelativePath.substr(publicDirectory.length);
             if(songRelativePath[0] === '/')
@@ -17,13 +20,15 @@ export default class ServerSongFile {
         }
 
         this.relativePath = songRelativePath;
-        this.songData = songData;
+        this.server = server;
         // console.log(this, serverConfig.publicURL, this.relativePath, this.getPublicURL());
     }
 
-    getRelativePath() { return this.relativePath; }
-    getAbsolutePath() { return path.resolve(serverConfig.publicDirectory, this.relativePath); }
-    getPublicURL() { return url.resolve(serverConfig.publicURL, this.relativePath); }
+    getRelativePath()               { return this.relativePath; }
+    getPublicURL(path=null)    { return this.server.getPublicURL(this.relativePath + (path ? '/' + path : '')); }
+    // getPublicDirectory(...paths) { return this.server.getPublicDirectory(this.relativePath, ...paths); }
+    getAbsolutePath()               { return this.server.getPrivatePath(this.relativePath); }
+    getAbsolutePathDirectory()      { return this.server.getPrivatePath(this.relativePath, '..'); }
 
     setSongData(songData) {
         this.songData = songData;
@@ -32,14 +37,14 @@ export default class ServerSongFile {
     readSongData() {
         if(this.songData)
             return this.songData;
-        this.songData = JSON.parse(fs.readFileSync(this.getAbsolutePath(), 'utf8'));
+        this.songData = readJSONFile(this.getAbsolutePath());
         return this.songData;
     }
 
     writeSongData() {
         const absolutePath = this.getAbsolutePath();
         const content = this.formatAsJSONString();
-        const directory = path.resolve(absolutePath, '..');
+        const directory = this.getAbsolutePathDirectory();
         console.log("Writing Directory: ", directory)
         fs.mkdirSync(directory, { recursive: true });
         console.log("Writing Song File: ", absolutePath)
@@ -98,22 +103,15 @@ export default class ServerSongFile {
 
 
 
-    // static getPublicSongsDirectory()   { return path.resolve(serverConfig.publicDirectory, DIRECTORY_SONGS); }
-    // static getPublicSongsURL()         { return path.resolve(serverConfig.publicURL, DIRECTORY_SONGS); }
 
-    static get DIRECTORY_SONGS() { return DIRECTORY_SONG; }
-
-    static getUserSongsDirectory(username) {
-        return path.resolve(ServerUser.getPublicUsersDirectory(), username, DIRECTORY_SONG);
-    }
-
-    static * eachSongFile() {
-        const publicUsersDirectory = ServerUser.getPublicUsersDirectory();
+    /** @var {Server} **/
+    static * eachSongFile(server) {
+        const publicUsersDirectory = ServerUser.getPublicUsersPath(server);
         if(fs.existsSync(publicUsersDirectory)) {
             const users = fs.readdirSync(publicUsersDirectory);
             for (const username of users) {
                 if (username) {
-                    const publicUserSongsDirectory = this.getUserSongsDirectory(username);
+                    const publicUserSongsDirectory = ServerUser.getPublicUserSongPath(server, username);
                     const scanDirectories = [publicUserSongsDirectory];
                     while (scanDirectories.length > 0) {
                         const scanDirectory = scanDirectories.pop()
@@ -126,7 +124,7 @@ export default class ServerSongFile {
                                     console.log("scanning directory", songFile)
                                     scanDirectories.push(songFile)
                                 } else {
-                                    yield new ServerSongFile(songFile);
+                                    yield new ServerSongFile(songFile, server);
                                 }
                             }
                         }
@@ -137,11 +135,28 @@ export default class ServerSongFile {
     }
 }
 
+function readJSONFile(userFile) {
+    const content = fs.readFileSync(userFile, 'utf8');
+    // console.log("Reading File: ", userFile, content);
+    return JSON.parse(content);
+}
+
+function writeFile(filePath, content) {
+    const directory = path.resolve(filePath, '..');
+    // console.log("Writing Directory: ", directory)
+    fs.mkdirSync(directory, { recursive: true });
+    // console.log("Writing File: ", filePath)
+    fs.writeFileSync(filePath, content);
+    return filePath;
+}
+
+
+
 /** Test **/
 setTimeout(async () => {
-    for (const song of ServerSongFile.eachSongFile()) {
-        const songData = song.readSongData();
-        // console.log('song', song.relativePath, songData.title)
-    }
+    // for (const song of ServerSongFile.eachSongFile()) {
+    //     const songData = song.readSongData();
+    //     // console.log('song', song.relativePath, songData.title)
+    // }
 }, 10);
 

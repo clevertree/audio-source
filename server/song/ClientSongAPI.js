@@ -1,11 +1,8 @@
-
-
 const {
-    port: defaultPort,
-} = require('../.server.json');
+    publicURL
+} = require('../../../config.json');
+const serverBaseURL = publicURL || document.location.origin;
 
-const serverBaseURL = document.location.protocol
-    + '//' + document.location.hostname + ':' + defaultPort;
 
 
 // console.log('serverBaseURL', serverBaseURL);

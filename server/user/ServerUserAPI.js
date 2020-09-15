@@ -1,7 +1,8 @@
 import ServerUser from "./ServerUser";
 
 export default class ServerUserAPI {
-    connectApp(app) {
+    constructor(app, server) {
+        this.server = server;
         app.post("/login", this.postUserLogin.bind(this))
         app.post("/logout", this.postUserLogout.bind(this))
         app.post("/register", this.postUserRegister.bind(this))
@@ -20,7 +21,7 @@ export default class ServerUserAPI {
                 email,
                 password,
             } = req.body;
-            const serverUser = new ServerUser(email);
+            const serverUser = new ServerUser(email, this.server);
             await serverUser.login(password, req.session);
 
             res.json({
@@ -41,7 +42,7 @@ export default class ServerUserAPI {
 
     async postUserLogout(req, res) {
         try {
-            const userSession = ServerUser.getSession(req.session);
+            const userSession = this.server.getUserSession(req.session);
 
             await userSession.logout(req.session);
 
@@ -72,7 +73,7 @@ export default class ServerUserAPI {
                 password,
             } = req.body;
 
-            const serverUser = new ServerUser(email);
+            const serverUser = new ServerUser(email, this.server);
             await serverUser.register(password, username, artistTitle);
             await serverUser.login(password, req.session);
 

@@ -100,7 +100,7 @@ export default class ASUIPagePlaylist extends React.Component {
     }
 
     async loadArtistInfo(artistURL) {
-        const response = await fetch(new URL("./artist.json", artistURL + '/'));
+        const response = await fetch(new URL(artistURL + '/artist.json', document.location.origin));
         let artistData = await response.json();
         return {
             artistTitle: artistData.title,

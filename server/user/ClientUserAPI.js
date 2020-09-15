@@ -1,13 +1,10 @@
-
 const {
-    port: defaultPort,
-} = require('../.server.json');
-
-const serverBaseURL = document.location.protocol
-    + '//' + document.location.hostname + ':' + defaultPort;
+    publicURL
+} = require('../../../config.json');
+const serverBaseURL = publicURL || document.location.origin;
 
 
-// console.log('serverBaseURL', serverBaseURL);
+console.log('serverBaseURL', serverBaseURL);
 
 export default class ClientUserAPI {
     static userFields = {
@@ -27,7 +24,7 @@ export default class ClientUserAPI {
 
     async login(email, password) {
         console.log("Submitting Login: ", email);
-        const response = await postJSON(serverBaseURL + '/login', {
+        const response = await postJSON('/login', {
             email,
             password
         })
@@ -41,7 +38,7 @@ export default class ClientUserAPI {
 
     async logout() {
         console.log("Submitting Logout");
-        const response = await postJSON(serverBaseURL + '/logout');
+        const response = await postJSON('/logout');
         const responseJSON = await response.json();
         if(response.status !== 200)
             throw new Error(response.statusText)
@@ -52,7 +49,7 @@ export default class ClientUserAPI {
 
     async register(email, password, username, artistTitle) {
         console.log("Submitting Registration: ", email);
-        const response = await postJSON(serverBaseURL + '/register', {
+        const response = await postJSON('/register', {
             email,
             password,
             username,
@@ -71,7 +68,7 @@ export default class ClientUserAPI {
 
     async getSession() {
         // console.log("Submitting Session Request");
-        const response = await getJSON(serverBaseURL + '/session')
+        const response = await getJSON('/session')
         if(response.status !== 200)
             throw new Error(response.statusText)
 
@@ -84,6 +81,7 @@ export default class ClientUserAPI {
 
 
 async function getJSON(url) {
+    url = new URL(url, serverBaseURL).toString()
     return await fetch(url, {
         credentials: 'include',
         method: 'GET',
@@ -91,6 +89,7 @@ async function getJSON(url) {
     });
 }
 async function postJSON(url, jsonObject) {
+    url = new URL(url, serverBaseURL).toString()
     console.log('POST', url, jsonObject);
     return await fetch(url, {
         credentials: 'include',

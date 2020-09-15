@@ -7,7 +7,8 @@ import ServerPlaylistFile from "./playlist/ServerPlaylistFile";
 
 // noinspection ExceptionCaughtLocallyJS
 export default class ServerSongAPI {
-    connectApp(app) {
+    constructor(app, server) {
+        this.server = server;
         app.post("/publish", this.postPublish.bind(this))
         app.get("/isPublished/:uuid", this.getIsPublished.bind(this))
     }
@@ -16,7 +17,7 @@ export default class ServerSongAPI {
     async postPublish(req, res) {
         try {
             const startTime = new Date().getTime();
-            const userSession = ServerUser.getSession(req.session);
+            const userSession = this.server.getUserSession(req.session);
             // const username = userSession.getUsername();
             const publishingDomain = req.get("Origin");
 
@@ -38,8 +39,8 @@ export default class ServerSongAPI {
             // if(!filename.match(/^[\w_]+\.json$/))
             //     throw new Error("Invalid song filename: " + filename);
 
-            const songFileAbsoluteURL = userSession.getPublicFileURL(ServerSongFile.DIRECTORY_SONGS + '/' + filename);
-            const songFileAbsolutePath = userSession.getPublicFilePath(ServerSongFile.DIRECTORY_SONGS + '/' + filename + '.json');
+            const songFileAbsoluteURL = userSession.getPublicUserSongPath(filename);
+            const songFileAbsolutePath = userSession.getPublicUserSongURL(filename + '.json');
             console.log("Publishing Song:", songData.title, songFileAbsolutePath);
 
             let versionChange = `${songData.version}`;
@@ -52,7 +53,7 @@ export default class ServerSongAPI {
                 // if(username !== publishingSongFile.songData.username)
                 //     throw new Error("Username mismatch");
 
-                const userSongsDirectory = userSession.getPublicFilePath(ServerSongFile.DIRECTORY_SONGS);
+                const userSongsDirectory = userSession.getPublicUserSongPath();
                 if(!existingSongPath.startsWith(userSongsDirectory))
                     throw new Error("Invalid permission to modify " + existingSongPath);
 
@@ -68,9 +69,10 @@ export default class ServerSongAPI {
                 publishingSongFile.setSongData(songData);
             } else {
                 console.log("Song UUID not found. Publishing new file:", songData.uuid);
-                publishingSongFile = new ServerSongFile(songFileAbsolutePath, songData);
+                publishingSongFile = new ServerSongFile(songFileAbsolutePath, this.server);
+                publishingSongFile.songData = songData;
 
-                songData.artistURL = userSession.getPublicFileURL();
+                songData.artistURL = userSession.getPublicUserURL();
                 songData.url = new URL(songFileAbsoluteURL, publishingDomain).toString();
             }
 
@@ -142,7 +144,7 @@ export default class ServerSongAPI {
 
     // TODO: cache?
     findSongByUUID(uuid) {
-        for (const songFile of ServerSongFile.eachSongFile()) {
+        for (const songFile of ServerSongFile.eachSongFile(this.server)) {
             const existingSongData = songFile.readSongData();
             if(existingSongData.uuid === uuid) {
                 return songFile;
