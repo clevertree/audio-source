@@ -1,9 +1,8 @@
 import * as React from "react";
 import {ASUIPageContainer, ASUIMarkdown} from "../../components";
 
-import ASComposer from "../../composer/ASComposer";
 
-export default class SongPage extends React.Component {
+export default class UserPage extends React.Component {
     constructor(props) {
         super(props);
         this.cb = {
@@ -11,45 +10,35 @@ export default class SongPage extends React.Component {
         }
         this.state = {
             loaded: false,
-            artistTitle: null,
-            artistURL: null,
+            title: null,
         }
         console.log(this.constructor.name, this.props);
     }
 
+    componentDidMount() {
+        this.loadArtistInfo()
+    }
 
     render() {
         let source = "#### Loading...";
         if(this.state.loaded) {
             let artist = "N/A";
-            if (this.state.artistTitle)
-                artist = `[${this.state.artistTitle}](${this.state.artistURL})`;
-            let datePublished = "N/A";
-            if (this.state.datePublished)
-                datePublished = new Date(this.state.datePublished).toLocaleDateString();
+            if (this.state.title)
+                artist = `[${this.state.title}](${this.state.url})`;
 
             source = `
-# Song Page
-| Artist      | Published |
-| :---        |    :----:   |
-| ${artist}   | ${datePublished} |
+# Artist: ${artist}
 
-${this.state.comment}
+#### Song List Coming Soon
 `
         }
-
-        const songURL = this.props.location.pathname + '.json';
         return (
             <ASUIPageContainer {...this.props}>
                 <ASUIMarkdown source={source}/>
-
-                <ASComposer
-                    url={songURL}
-                    onSongLoad={this.cb.onSongLoad}
-                />
             </ASUIPageContainer>
         );
     }
+
 
 
     /** Actions **/
@@ -61,7 +50,6 @@ ${this.state.comment}
             loaded: true,
             dateCreated: song.data.dateCreated,
             datePublished: song.data.datePublished,
-            comment: song.data.comment,
         }
         if(artistURL) {
             state.artistURL = artistURL;
@@ -72,12 +60,14 @@ ${this.state.comment}
     }
 
 
-    async loadArtistInfo(artistURL) {
-        const response = await fetch(new URL("./artist.json", artistURL + '/'));
+    async loadArtistInfo() {
+        const artistURL = this.props.location.pathname;
+        const response = await fetch(new URL(artistURL + '/artist.json', document.location.origin));
         let artistData = await response.json();
-        return {
-            artistTitle: artistData.title,
-        }
+        artistData.url = artistURL;
+        artistData.loaded = true;
+        this.setState(artistData);
+        console.log('artistData', artistData);
     }
 
 }

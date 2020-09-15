@@ -75,6 +75,7 @@ export default class ASComposerPublishModal extends React.Component {
                         <ASUIInputText
                             size="large"
                             required
+                            placeholder="0.0.1"
                             defaultValue={this.state.version}
                             ref={this.ref.version}
                         />
@@ -83,6 +84,7 @@ export default class ASComposerPublishModal extends React.Component {
                         <ASUIInputTextArea
                             defaultValue={this.state.comment}
                             ref={this.ref.comment}
+                            placeholder={`## Your Song Description\n\n(Markdown __is__ *supported*)`}
                             rows={8}
                         />
                     </ASUIFormEntry>

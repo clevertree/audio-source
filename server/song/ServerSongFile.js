@@ -5,7 +5,7 @@ import ServerUser from "../user/ServerUser";
 import sanitizeHtml from "sanitize-html";
 
 const serverConfig = require('../.server.json')
-const DIRECTORY_SONGS = 'songs';
+const DIRECTORY_SONG = 'song';
 
 export default class ServerSongFile {
     constructor(songRelativePath, songData = null) {
@@ -101,10 +101,10 @@ export default class ServerSongFile {
     // static getPublicSongsDirectory()   { return path.resolve(serverConfig.publicDirectory, DIRECTORY_SONGS); }
     // static getPublicSongsURL()         { return path.resolve(serverConfig.publicURL, DIRECTORY_SONGS); }
 
-    static get DIRECTORY_SONGS() { return DIRECTORY_SONGS; }
+    static get DIRECTORY_SONGS() { return DIRECTORY_SONG; }
 
     static getUserSongsDirectory(username) {
-        return path.resolve(ServerUser.getPublicUsersDirectory(), username, DIRECTORY_SONGS);
+        return path.resolve(ServerUser.getPublicUsersDirectory(), username, DIRECTORY_SONG);
     }
 
     static * eachSongFile() {

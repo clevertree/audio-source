@@ -30,7 +30,16 @@ export default class ServerSongAPI {
             /** @var {ServerSongFile} **/
             let publishingSongFile = this.findSongByUUID(songData.uuid);
 
-            const songFileAbsolutePath = userSession.getPublicFilePath(ServerSongFile.DIRECTORY_SONGS + '/' + filename);
+            if(!filename)
+                throw new Error("Invalid song filename");
+            // Remove json extension
+            if(filename.toLowerCase().endsWith('.json'))
+                filename = filename.substr(0, filename.length-5);
+            // if(!filename.match(/^[\w_]+\.json$/))
+            //     throw new Error("Invalid song filename: " + filename);
+
+            const songFileAbsoluteURL = userSession.getPublicFileURL(ServerSongFile.DIRECTORY_SONGS + '/' + filename);
+            const songFileAbsolutePath = userSession.getPublicFilePath(ServerSongFile.DIRECTORY_SONGS + '/' + filename + '.json');
             console.log("Publishing Song:", songData.title, songFileAbsolutePath);
 
             let versionChange = `${songData.version}`;
@@ -61,16 +70,12 @@ export default class ServerSongAPI {
                 console.log("Song UUID not found. Publishing new file:", songData.uuid);
                 publishingSongFile = new ServerSongFile(songFileAbsolutePath, songData);
 
-                songData.artistURL = userSession.getPublicUserURL();
-                songData.url = new URL(publishingSongFile.getPublicURL(), publishingDomain).toString();
+                songData.artistURL = userSession.getPublicFileURL();
+                songData.url = new URL(songFileAbsoluteURL, publishingDomain).toString();
             }
 
             songData.datePublished = new Date().getTime();
 
-            if(!filename)
-                throw new Error("Invalid song filename");
-            if(!filename.match(/^[\w_]+\.json$/))
-                throw new Error("Invalid song filename: " + filename);
 
             publishingSongFile.validateSongData(songData);
             publishingSongFile.sanitizeObject(songData);

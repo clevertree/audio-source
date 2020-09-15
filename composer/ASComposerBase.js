@@ -157,21 +157,21 @@ class ASComposerBase extends React.Component {
 
         this.loadMIDIInterface(this.cb.onInput);
 
-        const params = {};
-        if(this.props.location) {
-            let hashString = null;
-            hashString = this.props.location.hash || '';
-            const hashSplit = hashString.substr(1).split('&');
-            for (let i = 0; i < hashSplit.length; i++) {
-                let pair = hashSplit[i].split('=');
-                const param = decodeURIComponent(pair[0]);
-                params[param] = decodeURIComponent(pair[1]);
-            }
-            console.log('hash', params, hashString, hashSplit);
-        }
-        if(params.url) {
-            this.loadSongFromURL(params.url);
-        } else {
+        // if(this.props.location && this.props.location.hash) {
+        //     let hashString = null;
+        //     hashString = this.props.location.hash || '';
+        //     const hashSplit = hashString.substr(1).split('&');
+        //     for (let i = 0; i < hashSplit.length; i++) {
+        //         let pair = hashSplit[i].split('=');
+        //         const param = decodeURIComponent(pair[0]);
+        //         params[param] = decodeURIComponent(pair[1]);
+        //     }
+        //     console.log('hash', params, hashString, hashSplit);
+        // }
+        const songURL = this.props.url || this.props.src;
+        if(songURL) {
+            this.loadSongFromURL(songURL);
+        } else if(!this.props.skipAutoLoadSong) {
             this.loadState();
         }
 

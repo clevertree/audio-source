@@ -32,13 +32,7 @@ export default class ASComposerPublishSuccessModal extends React.Component {
             message
         } = this.props.modalArgs || {};
 
-        const origin = document.location.origin;
-        if(songURL.startsWith(origin))
-            songURL = songURL.substr(origin.length);
-
-        const composerURL = origin + '/composer#url=' + (songURL);
-        console.log('composerURL', composerURL, origin, songURL, songURL.startsWith(origin));
-
+        songURL = new URL(songURL, document.location.origin).toString();
         return (
             <ASUIModal
                 onClose={this.cb.closeModal}
@@ -48,7 +42,7 @@ export default class ASComposerPublishSuccessModal extends React.Component {
                     horizontal
                     header="Publish Successful">
                     <ASUIFormMessage>
-                        <ASUIAnchor href={composerURL} target="_blank">{message}</ASUIAnchor>
+                        <ASUIAnchor href={songURL} target="_blank">{message}</ASUIAnchor>
                     </ASUIFormMessage>
                     {/*<ASUIFormMessage>*/}
                     {/*    <ASUIAnchor href={composerURL} target="_blank">Player URL</ASUIAnchor>*/}
@@ -59,7 +53,7 @@ export default class ASComposerPublishSuccessModal extends React.Component {
                     <ASUIClickable
                         button center
                         size="large"
-                        onAction={() => this.copyToClipboard(composerURL)}
+                        onAction={() => this.copyToClipboard(songURL)}
                     >Copy URL to clipboard</ASUIClickable>
                     <ASUIClickable
                         button center
@@ -79,7 +73,7 @@ export default class ASComposerPublishSuccessModal extends React.Component {
         textarea.select();
         try {
             document.execCommand("copy");  // Security exception may be thrown by some browsers.
-            this.getComposer().setStatus("Copy to clipboard successful.");
+            this.getComposer().setStatus(`Copy to clipboard successful:\n\t${textContent}`);
         }
         catch (ex) {
             this.getComposer().setError("Copy to clipboard failed.");

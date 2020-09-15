@@ -24,7 +24,7 @@ class ASComposerActions extends ASComposerMenu {
     async sessionRefresh() {
         const userAPI = new ClientUserAPI();
         const session = await userAPI.getSession();
-        console.log('session', session);
+        // console.log('User Session: ', session);
         this.setState({
             session
         })
@@ -109,7 +109,6 @@ class ASComposerActions extends ASComposerMenu {
             this.song.unloadAll();
         }
         this.song = song;
-
         this.song.addEventListener('*', this.cb.onSongEventCallback);
 
         let songLength = 0;
@@ -118,6 +117,9 @@ class ASComposerActions extends ASComposerMenu {
         } catch (e) {
             console.error("Error loading song length: ", e);
         }
+
+        if(this.props.onSongLoad)
+            this.props.onSongLoad(song);
 
         const startTrackName = song.getStartTrackName() || 'root';
         const state = {
@@ -134,8 +136,6 @@ class ASComposerActions extends ASComposerMenu {
         console.log("Loading Song: ", song.data, songLength);
         await this.song.programLoadAll();
         console.log("Current Song: ", song.data, songLength);
-        if(this.props.onSongLoad)
-            this.props.onSongLoad(song);
     }
 
     updateCurrentSong() {

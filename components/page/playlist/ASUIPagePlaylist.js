@@ -86,6 +86,8 @@ export default class ASUIPagePlaylist extends React.Component {
     }
 
     async loadSongInfo(songURL) {
+        if(!songURL.toLowerCase().endsWith('.json'))
+            songURL += '.json';
         const response = await fetch(songURL);
         let songData = await response.json();
         return {
@@ -118,13 +120,7 @@ export default class ASUIPagePlaylist extends React.Component {
         const entry = this.state.playlist[i];
         if(!entry)
             throw new Error("Invalid entry: " + i);
-        let songURL = entry.url;
-        const origin = document.location.origin;
-        if(songURL.startsWith(origin))
-            songURL = songURL.substr(origin.length);
-
-        const songPageURL = origin + '/song#url=' + (songURL);
-        document.location.href = songPageURL;
+        document.location.href = entry.url;
     }
 
 }

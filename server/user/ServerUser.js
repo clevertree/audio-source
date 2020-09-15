@@ -106,8 +106,9 @@ export default class ServerUser {
     static getPublicUsersURL()         { return new URL(DIRECTORY_USERS_PUBLIC, serverConfig.publicURL).toString(); }
 
     getPublicUserDirectory()    { return path.resolve(ServerUser.getPublicUsersDirectory(), this.getUsername()); }
-    getPublicUserURL()          { return new URL(this.getUsername(), ServerUser.getPublicUsersURL() + '/').toString(); }
-    getPublicUserFileURL(fileName) { return path.resolve(this.getPublicUserURL(), fileName); }
+    getPublicFileURL(appendFile='')          {
+        return new URL(this.getUsername() + (appendFile ? '/'+appendFile : ''), ServerUser.getPublicUsersURL() + '/').toString();
+    }
 
     static getPrivateUsersDirectory() { return path.resolve(serverConfig.privateDirectory, DIRECTORY_USERS_PRIVATE); }
     getPrivateUserDirectory() {
