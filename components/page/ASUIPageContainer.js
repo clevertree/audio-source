@@ -14,6 +14,7 @@ export default class ASUIPageContainer extends React.Component {
     static propTypes = {
         location: PropTypes.object.isRequired,
         pageList: PropTypes.array,
+        themeName: PropTypes.string,
     };
 
     render() {
@@ -30,8 +31,14 @@ export default class ASUIPageContainer extends React.Component {
 
         const currentPath = this.props.location.pathname;
 
+        let className = `asui-page-container`;
+        if(this.props.className)
+            className += ' ' + this.props.className;
+        if(this.props.themeName)
+            className += ' ' + this.props.themeName;
+
         return (
-            <div className={`asui-page-container asui-page${currentPath.replace('/','-')}`}>
+            <div className={className}>
                 <ASUIPageHeader currentPath={currentPath} links={headerLinks}/>
                 <ASUIPageContent>
                     {this.props.children}

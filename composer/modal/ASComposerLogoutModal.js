@@ -1,9 +1,9 @@
 import React from "react";
 
-import {ASUIPanel, ASUIForm, ASUIFormEntry, ASUIFormMessage, ASUIClickable, ASUIInputText, ASUIInputPassword, ASUIModal, ASUIAnchor} from "../../components";
+import {ASUIPanel, ASUIForm, ASUIFormEntry, ASUIFormMessage, ASUIClickable, ASUIModal, ASUIAnchor} from "../../components";
 import ClientUserAPI from "../../server/user/ClientUserAPI";
 
-export default class ASComposerLoginModal extends React.Component {
+export default class ASComposerLogoutModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -13,7 +13,7 @@ export default class ASComposerLoginModal extends React.Component {
         const composer = props.composer;
         this.cb = {
             closeModal: () => composer.toggleModal(null),
-            showRegistrationModal: () => composer.toggleModal('registration'),
+            showLoginModal: () => composer.toggleModal('login'),
             onSubmitForm: () => this.onSubmitForm(),
         }
         this.ref = {
@@ -38,32 +38,18 @@ export default class ASComposerLoginModal extends React.Component {
                     header="Log in">
                     <ASUIForm>
                         {this.state.error ? <ASUIFormMessage error children={this.state.error}/> : null}
-                        <ASUIFormEntry className="email" header="Email">
-                            <ASUIInputText
-                                size="large"
-                                type="email"
-                                required
-                                placeholder="user@place.com"
-                                ref={this.ref.email}
-                            />
-                        </ASUIFormEntry>
-                        <ASUIFormEntry className="password" header="Password">
-                            <ASUIInputPassword
-                                size="large"
-                                ref={this.ref.password}
-                            />
-                        </ASUIFormEntry>
+                        <ASUIFormMessage>Submitting this form will end this user session</ASUIFormMessage>
                         <ASUIFormEntry className="submit" header="Submit">
                             <ASUIClickable
                                 button center
                                 size="large"
                                 onAction={this.cb.onSubmitForm}
-                            >Log In</ASUIClickable>
+                            >Log Out</ASUIClickable>
                         </ASUIFormEntry>
                         <ASUIAnchor
                             className="register"
-                            onClick={this.cb.showRegistrationModal}
-                        >Need to register?</ASUIAnchor>
+                            onClick={this.cb.showLoginModal}
+                        >Log in</ASUIAnchor>
                     </ASUIForm>
                 </ASUIPanel>
             </ASUIModal>
@@ -78,10 +64,8 @@ export default class ASComposerLoginModal extends React.Component {
                 error: null,
                 loading: true
             })
-            const email = this.ref.email.current.getValue();
-            const password = this.ref.password.current.getValue();
             const userAPI = new ClientUserAPI();
-            const responseJSON = await userAPI.login(email, password);
+            const responseJSON = await userAPI.logout();
 
             this.setState({
                 loading: false

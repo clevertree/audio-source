@@ -99,6 +99,12 @@ export default class ServerUser {
         console.log("Login Successful:", session);
     }
 
+    logout(session) {
+        const email = session.email || "[No Email]";
+        session.destroy();
+        console.log("Logout Successful:", email);
+    }
+
     /** Files Files **/
 
 

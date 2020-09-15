@@ -135,7 +135,7 @@ class ASComposerActions extends ASComposerMenu {
         await this.setStateAsync(state);
         console.log("Loading Song: ", song.data, songLength);
         await this.song.programLoadAll();
-        console.log("Current Song: ", song.data, songLength);
+        // console.log("Current Song: ", song.data, songLength);
     }
 
     updateCurrentSong() {
@@ -399,7 +399,7 @@ class ASComposerActions extends ASComposerMenu {
             const fileService = new FileService();
             const buffer = await fileService.loadBufferFromURL(url);
             const song = await this.loadSongFromBuffer(buffer, url);
-            await this.saveSongToMemory();
+            // await this.saveSongToMemory();
             this.setStatus("Song loaded from url: " + url);
             return song;
         } catch (e) {

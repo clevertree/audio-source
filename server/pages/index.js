@@ -7,6 +7,9 @@ import ContactPage from "./ContactPage.md";
 import SongPage from "./SongPage";
 import UserPage from "./UserPage";
 
+import "./themes/DefaultPageTheme.css"
+
+const themeName = 'theme-default';
 const pageList = [
 
 /** Object,         Path                                Title           Header      Footer **/
@@ -22,5 +25,6 @@ const pageList = [
 ]
 
 export {
+    themeName,
     pageList,
 }

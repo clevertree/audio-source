@@ -1,8 +1,14 @@
 import React from "react";
 
 import {ASUIPanel, ASUIFormMessage, ASUIClickable, ASUIModal} from "../../components";
+import PropTypes from "prop-types";
 
-export default class ASComposerRegistrationSuccessModal extends React.Component {
+export default class ASComposerMessageModal extends React.Component {
+    /** Property validation **/
+    static propTypes = {
+        modalArgs: PropTypes.any.isRequired,
+    };
+
     constructor(props) {
         super(props);
         this.state = {};
@@ -10,15 +16,20 @@ export default class ASComposerRegistrationSuccessModal extends React.Component 
         this.cb = {
             closeModal: () => composer.toggleModal(null),
         }
-        this.ref = {
-            // email: React.createRef(),
-        }
-
     }
 
     getComposer() { return this.props.composer; }
 
     render() {
+        let modalArgs = this.props.modalArgs;
+        if(typeof modalArgs !== "object")
+            modalArgs = {
+                children: modalArgs
+            }
+        const {
+            header,
+            children
+        } = modalArgs;
         return (
             <ASUIModal
                 onClose={this.cb.closeModal}
@@ -26,8 +37,8 @@ export default class ASComposerRegistrationSuccessModal extends React.Component 
                 <ASUIPanel
                     large
                     horizontal
-                    header="Registration Successful">
-                    <ASUIFormMessage children="Registration Successful"/>
+                    header={header || "Message"}>
+                    <ASUIFormMessage children={children}/>
                     <ASUIClickable
                         button center
                         size="large"

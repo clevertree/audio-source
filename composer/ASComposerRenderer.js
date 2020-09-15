@@ -6,13 +6,15 @@ import ASComposerSongProgramsPanel from "./panel/ASComposerSongProgramsPanel";
 import ASComposerTrackPanel from "./panel/ASComposerTrackPanel";
 import ASComposerBase from "./ASComposerBase";
 import ASUIGlobalContext from "../components/context/ASUIGlobalContext";
+
+import ASCTrack from "./track/ASCTrack";
+
 import ASComposerLoginModal from "./modal/ASComposerLoginModal";
 import ASComposerRegistrationModal from "./modal/ASComposerRegistrationModal";
-import ASComposerLoginSuccessModal from "./modal/ASComposerLoginSuccessModal";
-import ASComposerRegistrationSuccessModal from "./modal/ASComposerRegistrationSuccessModal";
 import ASComposerPublishModal from "./modal/ASComposerPublishModal";
+import ASComposerMessageModal from "./modal/ASComposerMessageModal";
+import ASComposerLogoutModal from "./modal/ASComposerLogoutModal";
 import ASComposerPublishSuccessModal from "./modal/ASComposerPublishSuccessModal";
-import ASCTrack from "./track/ASCTrack";
 
 export default class ASComposerRenderer extends ASComposerBase {
 
@@ -64,18 +66,21 @@ export default class ASComposerRenderer extends ASComposerBase {
             modalArgs: this.state.modalArgs
         }
         switch(this.state.showModal) {
+            case "message":
+                return <ASComposerMessageModal {...props}/>
+
             case "login":
                 return <ASComposerLoginModal {...props}/>
-            case "login-success":
-                return <ASComposerLoginSuccessModal {...props}/>
+
+            case "logout":
+                return <ASComposerLogoutModal {...props}/>
 
             case "registration":
                 return <ASComposerRegistrationModal {...props}/>
-            case "registration-success":
-                return <ASComposerRegistrationSuccessModal {...props}/>
 
             case "publish":
                 return <ASComposerPublishModal {...props}/>
+
             case "publish-success":
                 return <ASComposerPublishSuccessModal {...props}/>
             default:

@@ -31,11 +31,23 @@ export default class ClientUserAPI {
             email,
             password
         })
-        const json = await response.json();
+        const responseJSON = await response.json();
         if(response.status !== 200)
             throw new Error(response.statusText)
 
-        console.log("Login Response: ", json, response);
+        console.log("Login Response: ", responseJSON, response);
+        return responseJSON;
+    }
+
+    async logout() {
+        console.log("Submitting Logout");
+        const response = await postJSON(serverBaseURL + '/logout');
+        const responseJSON = await response.json();
+        if(response.status !== 200)
+            throw new Error(response.statusText)
+
+        console.log("Logout Response: ", responseJSON, response);
+        return responseJSON;
     }
 
     async register(email, password, username, artistTitle) {
@@ -49,9 +61,9 @@ export default class ClientUserAPI {
         if(response.status !== 200)
             throw new Error(response.statusText)
 
-        const json = await response.json();
-        console.log("Registration Response: ", json, response);
-
+        const responseJSON = await response.json();
+        console.log("Registration Response: ", responseJSON, response);
+        return responseJSON;
     }
 
 
@@ -63,10 +75,9 @@ export default class ClientUserAPI {
         if(response.status !== 200)
             throw new Error(response.statusText)
 
-        const jsonSession = await response.json();
-        // console.log("Session Response: ", jsonSession, response);
-
-        return jsonSession;
+        const responseJSON = await response.json();
+        console.log("Session Response: ", responseJSON, response);
+        return responseJSON;
     }
 
 }

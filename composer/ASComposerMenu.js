@@ -16,7 +16,8 @@ class ASComposerMenu extends ASComposerRenderer {
             'program':  () => this.renderMenuProgram(),
             'playback': () => this.renderMenuPlayback(),
             'view':     () => this.renderMenuView(),
-            'options':     () => this.renderMenuOptions(),
+            'options':  () => this.renderMenuOptions(),
+            'server':   () => this.renderMenuServer(),
         }
     }
 
@@ -32,13 +33,14 @@ class ASComposerMenu extends ASComposerRenderer {
         if(!this.state.portrait)
             props.arrow = false;
         return (<>
-            <ASUIMenuDropDown {...props} ref={ref.file} options={this.cb.menu.file}          >File</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.edit} options={this.cb.menu.edit}          >Edit</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.track} options={this.cb.menu.track}        >Tracks</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.program} options={this.cb.menu.program}    >Program</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.playback} options={this.cb.menu.playback}  >Playback</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.view} options={this.cb.menu.view}          >View</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.view} options={this.cb.menu.options}       >Options</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.file} options={this.cb.menu.file}         >File</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.edit} options={this.cb.menu.edit}         >Edit</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.track} options={this.cb.menu.track}       >Tracks</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.program} options={this.cb.menu.program}   >Program</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.playback} options={this.cb.menu.playback} >Playback</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.view} options={this.cb.menu.view}         >View</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.view} options={this.cb.menu.options}      >Options</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.view} options={this.cb.menu.server}       >Server</ASUIMenuDropDown>
         </>);
     }
 
@@ -327,16 +329,6 @@ class ASComposerMenu extends ASComposerRenderer {
 
     }
 
-    /** Options Menu **/
-
-    renderMenuOptions() {
-        return (<>
-            <ASUIMenuAction onAction={e => this.toggleSetting('showTrackRowPositionInTicks')}    >Track Position {this.state.showTrackRowPositionInTicks ? 'as Ticks' : 'Formatted'}</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.toggleSetting('showTrackRowDurationInTicks')}    >Track Duration {this.state.showTrackRowDurationInTicks ? 'as Ticks' : 'Formatted'}</ASUIMenuAction>
-        </>);
-
-    }
-
     /** Playback Menu **/
 
     renderMenuPlayback() {
@@ -536,6 +528,32 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
 
+    /** Options Menu **/
+
+    renderMenuOptions() {
+        return (<>
+            <ASUIMenuAction onAction={e => this.toggleSetting('showTrackRowPositionInTicks')}    >Track Position {this.state.showTrackRowPositionInTicks ? 'as Ticks' : 'Formatted'}</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.toggleSetting('showTrackRowDurationInTicks')}    >Track Duration {this.state.showTrackRowDurationInTicks ? 'as Ticks' : 'Formatted'}</ASUIMenuAction>
+        </>);
+
+    }
+
+    /** Server Menu **/
+
+    renderMenuServer() {
+        if(!this.sessionIsUserLoggedIn()) {
+            return (<>
+                <ASUIMenuAction onAction={e => this.toggleModal('login')}>Log in</ASUIMenuAction>
+                <ASUIMenuAction onAction={e => this.toggleModal('password-forgot')}>Forgot Password</ASUIMenuAction>
+            </>);
+        }
+
+        return (<>
+            <ASUIMenuDropDown options={() => this.renderMenuFilePublish()}>Publish song</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            <ASUIMenuAction onAction={e => this.toggleModal('logout')}>Log out</ASUIMenuAction>
+        </>);
+    }
 
 }
 

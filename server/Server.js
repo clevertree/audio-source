@@ -43,11 +43,6 @@ export default class Server {
 
         // app.use(express.static(ROOT_DIR));
 
-        app.get("/",function(request,response)
-        {
-            response.json({"Message":"Welcome to Audio Source"});
-        });
-
         app.listen(serverConfig.port, () => {
             console.log('Server listening on port: ' + serverConfig.port);
         });

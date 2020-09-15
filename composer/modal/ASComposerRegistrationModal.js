@@ -151,14 +151,14 @@ export default class ASComposerRegistrationModal extends React.Component {
             if (password && password !== password_confirm)
                 throw new Error("Confirmation password doesn't match");
             const userAPI = new ClientUserAPI();
-            await userAPI.register(email, password, username, artistTitle);
+            const responseJSON = await userAPI.register(email, password, username, artistTitle);
 
             this.setState({
                 loading: false
             })
 
             const composer = this.getComposer();
-            composer.toggleModal('registration-success');
+            composer.showModal('message', responseJSON.message || "No message");
 
             await composer.sessionRefresh();
         } catch (e) {
