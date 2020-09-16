@@ -14,6 +14,34 @@ export default class ServerSongAPI {
     }
 
 
+    async getIsPublished(req, res) {
+        try {
+            const startTime = new Date().getTime();
+            let {
+                uuid,
+            } = req.params;
+
+            if(!uuid)
+                throw new Error("Invalid UUID");
+
+            let publishingSongFile = this.findSongByUUID(uuid);
+            const responseJSON = {
+                isPublished: false,
+                duration: new Date().getTime() - startTime
+            }
+            if(publishingSongFile) {
+                responseJSON.isPublished = true;
+                responseJSON.url = publishingSongFile.getPublicURL();
+            }
+            // console.log(`Song UUID ${uuid} is${responseJSON.isPublished?'':' not'} published`);
+            res.json(responseJSON);
+
+        } catch (e) {
+            sendError(req, res, e)
+        }
+    }
+
+
     async postPublish(req, res) {
         try {
             const startTime = new Date().getTime();
@@ -39,8 +67,8 @@ export default class ServerSongAPI {
             // if(!filename.match(/^[\w_]+\.json$/))
             //     throw new Error("Invalid song filename: " + filename);
 
-            const songFileAbsoluteURL = userSession.getPublicUserSongPath(filename);
-            const songFileAbsolutePath = userSession.getPublicUserSongURL(filename + '.json');
+            const songFileAbsoluteURL = userSession.getPublicUserSongURL(filename);
+            const songFileAbsolutePath = userSession.getPublicUserSongPath(filename + '.json');
             console.log("Publishing Song:", songData.title, songFileAbsolutePath);
 
             let versionChange = `${songData.version}`;
@@ -87,7 +115,7 @@ export default class ServerSongAPI {
             publishingSongFile.writeSongData(songData);
 
 
-            this.addToPlaylist(publishingSongFile, ServerPlaylistFile.FILE_PL_MASTER);
+            this.addToPlaylist(publishingSongFile, ServerPlaylistFile.getPublicMasterPlaylistPath(this.server));
             // TODO: add to other playlists?
 
 
@@ -103,41 +131,12 @@ export default class ServerSongAPI {
         }
     }
 
-
-    async getIsPublished(req, res) {
-        try {
-            const startTime = new Date().getTime();
-            let {
-                uuid,
-            } = req.params;
-
-            if(!uuid)
-                throw new Error("Invalid UUID");
-
-            let publishingSongFile = this.findSongByUUID(uuid);
-            const responseJSON = {
-                isPublished: false,
-                duration: new Date().getTime() - startTime
-            }
-            if(publishingSongFile) {
-                responseJSON.isPublished = true;
-                responseJSON.url = publishingSongFile.getPublicURL();
-            }
-            // console.log(`Song UUID ${uuid} is${responseJSON.isPublished?'':' not'} published`);
-            res.json(responseJSON);
-
-        } catch (e) {
-            sendError(req, res, e)
-        }
-    }
-
     /** Actions **/
 
-    addToPlaylist(publishingSongFile, playlistRelativeFilePath) {
-        const playlistAbsoluteFile = path.resolve(ServerPlaylistFile.getPublicPlaylistsDirectory(), playlistRelativeFilePath);
-        const playlistFile = new ServerPlaylistFile(playlistAbsoluteFile);
+    addToPlaylist(publishingSongFile, playlistAbsoluteFile) {
+        const playlistFile = new ServerPlaylistFile(playlistAbsoluteFile, this.server);
         if(playlistFile.addSong(publishingSongFile)) {
-            console.log("Added to playlist: ", playlistRelativeFilePath);
+            console.log("Added to playlist: ", playlistAbsoluteFile.split('/').pop());
             playlistFile.writePlaylistData();
         }
     }
@@ -150,6 +149,7 @@ export default class ServerSongAPI {
                 return songFile;
             }
         }
+        console.log('Song UUID not found: ', uuid);
         return null;
     }
 

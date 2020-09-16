@@ -27,8 +27,8 @@ export default class ServerSongFile {
     getRelativePath()               { return this.relativePath; }
     getPublicURL(path=null)    { return this.server.getPublicURL(this.relativePath + (path ? '/' + path : '')); }
     // getPublicDirectory(...paths) { return this.server.getPublicDirectory(this.relativePath, ...paths); }
-    getAbsolutePath()               { return this.server.getPrivatePath(this.relativePath); }
-    getAbsolutePathDirectory()      { return this.server.getPrivatePath(this.relativePath, '..'); }
+    getAbsolutePath()               { return this.server.getPublicPath(this.relativePath); }
+    getAbsolutePathDirectory()      { return this.server.getPublicPath(this.relativePath, '..'); }
 
     setSongData(songData) {
         this.songData = songData;

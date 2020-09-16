@@ -82,5 +82,6 @@ export default class ServerPlaylistFile {
         ])
         return true;
     }
+    static getPublicMasterPlaylistPath(server) { return server.getPublicPath(DIRECTORY_PLAYLISTS, FILE_PL_MASTER); }
 
 }

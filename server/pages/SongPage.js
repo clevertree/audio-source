@@ -13,6 +13,7 @@ export default class SongPage extends React.Component {
             loaded: false,
             artistTitle: null,
             artistURL: null,
+            version: null,
         }
         console.log(this.constructor.name, this.props);
     }
@@ -27,12 +28,12 @@ export default class SongPage extends React.Component {
             let datePublished = "N/A";
             if (this.state.datePublished)
                 datePublished = new Date(this.state.datePublished).toLocaleDateString();
-
+            const version = this.state.version || "N/A";
             source = `
 # Song Page
-| Artist      | Published |
-| :---        |    :----:   |
-| ${artist}   | ${datePublished} |
+| Artist      | Published | Version
+| :---        |    :----:   |    :----:   | 
+| ${artist}   | ${datePublished} | ${version}
 
 ${this.state.comment}
 `
@@ -55,13 +56,14 @@ ${this.state.comment}
     /** Actions **/
 
     async onSongLoad(song) {
-        console.log(song);
+        // console.log(song);
         const artistURL = song.data.artistURL;
         const state = {
             loaded: true,
             dateCreated: song.data.dateCreated,
             datePublished: song.data.datePublished,
             comment: song.data.comment,
+            version: song.data.version,
         }
         if(artistURL) {
             state.artistURL = artistURL;

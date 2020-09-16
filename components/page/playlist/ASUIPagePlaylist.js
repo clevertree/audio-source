@@ -52,7 +52,7 @@ export default class ASUIPagePlaylist extends React.Component {
                 title={entry.title || (this.state.loaded ? "N/A" : "Loading...")}
                 artistURL={entry.artistURL}
                 artistTitle={entry.artistTitle || (this.state.loaded ? "N/A" : "Loading...")}
-                />
+            />
         })
     }
 

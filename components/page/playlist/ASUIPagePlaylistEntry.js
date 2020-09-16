@@ -13,6 +13,7 @@ export default class ASUIPagePlaylistEntry extends React.Component {
         artistTitle: PropTypes.string,
         artistURL: PropTypes.string,
         datePublished: PropTypes.string,
+        version: PropTypes.string,
         playlist: PropTypes.object
     };
 

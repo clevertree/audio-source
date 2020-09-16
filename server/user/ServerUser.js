@@ -160,26 +160,27 @@ export default class ServerUser {
     }
 
     /** Paths **/
-    static getPublicUsersPath(server, ...paths) { return server.getPrivatePath(PATH_USERS_PRIVATE, ...paths); }
-    static getPublicUserSongPath(server, username, ...paths) { return server.getPrivatePath(PATH_USERS_PRIVATE, username, PATH_USER_SONG, ...paths); }
-    getPublicUserURL(...paths)                  { return this.server.getPublicURL(PATH_USERS_PUBLIC, this.getUsername(), ...paths); }
+    static getPublicUsersPath(server, ...paths) { return server.getPublicPath(PATH_USERS_PUBLIC, ...paths); }
+    static getPublicUserSongPath(server, username, ...paths) { return server.getPublicPath(PATH_USERS_PUBLIC, username, PATH_USER_SONG, ...paths); }
     getPublicUserPath(...paths)                 { return this.server.getPublicPath(PATH_USERS_PUBLIC, this.getUsername(), ...paths); }
+    getPublicUserSongPath(...paths)   { return this.getPublicUserPath(PATH_USER_SONG, ...paths); }
+    getPublicArtistJSONPath()   { return this.getPublicUserPath(FILE_PUBLIC_ARTIST); }
+
+
     getPrivateUserPath(...paths) {
         const [emailUser,domain] = this.email.split('@');
         return this.server.getPrivatePath(PATH_USERS_PRIVATE, domain, emailUser, ...paths);
     }
-
-
-    getPublicUserSongPath(...paths)   { return this.getPublicUserPath(PATH_USER_SONG, ...paths); }
-    getPublicUserSongURL(...paths)   { return this.getPublicUserURL(PATH_USER_SONG, ...paths); }
     getPrivateUserJSONPath()   { return this.getPrivateUserPath(FILE_PRIVATE_USER); }
-    getPublicArtistJSONPath()   { return this.getPublicUserPath(FILE_PUBLIC_ARTIST); }
-
     erasePrivateUserDirectory() {
         const userPath = this.getPrivateUserPath();
         console.log("Erasing ", userPath);
         rimraf(userPath);
     }
+
+    getPublicUserURL(...paths)                  { return this.server.getPublicURL(PATH_USERS_PUBLIC, this.getUsername(), ...paths); }
+    getPublicUserSongURL(...paths)   { return this.getPublicUserURL(PATH_USER_SONG, ...paths); }
+
 
 }
 const PATH_USERS_PUBLIC = 'user';
