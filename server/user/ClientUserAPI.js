@@ -81,7 +81,8 @@ export default class ClientUserAPI {
 
 
 async function getJSON(url) {
-    url = new URL(url, serverBaseURL).toString()
+    url = new URL(url, serverBaseURL).toString();
+    console.log("GET ", url);
     return await fetch(url, {
         credentials: 'include',
         method: 'GET',

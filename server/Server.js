@@ -3,6 +3,7 @@ import ServerSongAPI from "./song/ServerSongAPI";
 import path from "path";
 import ServerUser from "./user/ServerUser";
 
+const {version} = require('../package.json');
 const express = require('express');
 // const session = require('express-session');
 const clientSessions = require('client-sessions')
@@ -49,15 +50,17 @@ export default class Server {
         const buildPath = path.resolve(__dirname, '../../../build')
         // app.use(express.static(this.getPublicPath()));
         app.use(express.static(buildPath)); // Host the compiled app
+
+        // If no files found, route to index
         app.use((req, res) => {
-            console.log('404', req.path);
+            // console.log('404', req.path);
             res.sendFile('index.html', {root: buildPath })
         })
 
 
 
         app.listen(this.config.port, () => {
-            console.log('Server listening on port: ' + this.config.port);
+            console.log(`Server (${version}) listening on port: ${this.config.port}`);
         });
     }
 

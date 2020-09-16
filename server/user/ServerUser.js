@@ -152,7 +152,7 @@ export default class ServerUser {
                     const privateUserDomainDirectory = path.resolve(privateUsersDirectory, domain);
                     const users = fs.readdirSync(privateUserDomainDirectory);
                     for (const user of users) {
-                        yield new ServerUser(user + '@' + domain);
+                        yield new ServerUser(user + '@' + domain, server);
                     }
                 }
             }
