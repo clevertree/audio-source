@@ -44,7 +44,16 @@ class Song {
             startTrack: 'root',
             programs: [ // Also called 'programs' or 'patches'
                 ['oscillator', {
-                    type: 'sawtooth',
+                    type: 'pulse'
+                }],
+                ['polyphony', {
+                    voices: [
+                        ['audiobuffer', {
+                        }],
+                    ]}
+                ],
+                ['oscillator', {
+                    type: 'square',
                     envelope: ['envelope', {}],
                     lfos: [
                         ['lfo', {
@@ -54,13 +63,6 @@ class Song {
                         }]
                     ]
                 }],
-                ['polyphony', {
-                    voices: [
-                        ['audiobuffer', {
-                        }],
-                    ]}
-                ],
-                ['oscillator', {type: 'square'}],
             ],
             tracks: {
                 root: [

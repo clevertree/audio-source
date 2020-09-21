@@ -60,48 +60,39 @@ export default class OscillatorInstrument {
         }
     }
 
-
     /** Playback **/
 
-    playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
-        let endTime;
-        const config = this.config;
+    addEnvelopeDestination(destination, startTime, velocity) {
+        let amplitude = 1;
+        if(typeof this.config.mixer !== "undefined")
+            amplitude = this.config.mixer / 100;
+        if(velocity !== null)
+            amplitude *= parseFloat(velocity || 127) / 127;
+        return this.loadedEnvelope.createEnvelope(destination, startTime, amplitude);
+    }
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
+    createOscillator(destination, type) {
         const audioContext = destination.context;
-        if(typeof duration === "number") {
-            endTime = startTime + duration;
-            if (endTime < audioContext.currentTime) {
-                console.info("Skipping note: ", startTime, endTime, audioContext.currentTime)
-                return false;
-            }
-        }
-        if(startTime === null)
-            startTime = audioContext.currentTime;
-        else if(startTime < 0)
-            startTime = 0; // TODO: adjust buffer offset.
-        // console.log('playFrequency', frequency, startTime, duration, velocity, config);
 
+        let source;
+        switch(type) {
+            case 'sine':
+            case 'square':
+            case 'sawtooth':
+            case 'triangle':
+                source=audioContext.createOscillator();
+                source.type = type;
+                // Connect Source
+                source.connect(destination);
+                return source;
 
-
-        //         // Filter voice playback
-
-        //         if (voiceConfig.keyLow && this.getCommandFrequency(voiceConfig.keyLow) > frequencyValue)
-        //             continue;
-        //         if (voiceConfig.keyHigh && this.getCommandFrequency(voiceConfig.keyHigh) < frequencyValue)
-        //             continue;
-
-
-        // https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
-        const source = destination.context.createOscillator();   // instantiate an oscillator
-        source.frequency.value = frequency;    // set Frequency (hz)
-        if (typeof config.detune !== "undefined")
-            source.detune.value = config.detune;
-        switch(config.type) {
-            default:
-                source.type = config.type;
-                break;
+            case 'pulse':
+                return this.createPulseWaveShaper(destination)
 
             // case null:
             case 'custom':
+                source=audioContext.createOscillator();
 
                 // Load Sample
                 const service = new PeriodicWaveLoader();
@@ -111,24 +102,94 @@ export default class OscillatorInstrument {
                 } else {
                     service.loadPeriodicWaveFromURL(this.config.url)
                         .then(periodicWave => {
-                            console.warn("Note playback started without an audio buffer: " + config.url);
+                            console.warn("Note playback started without an audio buffer: " + this.config.url);
                             this.setPeriodicWave(source, periodicWave);
                         });
                 }
+                // Connect Source
+                source.connect(destination);
+                return source;
 
-                break;
+            default:
+                throw new Error("Unknown oscillator type: " + type);
         }
 
+    }
+
+    createPulseWaveShaper(destination) {
+        const audioContext = destination.context;
+        // Use a normal oscillator as the basis of our new oscillator.
+        const source=audioContext.createOscillator();
+        source.type="sawtooth";
+
+        const {pulseCurve, constantOneCurve} = getPulseCurve();
+        //Use a normal oscillator as the basis of our new oscillator.
+
+        //Shape the output into a pulse wave.
+        const pulseShaper = audioContext.createWaveShaper();
+        pulseShaper.curve=pulseCurve;
+        source.connect(pulseShaper);
+
+        //Use a GainNode as our new "width" audio parameter.
+        const widthGain = audioContext.createGain();
+        widthGain.gain.value=0.5; //Default width.
+        source.width=widthGain.gain; //Add parameter to oscillator node.
+        widthGain.connect(pulseShaper);
+
+        //Pass a constant value of 1 into the widthGain – so the "width" setting
+        //is duplicated to its output.
+        const constantOneShaper = audioContext.createWaveShaper();
+        constantOneShaper.curve=constantOneCurve;
+        source.connect(constantOneShaper);
+        constantOneShaper.connect(widthGain);
+
+        pulseShaper.connect(destination);
+
+        return source;
+    }
+
+
+    playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
+        let endTime;
+        const config = this.config;
+        const audioContext = destination.context;
+
+        // Start Time
+        if(startTime === null)
+            startTime = audioContext.currentTime;
+        else if(startTime < 0)
+            startTime = 0; // TODO: adjust buffer offset.
+
+        // Duration
+        if(typeof duration === "number") {
+            endTime = startTime + duration;
+            if (endTime < audioContext.currentTime) {
+                console.info("Skipping note: ", startTime, endTime, audioContext.currentTime)
+                return false;
+            }
+        }
+        console.log('playFrequency', frequency, startTime, duration, velocity, config);
+
+
+
+        // Filter voice playback
+        if (this.config.keyLow && Values.instance.parseFrequencyString(this.config.keyLow) > frequency)
+            return false;
+        if (this.config.keyHigh && Values.instance.parseFrequencyString(this.config.keyHigh) < frequency)
+            return false;
 
         // Envelope
 
-        let amplitude = 1;
-        if(typeof config.mixer !== "undefined")
-            amplitude = config.mixer / 100;
-        if(velocity !== null)
-            amplitude *= parseFloat(velocity || 127) / 127;
-        const gainNode = this.loadedEnvelope.createEnvelope(destination, startTime, amplitude);
+        const gainNode = this.addEnvelopeDestination(destination, startTime, velocity);
         destination = gainNode;
+
+
+        // Oscillator
+        const source = this.createOscillator(destination, this.config.type);
+        source.frequency.value = frequency;    // set Frequency (hz)
+        if (typeof config.detune !== "undefined")
+            source.detune.value = config.detune;
+
 
         // LFOs
 
@@ -138,8 +199,6 @@ export default class OscillatorInstrument {
         }
 
 
-        // Connect Source
-        source.connect(destination);
         // Start Source
         source.start(startTime);
         // console.log("Note Start: ", config.url, frequency);
@@ -187,6 +246,8 @@ export default class OscillatorInstrument {
     }
 
 
+
+
     /** MIDI Events **/
 
     playMIDIEvent(destination, eventData, onended=null) {
@@ -221,7 +282,6 @@ export default class OscillatorInstrument {
         }
     }
 
-
     /** Pitch Bend **/
 
     pitchBendTo(frequency, startTime, duration) {
@@ -233,9 +293,6 @@ export default class OscillatorInstrument {
             this.playingOSCs[i].frequency.setValueCurveAtTime(values, startTime, duration)
         }
     }
-
-
-
 
     /** Static **/
 
@@ -263,3 +320,18 @@ function hasActiveNote(source) {
 }
 
 
+// Calculate the WaveShaper curves so that we can reuse them.
+let pulseCurve = null, constantOneCurve = null;
+function getPulseCurve() {
+    if(!pulseCurve) {
+        pulseCurve = new Float32Array(256);
+        for (let i = 0; i < 128; i++) {
+            pulseCurve[i] = -1;
+            pulseCurve[i + 128] = 1;
+        }
+        constantOneCurve = new Float32Array(2);
+        constantOneCurve[0] = 1;
+        constantOneCurve[1] = 1;
+    }
+    return {pulseCurve, constantOneCurve};
+}

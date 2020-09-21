@@ -87,7 +87,7 @@ export default class AudioBufferInstrument {
         }
         if(config.rangeEnd) {
             let rangeEnd = config.rangeEnd;
-            if(typeof rangeStart === "string")
+            if(typeof rangeEnd === "string")
                 rangeEnd = Values.instance.parseFrequencyString(config.rangeEnd);
             if(rangeEnd > frequency) {
                 // console.log("Skipping out of range note: ", rangeEnd, ">", frequency, config);
