@@ -25,8 +25,8 @@ Check back for updates as we get closer to the Beta release!
 
 
 
-# Web Browser Demo (Alpha)
-Click the image below to try Audio Source Composer (Alpha) on your browser.
+# Web Browser Demo (Beta)
+Click the image below to try Audio Source Composer (Beta) on your browser.
 
 [![Browser Portrait](https://files.audiosource.io/releases/browser/screenshots/browser-portrait1.png)](/demo "Demo")
 
@@ -35,7 +35,7 @@ Click the image below to try Audio Source Composer (Alpha) on your browser.
 
 
 
-# Android Demo (Alpha)
+# Android Demo (Beta)
 Click the image below for information on how to download Audio Source Composer Alpha Demo to your Android device.
 
 [![Android Portrait](https://files.audiosource.io/releases/android/screenshots/android-portrait1.png)](/downloads "Downloads")

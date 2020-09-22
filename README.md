@@ -40,8 +40,8 @@ to work on all platforms from web browsers to desktops applications to mobile de
 * Variable BPM and other globals
 
 
-# Web Browser Demo (Alpha)
-Click the image below to try Audio Source Composer (Alpha) on your browser.
+# Web Browser Demo (Beta)
+Click the image below to try Audio Source Composer (Beta) on your browser.
 
 [![Browser Portrait](https://files.audiosource.io/releases/browser/screenshots/browser-portrait1.png)](https://audiosource.io/demo "Demo")
 
@@ -149,7 +149,7 @@ Check back often for updates as we get closer to Beta!
 *   List your operating-system and browser versions
 *   If possible, include the [developer's console](https://kb.mailster.co/how-can-i-open-the-browsers-console/) in the screen-shot
 *   Try to include a [screen-shot](https://northatlanticlcc.org/help/how-to-save-a-screenshot-of-a-webpage) of the issue
-*   Optionally describe your issue in the #bugs channel on [Discord](https://discord.gg/6NDH7sU)
+*   Optionally describe your issue in the #bugs channel on [Discord](https://discord.gg/qdAqznv)
 
 
 ###### [Created by Ari Asulin](https://github.com/clevertree/)
