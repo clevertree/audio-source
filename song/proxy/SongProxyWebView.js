@@ -68,7 +68,7 @@ export default class SongProxyWebView extends React.Component {
     handleCommand(command, ...args) {
         switch(command) {
             case 'song:load':
-                let songData = this.getSong().getProxiedData();
+                let songData = this.getSong().data;
                 songData = JSON.stringify(songData);
                 this.sendCommand('song:load', songData)
                 break;

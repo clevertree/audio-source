@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import IndexRouter from "./site/IndexRouter";
+import IndexRouter from "./server/IndexRouter";
 
 test('renders', () => {
   const { getByText } = render(<IndexRouter />);

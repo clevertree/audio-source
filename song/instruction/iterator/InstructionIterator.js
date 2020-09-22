@@ -1,4 +1,4 @@
-import {Values} from "../../../common";
+import {Values} from "../../../song";
 
 export default class InstructionIterator {
     constructor(instructionList, stats={}, instructionCallback=null) {
@@ -65,7 +65,7 @@ export default class InstructionIterator {
         // console.log('incrementPositionByDelta', deltaDurationTicks);
         stats.positionTicks += deltaDurationTicks;
 
-        const elapsedTime = Values.durationTicksToSeconds(deltaDurationTicks, stats.timeDivision, stats.beatsPerMinute);
+        const elapsedTime = Values.instance.durationTicksToSeconds(deltaDurationTicks, stats.timeDivision, stats.beatsPerMinute);
         stats.positionSeconds += elapsedTime;
         // this.lastInstructionPositionInSeconds = this.positionSeconds;
     }
@@ -128,7 +128,7 @@ export default class InstructionIterator {
         const stats = this.stats;
         while (!this.hasReachedEnd()) {
             const nextInstructionData = this.getInstructionData(stats.currentIndex + 1);
-            const elapsedTime = Values.durationTicksToSeconds(nextInstructionData[0], stats.timeDivision, stats.beatsPerMinute);
+            const elapsedTime = Values.instance.durationTicksToSeconds(nextInstructionData[0], stats.timeDivision, stats.beatsPerMinute);
             if(stats.positionSeconds + elapsedTime >= positionSeconds) {
                 break;
             }
@@ -163,7 +163,7 @@ export default class InstructionIterator {
     /** Static **/
 
     static getIteratorFromSong(song, trackName, stats={}, instructionCallback=null) {
-        const songData = song.getProxiedData();
+        const songData = song.data;
         if(!songData.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
         const instructionList = songData.tracks[trackName];

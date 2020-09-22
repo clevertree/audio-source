@@ -1,6 +1,8 @@
 import React from "react";
 
-import {ASUIIcon, ASUIForm, ASUIPanel, ASUIButton, ASUIButtonDropDown} from "../../components";
+import {ASUIIcon, ASUIFormEntry, ASUIPanel, ASUIClickable, ASUIClickableDropDown} from "../../components";
+import Instruction from "../../song/instruction/Instruction";
+import {ArgType, Values} from "../../song";
 
 export default class ASComposerTrackPanel extends React.Component {
 
@@ -10,86 +12,176 @@ export default class ASComposerTrackPanel extends React.Component {
         this.cb = {
             renderMenuSelectTrack: () => this.renderMenuSelectTrack(),
             trackSelectIndicesPrompt: () => composer.trackSelectIndicesPrompt(),
-            instructionInsertAtCursor: () => composer.instructionInsertAtCursor(),
+            instructionInsertAtSelectedTrackCursor: () => composer.instructionInsertAtSelectedTrackCursor(),
             instructionDeleteSelected: () => composer.instructionDeleteIndices(),
             renderMenuKeyboardSetOctave: () => composer.renderMenuKeyboardSetOctave(),
         }
+        this.state = {
+            selectedIndices: [],
+            selectedInstructionData: [0, 'C4', '1B'],
+            selectedTrackName: null,
+            keyboardOctave: 4
+        }
     }
 
-    getSelectedIndicesString() {
+    updateSelectedTrackIndices(selectedTrackName, selectedIndices=[]) {
         const composer = this.props.composer;
-        const selectedIndices = composer.state.selectedTrackIndices;
-        if(selectedIndices.length <= 8) {
-            return selectedIndices.join(',');
+        const state = {
+            selectedTrackName,
+            selectedIndices,
+        };
+
+        if(selectedIndices.length > 0) {
+            const instructionData = composer.getSong().instructionDataGetByIndex(selectedTrackName, selectedIndices[0]);
+            state.selectedInstructionData = instructionData.slice();
+            state.selectedInstructionData[0] = 0;
+            // console.log('selectedInstructionData', state.selectedInstructionData);
         }
-        return `[${selectedIndices.length} selected]`;
+        this.setState(state);
     }
 
     render() {
-        const composer = this.props.composer;
-        const selectedIndices = composer.state.selectedTrackIndices;
+        const selectedIndices = this.state.selectedIndices;
         // const activeTrack = composer.trackHasActive(selectedTrackName) ? composer.trackGetState(selectedTrackName) : null;
         // const selectedIndices = activeTrack ? activeTrack.getSelectedIndices() : [];
 
 
-        return (
+        return [
             <ASUIPanel
-                className="track"
+                key="track"
+                viewKey="track"
                 header={`Selected Track`}>
-                <ASUIForm className="track-name" header="Current">
-                    <ASUIButtonDropDown
+                <ASUIFormEntry className="track-name" header="Current">
+                    <ASUIClickableDropDown
+                        button wide
                         // className="track-selection"
                         options={this.cb.renderMenuSelectTrack}
                         title="Current Track"
-                        children={composer.getSelectedTrackName() || "N/A"}
+                        children={this.state.selectedTrackName || "N/A"}
                     />
-                </ASUIForm>
-                <ASUIForm className="track-selection" header="Selection">
-                    <ASUIButton
+                </ASUIFormEntry>
+                <ASUIFormEntry className="track-selection" header="Selection">
+                    <ASUIClickable
+                        button wide
                         // className="track-selection"
                         onAction={this.cb.trackSelectIndicesPrompt}
                         title="Selected Track Notes"
-                        children={selectedIndices.length > 0 ? this.getSelectedIndicesString() : "None"}
+                        children={selectedIndices.length > 0 ? getSelectedIndicesString(selectedIndices) : "None"}
                     />
-                </ASUIForm>
+                </ASUIFormEntry>
 
-                <ASUIForm className="track-insert" header="Add">
-                    <ASUIButton
+                <ASUIFormEntry className="track-insert" header="Add">
+                    <ASUIClickable
+                        button wide
                         // className="instruction-insert"
-                        onAction={this.cb.instructionInsertAtCursor}
+                        onAction={this.cb.instructionInsertAtSelectedTrackCursor}
                         title="Insert Instruction"
                         // disabled={selectedIndices.length > 0}
                     >
                         <ASUIIcon source="insert"/>
-                    </ASUIButton>
-                </ASUIForm>
-                <ASUIForm className="track-delete" header="Rem">
-                    <ASUIButton
+                    </ASUIClickable>
+                </ASUIFormEntry>
+                <ASUIFormEntry className="track-delete" header="Rem">
+                    <ASUIClickable
+                        button wide
                         // className="instruction-delete"
                         onAction={this.cb.instructionDeleteSelected}
                         title="Delete Instruction"
                         disabled={selectedIndices.length === 0}
                     >
                         <ASUIIcon source="remove"/>
-                    </ASUIButton>
-                </ASUIForm>
+                    </ASUIClickable>
+                </ASUIFormEntry>
 
-                <ASUIForm className="keyboard-octave" header="Octave">
-                    <ASUIButtonDropDown
+                <ASUIFormEntry className="keyboard-octave" header="Octave">
+                    <ASUIClickableDropDown
+                        button wide
                         arrow={'▼'}
                         className="keyboard-octave"
                         options={this.cb.renderMenuKeyboardSetOctave}
                         title="Change Keyboard Octave"
-                    >{composer.state.keyboardOctave}</ASUIButtonDropDown>
-                </ASUIForm>
+                    >{this.state.keyboardOctave}</ASUIClickableDropDown>
+                </ASUIFormEntry>
+            </ASUIPanel>,
+            <ASUIPanel
+                key="instruction"
+                viewKey="instruction"
+                header={`Selected Instruction`}>
+                {this.renderInstructionForms()}
             </ASUIPanel>
-        );
+        ];
     }
+
+    /** Forms **/
+
+    renderInstructionForms() {
+        const composer = this.props.composer;
+        const instructionData = this.state.selectedInstructionData;
+        const processor = new Instruction(instructionData);
+        const [, argTypeList] = processor.processInstructionArgList();
+        const formatStats = {
+            timeDivision: composer.getSong().getTimeDivision()
+        };
+
+        // console.log('commandString', commandString, params);
+        let argIndex = 0;
+        return argTypeList.map((argType, i) => {
+            if(!argType.consumesArgument)
+                return null;
+            argIndex++;
+            let paramValue = instructionData[argIndex];
+            switch(argType) {
+                case ArgType.command:
+                case ArgType.duration:
+                case ArgType.frequency:
+                case ArgType.offset:
+                case ArgType.trackName:
+                default:
+                    return this.renderDropDownForm(instructionData, argType, argIndex, paramValue, formatStats);
+
+                case ArgType.velocity:
+                    return this.renderVelocityForm(instructionData, argType, argIndex, paramValue);
+            }
+        });
+    }
+
+    renderDropDownForm(instructionData, argType, argIndex, paramValue, formatStats={}) {
+        let header = argType.title.split(' ').pop(); // Long text hack
+        const composer = this.props.composer;
+        return <ASUIFormEntry key={argIndex} header={header}>
+            <ASUIClickableDropDown
+                button wide
+                arrow={'▼'}
+                title={`Change ${argType.title}`}
+                options={() => composer.renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue)}
+            >{argType.format(paramValue, formatStats)}</ASUIClickableDropDown>
+        </ASUIFormEntry>
+    }
+
+    renderVelocityForm(instructionData, argType, argIndex, paramValue, header="Velocity", title="Instruction Velocity") {
+        const composer = this.props.composer;
+
+        return <ASUIFormEntry key={argIndex} header={header}>
+            {Values.instance.renderInputVelocity((newVelocity) => {
+                composer.instructionReplaceArgByType(composer.getSelectedTrackName(), this.state.selectedIndices, argType, newVelocity);
+            }, paramValue, title)}
+        </ASUIFormEntry>;
+    }
+
+    /** Menu **/
 
     renderMenuSelectTrack() {
         const composer = this.props.composer;
-        return composer.values.renderMenuSelectTrack(trackName => {
-            composer.trackSelectActive(trackName)
+        return composer.renderMenuSelectTrack(trackName => {
+            composer.trackSelect(trackName)
         }, null, composer.getSelectedTrackName())
     }
+}
+
+
+
+function getSelectedIndicesString(selectedIndices) {
+    if(selectedIndices.length <= 8)
+        return selectedIndices.join(',');
+    return `[${selectedIndices.length} selected]`;
 }

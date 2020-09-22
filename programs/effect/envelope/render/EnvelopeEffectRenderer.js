@@ -1,44 +1,60 @@
 import React from 'react';
+import {ASUIClickable, ASUIClickableDropDown, ASUIIcon} from "../../../../components/";
 
-import "./EnvelopeEffectRenderer.css";
 import EnvelopeEffectRendererBase from "./EnvelopeEffectRendererBase";
-import {ASUIButtonDropDown} from "../../../../components";
-import {ProgramLoader} from "../../../../common/";
+import "./EnvelopeEffectRenderer.css";
 
-/** PolyphonyInstrumentRenderer **/
 export default class EnvelopeEffectRenderer extends EnvelopeEffectRendererBase {
-
     render() {
-        const voice = this.props.config.voice;
-//         console.log('voices', voices);
-        // Presets are handled by composer
-        return (
-            <div className="envelope-effect-renderer">
-                {voice ? this.renderVoice()
-                    : <ASUIButtonDropDown
-                    title="Add new voice"
-                    className="add-voice"
+        const open = this.props.open;
+        // console.log('EnvelopeEffectRendererContainer.render', this.props);
+        let className = "envelope-effect-container";
+        if(open)
+            className += ' open';
+
+
+        /** Parameter Content **/
+        const parameterContent = open ? (
+                <div className="parameters">
+                    {this.getParameters().map((props, i) => (
+                        <div key={i}>
+                            {props.label ? <div className="label">{props.label}:</div> : null}
+                            <div>{props.children}</div>
+                        </div>
+                    ))}
+                </div>)
+            : null;
+
+
+        return <div
+            className={className}
+            >
+            <div className="header"
+                 title={`Envelope Effect`}
+            >
+                <ASUIClickable
+                    button
+                    title={`Envelope Effect`}
+                    className="toggle-container small"
+                    selected={open}
+                    onAction={this.cb.onClick}
+                >
+                    <ASUIIcon source="effect-envelope"/>
+                    Envelope
+                </ASUIClickable>
+                <ASUIClickableDropDown
+                    button
                     arrow={false}
-                    options={() => this.renderMenuAddVoice()}>
-                    SetVoice
-                </ASUIButtonDropDown>}
+                    vertical={false}
+                    className="program-config"
+                    options={this.cb.renderMenuRoot}
+                >
+                    <ASUIIcon source="config"/>
+                </ASUIClickableDropDown>
             </div>
-        );
-
-    }
-
-    renderVoice() {
-        const voice = this.props.config.voice;
-        const [className, config] = voice;
-        const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
-
-        return <div className="voice">
-                 <Renderer
-                    onRemove={this.cb.onRemove}
-                    instrumentID={0}
-                    config={config}
-                    program={voice}
-                />
+            {parameterContent}
+            {/*{this.renderVoice()}*/}
         </div>;
     }
+
 }

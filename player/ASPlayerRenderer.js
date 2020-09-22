@@ -1,9 +1,9 @@
 import React from "react";
 
 import {
-    ASUIButton,
+    ASUIClickable,
     ASUIDiv,
-    ASUIForm,
+    ASUIFormEntry,
     ASUIIcon,
     ASUIInputRange,
     ASUIContextMenuContainer,
@@ -37,7 +37,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
         return (
             <ASUIDiv className={["asp-container", this.state.portrait ? 'portrait' : 'landscape'].join(' ')}>
                 <ASUIContextMenuContainer
-                    isActive={this.state.portrait}
+                    portrait={this.state.portrait}
                 >
                     <ASUIDiv key="header" className="asp-title-container">
                         <ASPlayerHeader
@@ -47,36 +47,36 @@ class ASPlayerRenderer extends ASPlayerStyle {
                             />
                     </ASUIDiv>
                     <ASUIDiv className="asp-forms-container">
-                        <ASUIPanel className="song" header="Song">
-                            <ASUIForm className="playback" header="Playback">
-                                <ASUIButton
+                        <ASUIPanel viewKey="song" header="Song">
+                            <ASUIFormEntry className="playback" header="Playback">
+                                <ASUIClickable
                                     className="song-play"
                                     onAction={e => this.playlistPlay(e)}
                                 >
                                     <ASUIIcon source="play"/>
-                                </ASUIButton>
-                                <ASUIButton
+                                </ASUIClickable>
+                                <ASUIClickable
                                     className="song-pause"
                                     onAction={e => this.playlistPause(e)}
                                 >
                                     <ASUIIcon source="pause"/>
-                                </ASUIButton>
-                                <ASUIButton
+                                </ASUIClickable>
+                                <ASUIClickable
                                     className="song-stop"
                                     onAction={e => this.playlistStop(e)}
                                 >
                                     <ASUIIcon source="stop"/>
-                                </ASUIButton>
-                                <ASUIButton
+                                </ASUIClickable>
+                                <ASUIClickable
                                     className="song-next"
                                     onAction={e => this.playlistNext(e)}
                                 >
                                     <ASUIIcon source="next"/>
-                                </ASUIButton>
-                            </ASUIForm>
+                                </ASUIClickable>
+                            </ASUIFormEntry>
 
-                            <ASUIForm className="file" header="File">
-                                <ASUIButton
+                            <ASUIFormEntry className="file" header="File">
+                                <ASUIClickable
                                     className="file-load"
                                     onAction={(e) => this.loadSongFromFileInput(e)}
                                     accept=".json,.mid,.midi"
@@ -84,17 +84,17 @@ class ASPlayerRenderer extends ASPlayerStyle {
                                     title="Load Song from File"
                                 >
                                     <ASUIIcon source="file-load"/>
-                                </ASUIButton>
-                                <ASUIButton
+                                </ASUIClickable>
+                                <ASUIClickable
                                     className="file-save"
                                     onAction={e => this.saveSongToFile(e)}
                                     title="Save Song to File"
                                 >
                                     <ASUIIcon source="file-save"/>
-                                </ASUIButton>
-                            </ASUIForm>
+                                </ASUIClickable>
+                            </ASUIFormEntry>
 
-                            <ASUIForm className="volume" header="Volume">
+                            <ASUIFormEntry className="volume" header="Volume">
                                 <ASUIInputRange
                                     className="volume"
                                     onChange={(newVolume) => this.setVolume(newVolume / 100)}
@@ -104,9 +104,9 @@ class ASPlayerRenderer extends ASPlayerStyle {
                                     ref={ref => this.fieldSongVolume = ref}
                                     title="Song Volume"
                                 />
-                            </ASUIForm>
+                            </ASUIFormEntry>
 
-                            <ASUIForm className="position" header="Position">
+                            <ASUIFormEntry className="position" header="Position">
                                 <ASUIInputRange
                                     className="position"
                                     onChange={(pos) => this.setSongPosition(pos)}
@@ -116,48 +116,48 @@ class ASPlayerRenderer extends ASPlayerStyle {
                                     ref={ref => this.fieldSongPosition = ref}
                                     title="Song Position"
                                 />
-                            </ASUIForm>
+                            </ASUIFormEntry>
 
-                            <ASUIForm className="timing" header="Timing">
-                                <ASUIButton
+                            <ASUIFormEntry className="timing" header="Timing">
+                                <ASUIClickable
                                     className="timing"
                                     onAction={(e) => this.setSongPositionPrompt()}
                                     ref={ref => this.fieldSongTiming = ref}
                                     title="Song Timing"
                                     children="00:00:000"
                                 />
-                            </ASUIForm>
+                            </ASUIFormEntry>
 
-                            <ASUIForm className="name" header="Name">
-                                <ASUIButton
+                            <ASUIFormEntry className="name" header="Name">
+                                <ASUIClickable
                                     className="name"
                                     onAction={(e) => this.setSongNamePrompt()}
                                     title="Song Name"
                                     children={this.song ? this.song.data.title : "no song loaded"}
                                 />
-                            </ASUIForm>
+                            </ASUIFormEntry>
 
-                            <ASUIForm className="version" header="Version">
-                                <ASUIButton
+                            <ASUIFormEntry className="version" header="Version">
+                                <ASUIClickable
                                     className="version"
                                     onAction={(e) => this.setSongVersionPrompt()}
                                     ref={ref => this.fieldSongVersion = ref}
                                     title="Song Version"
                                     children={this.song ? this.song.data.version : "0.0.0"}
                                 />
-                            </ASUIForm>
+                            </ASUIFormEntry>
 
-                            <ASUIForm className="source" header="Source">
-                                <ASUIButton
+                            <ASUIFormEntry className="source" header="Source">
+                                <ASUIClickable
                                     className="source"
                                     onAction={(e, newSongVersion) => this.openSongSource(e, newSongVersion)}
                                     title="Song Source"
                                 >
                                     <ASUIIcon source="source"/>
-                                </ASUIButton>
-                            </ASUIForm>
+                                </ASUIClickable>
+                            </ASUIFormEntry>
                         </ASUIPanel>
-                        <ASUIPanel className="playlist" header="Playlist" styleContainer={{}}>
+                        <ASUIPanel viewKey="playlist" header="Playlist" styleContainer={{}}>
                             <ASPPlaylist
                                 player={this}
                                 ref={ref => this.playlist = ref}

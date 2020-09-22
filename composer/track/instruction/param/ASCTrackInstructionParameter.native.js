@@ -2,7 +2,7 @@ import * as React from "react";
 import {StyleSheet, Text, View} from 'react-native';
 import PropTypes from 'prop-types';
 
-import {ASUIDropDownContainer} from "../../../../components/menu/";
+import {ASUIContextMenu} from "../../../../components/";
 
 
 class ASCTrackInstructionParameter extends React.Component {
@@ -45,7 +45,7 @@ class ASCTrackInstructionParameter extends React.Component {
             // tabIndex={0}
         >
             {textify(this.props.children, {style: styleText})}
-            <ASUIDropDownContainer
+            <ASUIContextMenu
                 ref={this.dropdown}
                 options={this.props.options}
                 vertical={this.props.vertical}

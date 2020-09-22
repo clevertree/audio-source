@@ -1,6 +1,5 @@
-import Values from "../values/Values";
-
 import LocalStorage from "./LocalStorage";
+import Values from "../../song/values/Values";
 
 class ClientStorage {
     /** Loading **/

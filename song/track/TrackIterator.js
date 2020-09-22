@@ -1,6 +1,7 @@
 import InstructionIterator from "../instruction/iterator/InstructionIterator";
-import InstructionProcessor from "../../common/program/InstructionProcessor";
-import {ArgType, Values} from "../../common";
+import {Instruction} from "../index";
+import Values from "../values/Values";
+import ArgType from "../instruction/argument/ArgType";
 
 
 export default class TrackIterator {
@@ -49,8 +50,8 @@ export default class TrackIterator {
 
 
     processCommandInstruction(instructionData, stats) {
-        const processor = new InstructionProcessor(instructionData);
-        const [commandString, argTypeList] = processor.processInstructionArgs();
+        const processor = new Instruction(instructionData);
+        const [commandString, argTypeList] = processor.processInstructionArgList();
 
         switch(commandString) {
             case 'program':      // Set Program (can be changed many times per track)
@@ -67,9 +68,12 @@ export default class TrackIterator {
                 } else {
                     instructionData = instructionData.slice().splice(1, 1);
                 }
-                let trackArgs = this.processArgList(stats, instructionData, InstructionProcessor.trackCommand);
-
-                this.onPlayTrack(stats, ...trackArgs)
+                let trackArgs = this.processArgList(stats, instructionData, Instruction.trackCommand);
+                if(trackArgs[0].indexOf('*') !== -1) {
+                    this.onPlayWildcardTrack(stats, ...trackArgs)
+                } else {
+                    this.onPlayTrack(stats, ...trackArgs)
+                }
                 break;
 
             default:
@@ -104,7 +108,19 @@ export default class TrackIterator {
 
     }
 
-    onPlayTrack(parentStats, trackName, trackDuration=null, trackStartTime=0, trackFrequency=null) {
+    onPlayWildcardTrack(parentStats, wildCardTrackName, trackDuration=null, trackStartTime=0, trackFrequency=null) {
+        let trackNameList = Object.keys(this.song.data.tracks);
+        trackNameList = TrackIterator.getWildCardTracks(wildCardTrackName, trackNameList);
+        if(trackNameList.length > 0) {
+            for (const trackName of trackNameList) {
+                this.onPlayTrack(parentStats, trackName, trackDuration, trackStartTime, trackFrequency);
+            }
+        } else {
+            console.warn("No tracks matched wildcard track: " + wildCardTrackName, Object.keys(this.song.data.tracks));
+        }
+    }
+
+    onPlayTrack(parentStats, trackName, trackDuration=null, trackStartPosition=null, trackFrequency=null) {
         if(parentStats.trackName === trackName) {
             console.warn("Skipping recursive track name: " + trackName);
             return;
@@ -114,7 +130,7 @@ export default class TrackIterator {
             // destination: trackStats.destination,    // Current destination sent to all playFrequency calls
             // parentStats: trackStats,
             startTime: parentStats.startTime + parentStats.positionSeconds,
-            startPosition: trackStartTime, // trackStats.positionSeconds,
+            startPosition: trackStartPosition || 0, // trackStats.positionSeconds,
             trackName,
             beatsPerMinute: parentStats.beatsPerMinute,
             timeDivision: parentStats.timeDivision, // Time division is passed to sub-groups
@@ -141,13 +157,14 @@ export default class TrackIterator {
         for (let i = 0; i < argTypeList.length; i++) {
             const argType = argTypeList[i];
             if (argType.consumesArgument) {
-                if(typeof instructionData[argIndex] !== "undefined") {
-                    const arg = argType.process(instructionData[argIndex], stats);
-                    newArgs.push(arg);
-                    if (argType === ArgType.duration)
-                        this.processDuration(instructionData[argIndex], newArgs[i], stats);
-                    argIndex++
-                }
+                const value = typeof instructionData[argIndex] === "undefined" ? null : instructionData[argIndex];
+                // if(typeof instructionData[argIndex] !== "undefined") {
+                const arg = argType.process(value, stats);
+                newArgs.push(arg);
+                if (value !== null && argType === ArgType.duration)
+                    this.processDuration(value, newArgs[i], stats);
+                argIndex++
+                // }
             } else {
                 const arg = argType.process(null, stats);
                 newArgs.push(arg);
@@ -247,4 +264,9 @@ export default class TrackIterator {
         return finished;
     }
 
+    static getWildCardTracks(wildCardTrackName, trackNameList) {
+        var escapeRegex = (str) => str.replace(/([.*+?^=!:${}()|[\]/\\])/g, "\\$1");
+        const trackNameMatch = new RegExp("^" + wildCardTrackName.split("*").map(escapeRegex).join(".*") + "$");
+        return trackNameList.filter(trackName => trackNameMatch.test(trackName))
+    }
 }

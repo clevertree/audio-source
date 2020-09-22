@@ -1,0 +1,64 @@
+
+/** Menu Drop Down **/
+
+
+div.asui-menu-option-list {
+    position: relative;
+    background-color: #bdc3c7;
+    /* display: inline-block; */
+    z-index: 3;
+    border: 1px solid grey;
+    margin: -1px;
+    text-align: left;
+    transition: opacity 0.2s;
+}
+
+
+div.asui-menu-option-list.floating {
+    position: fixed;
+    /*left: 100%;*/
+    /*top: 0;*/
+    white-space: nowrap;
+}
+
+div.asui-menu-option-list > div > div.asui-menu-item {
+    padding: 4px;
+    /*border: 1px outset #AAA;*/
+}
+div.asui-menu-option-list > div.selected {
+    background-color: #AAA;
+
+}
+
+div.asui-menu-option-list > div > div.asui-menu-item:hover {
+    z-index: 5;
+}
+
+
+div.asui-menu-option-list.stick {
+    border: 2px solid black;
+    /*background-color: #9ba0a3;*/
+}
+div.asui-menu-option-list:hover {
+    /*z-index: 4;*/
+}
+
+div.asui-menu-option-list.vertical {
+    left: 0;
+    top: 100%;
+}
+
+
+
+/** Screen Overflow **/
+
+div.asui-menu-option-list.overflow-right {
+    left: inherit !important;
+    right: 0 !important;
+}
+div.asui-menu-option-list.overflow-bottom {
+    top: inherit !important;
+    bottom: 0 !important;
+    /*bottom: -50vh;*/
+    /*bottom: 100%;*/
+}

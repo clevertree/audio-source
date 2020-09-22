@@ -1,6 +1,6 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import {ArgType, InstructionProcessor} from "../../../common/";
+import {Instruction, ArgType, Values} from "../../../song";
 
 export default class ASCTrackInstructionBase extends React.Component {
     static TIMEOUT_LONGPRESS = 800;
@@ -52,8 +52,8 @@ export default class ASCTrackInstructionBase extends React.Component {
     renderParameters() {
         const instructionData = this.getInstructionData();
         const params = [];
-        const processor = new InstructionProcessor(instructionData);
-        const [, argTypeList] = processor.processInstructionArgs();
+        const processor = new Instruction(instructionData);
+        const [, argTypeList] = processor.processInstructionArgList();
         let argIndex = 0;
         for(let i=0; i<argTypeList.length; i++) {
             const argType = argTypeList[i];
@@ -99,7 +99,7 @@ export default class ASCTrackInstructionBase extends React.Component {
 
     formatDuration(param) {
         return param === null ? 'N/A'
-            : this.getComposer().values.formatSongDuration(param);
+            : Values.instance.formatDuration(param, this.getComposer().getSong().getTimeDivision());
     }
 
     /** Actions **/

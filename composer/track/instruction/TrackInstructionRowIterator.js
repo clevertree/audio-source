@@ -22,6 +22,8 @@ export default class TrackInstructionRowIterator {
     }
 
 
+    getBeatsPerMinute() { return this.iterator.getBeatsPerMinute(); }
+    getTimeDivision() { return this.iterator.getTimeDivision(); }
     getPositionInTicks() { return this.iterator.getPositionInTicks(); }
     getPositionInSeconds() { return this.iterator.getPositionInSeconds(); }
     getCursorPosition() { return this.iterator.stats.cursorPosition; }

@@ -75,14 +75,14 @@ export default class ConfigListener {
     /** Static **/
 
     static TARGET = TARGET;
-    static LISTENER = LISTENER;
+    // static LISTENER = LISTENER;
 
     static resolveProxiedObject(proxyObject) {
         return proxyObject[TARGET] || proxyObject;
     }
 
-    static addChangeListener(proxyObject, listener) {
-        const configListener = proxyObject[LISTENER];
-        configListener.addChangeListener(listener);
-    }
+    // static addChangeListener(proxyObject, listener) {
+    //     const configListener = proxyObject[LISTENER];
+    //     configListener.addChangeListener(listener);
+    // }
 }

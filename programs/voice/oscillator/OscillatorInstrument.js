@@ -1,17 +1,11 @@
 import PeriodicWaveLoader from "./loader/PeriodicWaveLoader";
-import {ArgType} from "../../../common/";
+import {ArgType, ProgramLoader, Values} from "../../../song/";
 
 
-class OscillatorInstrument {
-    constructor(config={}) {
-        // console.log('OscillatorInstrument', config);
-        this.config = config;
-        this.playingOSCs = [];
-    }
-
+export default class OscillatorInstrument {
     /** Command Args **/
     static argTypes = {
-        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
+        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity, ArgType.onended],
         pitchBendTo: [ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.onended],
     };
 
@@ -21,21 +15,152 @@ class OscillatorInstrument {
         bt: "pitchBendTo",
     }
 
+    static defaultEnvelope = ['envelope', {}];
 
-    /** Command Routing **/
+
+    constructor(config={}) {
+        // console.log('OscillatorInstrument', config);
+        this.config = config;
+        this.playingOSCs = [];
+        this.loadedPeriodicWave = null;
 
 
-    /** Effect **/
+        // Envelope
+        const [voiceClassName, voiceConfig] = this.config.envelope || OscillatorInstrument.defaultEnvelope;
+        let {classProgram:envelopeClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
+        this.loadedEnvelope = new envelopeClass(voiceConfig);
 
-    useDestination(oldDestination) {
-        return null; // Null is no effect processing
+
+        // LFOs
+        this.loadedLFOs = [];
+        const lfos = this.config.lfos || [];
+        for (let lfoID=0; lfoID<lfos.length; lfoID++) {
+            const lfo = lfos[lfoID];
+            const [voiceClassName, voiceConfig] = lfo;
+            let {classProgram:lfoClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
+            this.loadedLFOs[lfoID] = new lfoClass(voiceConfig);
+        }
+
+
+        this.activeMIDINotes = []
+    }
+
+    setPeriodicWave(oscillator, periodicWave) {
+        if(!periodicWave instanceof PeriodicWave)
+            throw new Error("Invalid Periodic Wave: " + typeof periodicWave);
+        oscillator.setPeriodicWave(periodicWave)
+    }
+
+    /** Async loading **/
+
+    async waitForAssetLoad() {
+        if(this.config.url) {
+            const service = new PeriodicWaveLoader();
+            await service.loadPeriodicWaveFromURL(this.config.url);
+        }
     }
 
     /** Playback **/
 
+    addEnvelopeDestination(destination, startTime, velocity) {
+        let amplitude = 1;
+        if(typeof this.config.mixer !== "undefined")
+            amplitude = this.config.mixer / 100;
+        if(velocity !== null)
+            amplitude *= parseFloat(velocity || 127) / 127;
+        return this.loadedEnvelope.createEnvelope(destination, startTime, amplitude);
+    }
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
+    createOscillator(destination, type) {
+        const audioContext = destination.context;
+
+        let source;
+        switch(type) {
+            case 'sine':
+            case 'square':
+            case 'sawtooth':
+            case 'triangle':
+                source=audioContext.createOscillator();
+                source.type = type;
+                // Connect Source
+                source.connect(destination);
+                return source;
+
+            case 'pulse':
+                return this.createPulseWaveShaper(destination)
+
+            // case null:
+            case 'custom':
+                source=audioContext.createOscillator();
+
+                // Load Sample
+                const service = new PeriodicWaveLoader();
+                let periodicWave = service.tryCache(this.config.url);
+                if(periodicWave) {
+                    this.setPeriodicWave(source, periodicWave);
+                } else {
+                    service.loadPeriodicWaveFromURL(this.config.url)
+                        .then(periodicWave => {
+                            console.warn("Note playback started without an audio buffer: " + this.config.url);
+                            this.setPeriodicWave(source, periodicWave);
+                        });
+                }
+                // Connect Source
+                source.connect(destination);
+                return source;
+
+            default:
+                throw new Error("Unknown oscillator type: " + type);
+        }
+
+    }
+
+    createPulseWaveShaper(destination) {
+        const audioContext = destination.context;
+        // Use a normal oscillator as the basis of our new oscillator.
+        const source=audioContext.createOscillator();
+        source.type="sawtooth";
+
+        const {pulseCurve, constantOneCurve} = getPulseCurve();
+        //Use a normal oscillator as the basis of our new oscillator.
+
+        //Shape the output into a pulse wave.
+        const pulseShaper = audioContext.createWaveShaper();
+        pulseShaper.curve=pulseCurve;
+        source.connect(pulseShaper);
+
+        //Use a GainNode as our new "width" audio parameter.
+        const widthGain = audioContext.createGain();
+        widthGain.gain.value=0.5; //Default width.
+        source.width=widthGain.gain; //Add parameter to oscillator node.
+        widthGain.connect(pulseShaper);
+
+        //Pass a constant value of 1 into the widthGain – so the "width" setting
+        //is duplicated to its output.
+        const constantOneShaper = audioContext.createWaveShaper();
+        constantOneShaper.curve=constantOneCurve;
+        source.connect(constantOneShaper);
+        constantOneShaper.connect(widthGain);
+
+        pulseShaper.connect(destination);
+
+        return source;
+    }
+
+
     playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
         let endTime;
+        const config = this.config;
         const audioContext = destination.context;
+
+        // Start Time
+        if(startTime === null)
+            startTime = audioContext.currentTime;
+        else if(startTime < 0)
+            startTime = 0; // TODO: adjust buffer offset.
+
+        // Duration
         if(typeof duration === "number") {
             endTime = startTime + duration;
             if (endTime < audioContext.currentTime) {
@@ -43,114 +168,118 @@ class OscillatorInstrument {
                 return false;
             }
         }
-        if(startTime === null)
-            startTime = audioContext.currentTime;
-        else if(startTime < 0)
-            startTime = 0; // TODO: adjust buffer offset.
-        // console.log('playFrequency', startTime, duration, destination.context.currentTime);
+        console.log('playFrequency', frequency, startTime, duration, velocity, config);
 
 
-        const waveLoader = new PeriodicWaveLoader(audioContext);
 
-        // Convert frequency from string
-        // if(typeof frequency === "string")
-        //     frequency = Values.instance.parseFrequencyString(frequency);
+        // Filter voice playback
+        if (this.config.keyLow && Values.instance.parseFrequencyString(this.config.keyLow) > frequency)
+            return false;
+        if (this.config.keyHigh && Values.instance.parseFrequencyString(this.config.keyHigh) < frequency)
+            return false;
 
-        // TODO: Detect config changes on the fly. Leave caching to browser. Destination cache?
+        // Envelope
 
-        // console.log('playFrequency', destination, frequency, startTime, duration, velocity)
+        const gainNode = this.addEnvelopeDestination(destination, startTime, velocity);
+        destination = gainNode;
 
 
-        //         // Filter voice playback
-        //         if (voiceConfig.alias) {
-        //             if(voiceConfig.alias !== commandFrequency)
-        //                 // if(voiceConfig.name !== namedFrequency)
-        //                 continue;
-        //         } else {
-        //             frequencyValue = this.getCommandFrequency(commandFrequency);
-        //         }
-        //
-        //         if (voiceConfig.keyLow && this.getCommandFrequency(voiceConfig.keyLow) > frequencyValue)
-        //             continue;
-        //         if (voiceConfig.keyHigh && this.getCommandFrequency(voiceConfig.keyHigh) < frequencyValue)
-        //             continue;
+        // Oscillator
+        const source = this.createOscillator(destination, this.config.type);
+        source.frequency.value = frequency;    // set Frequency (hz)
+        if (typeof config.detune !== "undefined")
+            source.detune.value = config.detune;
 
-        // Velocity
-//         console.log('velocity', velocity);
-        if(velocity !== null) {
-            let velocityGain = destination.context.createGain();
-            velocityGain.gain.value = parseFloat(velocity || 127) / 127;
-            velocityGain.connect(destination);
-            destination = velocityGain;
+
+        // LFOs
+
+        const activeLFOs = [];
+        for(const LFO of this.loadedLFOs) {
+            activeLFOs.push(LFO.createLFO(source, frequency, startTime, null, velocity));
         }
 
-        // https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
-        const osc = destination.context.createOscillator();   // instantiate an oscillator
-        osc.frequency.value = frequency;    // set Frequency (hz)
-        if (typeof this.config.detune !== "undefined")
-            osc.detune.value = this.config.detune;
 
-        switch(this.config.type) {
-            default:
-                osc.type = this.config.type;
-                break;
+        // Start Source
+        source.start(startTime);
+        // console.log("Note Start: ", config.url, frequency);
 
-            // case null:
-            case 'custom':
-                if(!this.config.url)
-                    throw new Error("Custom osc requires a url");
-                if(waveLoader.isPeriodicWaveAvailable(this.config.url)) {
-                    osc.setPeriodicWave(waveLoader.getCachedPeriodicWaveFromURL(this.config.url))
-                } else {
-                    waveLoader.loadPeriodicWaveFromURL(this.config.url)
-                        .then(periodicWave => osc.setPeriodicWave(periodicWave));
-                }
-                break;
+        // Set up Note-Off
+        source.noteOff = (endTime=audioContext.currentTime) => {
+            gainNode.noteOff(endTime); // End Envelope on the note end time
+
+            // Get the source end time, when the note actually stops rendering
+            const sourceEndTime = this.loadedEnvelope.increaseDurationByRelease(endTime);
+            for(const lfo of activeLFOs) {
+                lfo.noteOff(sourceEndTime); // End LFOs on the source end time.
+            }
+            // console.log('noteOff', {frequency, endTime, sourceEndTime});
+
+            // Stop the source at the source end time
+            source.stop(sourceEndTime);
+        };
+
+        // Set up on end.
+        source.onended = () => {
+            if(hasActiveNote(source)) {
+                removeActiveNote(source);
+                activeLFOs.forEach(lfo => lfo.stop());
+                onended && onended();
+            }
+            // console.log("Note Ended: ", config.url, frequency);
         }
 
-        // TODO: vibrato LFO effect on parameters? don't wrap effect, just include it in instrument
-        let vibratoLFO = destination.context.createOscillator();
-        vibratoLFO.frequency.value = 5;
+        // Add Active Note
+        activeNotes.push(source);
 
-        let gainLFO = destination.context.createGain();
-        gainLFO.gain.value = 10;
-        gainLFO.connect(osc.frequency);
-
-        vibratoLFO.connect(gainLFO);
-        vibratoLFO.start(startTime);
-
-        // TODO: mixer AudioParam
-
-
-        osc.connect(destination);
-        osc.start(startTime);
+        // If Duration, queue note end
         if(duration !== null) {
             if(duration instanceof Promise) {
                 // Support for duration promises
-                duration.then(function() {
-                    osc.stop();
-                })
+                duration.then(() => source.noteOff())
             } else {
-                osc.stop(endTime);
+                source.noteOff(startTime + duration);
             }
         }
 
-        this.playingOSCs.push(osc);
-        osc.onended = () => {
-            const i = this.playingOSCs.indexOf(osc);
-            if(i !== -1)
-                this.playingOSCs.splice(i, 1);
-            onended && onended();
-        };
-
-        return osc;
+        // Return source
+        return source;
     }
+
+
 
 
     /** MIDI Events **/
 
     playMIDIEvent(destination, eventData, onended=null) {
-        console.log('TODO playMIDIEvent', destination, eventData);
+        let newMIDICommand;
+        // console.log('playMIDIEvent', eventData);
+        switch (eventData[0]) {
+            case 144:   // Note On
+                newMIDICommand = Values.instance.getCommandFromMIDINote(eventData[1]);
+                const newMIDIFrequency = Values.instance.parseFrequencyString(newMIDICommand);
+                let newMIDIVelocity = Math.round((eventData[2] / 128) * 100);
+                const source = this.playFrequency(destination, newMIDIFrequency, null, null, newMIDIVelocity);
+                if(source) {
+                    if (this.activeMIDINotes[newMIDICommand])
+                        this.activeMIDINotes[newMIDICommand].noteOff();
+                    this.activeMIDINotes[newMIDICommand] = source;
+                }
+                return source;
+
+            case 128:   // Note Off
+                newMIDICommand = Values.instance.getCommandFromMIDINote(eventData[1]);
+                if(this.activeMIDINotes[newMIDICommand]) {
+                    this.activeMIDINotes[newMIDICommand].noteOff();
+                    delete this.activeMIDINotes[newMIDICommand];
+                    return true;
+                } else {
+                    console.warn("active note missing: ", newMIDICommand, eventData);
+                    return false;
+                }
+
+            default:
+                break;
+        }
     }
 
     /** Pitch Bend **/
@@ -165,26 +294,13 @@ class OscillatorInstrument {
         }
     }
 
-
-
-
-
-    stopPlayback() {
-        // Stop all active sources
-        // console.log("OscillatorInstrument.stopPlayback", this.playingOSCs);
-        for (let i = 0; i < this.playingOSCs.length; i++) {
-            // try {
-                this.playingOSCs[i].stop();
-            // } catch (e) {
-            //     console.warn(e);
-            // }
-        }
-        this.playingOSCs = [];
-    }
-
-
     /** Static **/
 
+    static stopPlayback() {
+        for(const activeNote of activeNotes)
+            activeNote.stop();
+        activeNotes = [];
+    }
 
     static unloadAll() {
         // this.waveURLCache = {}
@@ -192,4 +308,30 @@ class OscillatorInstrument {
     }
 }
 
-export default OscillatorInstrument;
+
+let activeNotes = [];
+function removeActiveNote(source) {
+    const i=activeNotes.indexOf(source);
+    if(i !== -1)
+        activeNotes.splice(i, 1);
+}
+function hasActiveNote(source) {
+    return activeNotes.indexOf(source) !== -1;
+}
+
+
+// Calculate the WaveShaper curves so that we can reuse them.
+let pulseCurve = null, constantOneCurve = null;
+function getPulseCurve() {
+    if(!pulseCurve) {
+        pulseCurve = new Float32Array(256);
+        for (let i = 0; i < 128; i++) {
+            pulseCurve[i] = -1;
+            pulseCurve[i + 128] = 1;
+        }
+        constantOneCurve = new Float32Array(2);
+        constantOneCurve[0] = 1;
+        constantOneCurve[1] = 1;
+    }
+    return {pulseCurve, constantOneCurve};
+}

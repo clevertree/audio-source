@@ -1,0 +1,89 @@
+
+/** Container **/
+div.audiobuffer-instrument-container  {
+    margin: 2px;
+    padding: 4px;
+    color: #000;
+    border: 1px outset #FFF;
+    border-radius: 4px;
+    background-color: #90d4ef;
+    position: relative;
+}
+
+/** Status **/
+div.audiobuffer-instrument-container.loading {
+    animation: loadingBG 1s infinite alternate ease-out;
+    cursor: progress;
+}
+
+@keyframes loadingBG {
+    100% { background-color: #AAA; }
+}
+
+div.audiobuffer-instrument-container.error {
+    background-color: #AAA;
+}
+
+/** Header **/
+div.audiobuffer-instrument-container > div.header {
+    display: flex;
+}
+div.audiobuffer-instrument-container > div.header > div.toggle-container {
+    flex-basis: 100%;
+    padding-right: 4px;
+}
+
+/** Parameters **/
+div.audiobuffer-instrument-container > div.parameters {
+    margin: 0 0px 2px 0px;
+    padding: 4px;
+    /*border-radius: 0 0 4px 4px;*/
+    /*border: 1px inset #EEE;*/
+    /*border-top-width: 0px;*/
+    /*background-color: #CCC;*/
+    animation: slideDownOpen 0.4s ease-in;
+}
+
+div.audiobuffer-instrument-container > div.parameters > div {
+    /*border-bottom: 1px solid #AAA;*/
+    display: flex;
+    padding: 1px;
+}
+div.audiobuffer-instrument-container > div.parameters > div > div {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+}
+div.audiobuffer-instrument-container > div.parameters > div > div.label {
+    text-align: right;
+    font-size: small;
+    padding: 4px 4px 0 0;
+    flex: 1;
+}
+
+/** Hover **/
+
+
+div.audiobuffer-instrument-container > div:hover {
+    /*background: #AAA;*/
+    /*color: #000;*/
+    /*cursor: pointer;*/
+    /*border-radius: 4px;*/
+}
+
+/** Transition **/
+
+
+@keyframes slideDownOpen {
+    0% {
+        max-height: 0;
+        overflow-y: hidden;
+    }
+    99% {
+        max-height: 300px;
+    }
+    100% {
+        max-height: inherit;
+        overflow-y: inherit;
+    }
+}

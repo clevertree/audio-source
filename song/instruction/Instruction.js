@@ -1,56 +1,132 @@
-import Values from "../../common/values/Values";
+import ArgType from "./argument/ArgType";
 
 class Instruction {
-    constructor(instructionData = [0]) {
-        this.data = instructionData;
+    static trackCommand = [ArgType.trackName, ArgType.duration, ArgType.offset, ArgType.frequency, ArgType.velocity]
+
+    constructor(instructionData, programClass=DummyProgram) {
+        this.instructionData = instructionData;
+        this.programClass = programClass;
     }
 
-    get command() {
-        return this.data[1];
+    processInstructionArgList() {
+        const argTypes = this.programClass.argTypes;
+        // let argOffset = 1;
+        let prependList = null;
+        let argTypeList = null;
+
+        let commandString = this.instructionData[1];
+        if(commandString[0] === '!') {
+            commandString = commandString.substr(1);
+            switch(commandString) {
+                case 'p':
+                    commandString = 'program';
+                    break;
+                default:
+                // case '@': commandString = 'playTrack'; break;
+            }
+            prependList = [ArgType.command];
+
+        } else if(commandString[0] === '@') {
+            argTypeList = Instruction.trackCommand;
+            commandString = 'playTrack';
+
+        } else {
+            commandString = 'playFrequency';
+        }
+
+        switch(commandString) {
+            case 'playTrack':
+                argTypeList = argTypeList || DummyProgram.argTypes.playTrack;
+                break;
+            case 'program':
+                argTypeList = DummyProgram.argTypes.program; // [ArgType.program];
+                break;
+            default:
+                const commandAliases = this.programClass.commandAliases;
+                if(commandAliases[commandString])
+                    commandString = commandAliases[commandString];
+                argTypeList = argTypes[commandString];
+                if(!argTypeList)
+                    throw new Error(`Program ${this.programClass.name} does not have method: ${commandString}`);
+        }
+
+
+        return [commandString, prependList ? prependList.concat(argTypeList) : argTypeList];
     }
 
-    set command(newCommand) {
-        this.data[1] = newCommand;
-    }
-
-    getCommandString() {
-        return this.data[1];
-    }
-
-    getArgs() {
-        return this.data.slice(2);
-    }
-
-    // isTrackInstruction() {
-    //     return InstructionProcessor.isTrackCommand(this.getCommandString());
+    // validateInstructionArgs() {
+    //     const [commandString, argTypeList] = this.processInstructionArgList();
+    //     for(let i=0; i<argTypeList.length; i++) {
+    //         if(!argTypeList[i].consumesArgument)
+    //             continue;
+    //         const argType = argTypeList[i];
+    //
     // }
 
-    // getTrackNameFromInstruction() {
-    //     return InstructionProcessor.getTrackNameFromInstructionData(this);
+    isTrackCommand() {
+        const [commandString, argTypeList] = this.processInstructionArgList();
+        if(commandString !== 'playTrack')
+            return false;
+        let argIndex = this.findArgParameterIndex(ArgType.trackName, argTypeList);
+        let trackName = this.instructionData[argIndex];
+        if(trackName[0] === '@')
+            trackName = trackName.substr(1);
+        return trackName;
+    }
+
+
+
+    updateArg(argType, newArgValue) {
+        // eslint-disable-next-line no-unused-vars
+        const [commandString, argTypeList] = this.processInstructionArgList();
+        let argIndex = this.findArgParameterIndex(argType, argTypeList);
+        const oldValue = this.instructionData[argIndex];
+        this.instructionData[argIndex] = newArgValue;
+        // console.log("Arg updated: ", argIndex, newArgValue, argType);
+        return oldValue;
+    }
+
+    findArgParameterIndex(argType, argTypeList) {
+        let argIndex = 0;
+        for(let i=0; i<argTypeList.length; i++) {
+            if(!argTypeList[i].consumesArgument)
+                continue;
+            argIndex++;
+            if(argTypeList[i] === argType)
+                return argIndex;
+        }
+        throw new Error("Unable to find argType for " + argType.title);
+    }
+
+
+    // getCommandStringFromInstruction(commandString) {
+    //     if(commandString[0] === '!') {
+    //         return commandString.substr(1);
+    //
+    //     } else if(commandString[0] === '@') {
+    //         return 'playTrack';
+    //
+    //     } else {
+    //         return 'playFrequency';
+    //     }
     // }
 
-    // TODO: set commandArgs
+    // isTrackCommand(commandString) {
+    //     return (
+    //         commandString[0] === '@'
+    //         || commandString === 't'
+    //         || commandString === 'playTrack')
+    //
+    // }
 
-    get deltaDurationTicks() {
-        return this.data[0];
-    }
-
-    set deltaDurationTicks(newDeltaDuration) {
-        this.data[0] = newDeltaDuration;
-    }
-
-    getDurationString(timeDivision) {
-        const durationTicks = this.durationTicks;
-        if(durationTicks === null)
-            return 'N/A';
-        return Values.instance.formatDuration(durationTicks, timeDivision);
-    }
-    /** @deprecated **/
-    set durationTicks(newDuration)  { throw new Error("TODO: Implement for " + this.constructor.name);}
-    /** @deprecated **/
-    get durationTicks()             { throw new Error("TODO: Implement for " + this.constructor.name);}
-    get clone()                     { throw new Error("TODO: Implement for " + this.constructor.name);}
-
+    // getTrackNameFromInstructionData(instructionData) {
+    //     const commandString = instructionData[1]; // .getCommandString();
+    //     if(!this.isTrackCommand(commandString))
+    //         throw new Error("Invalid Track command: " + commandString);
+    //     if(commandString[0] === '@')
+    //         return commandString.substr(1);
+    //     return instructionData[2];
+    // }
 
 
 
@@ -79,6 +155,8 @@ class Instruction {
             throw new Error("Invalid instruction data");
         if(typeof instructionData[0] === "string")
             instructionData.unshift(0);
+        // const processor = new InstructionProcessor(instructionData);
+        // processor.updateArg(argType, newArgValue)
         return instructionData;
     }
 
@@ -98,4 +176,23 @@ class Instruction {
 export default Instruction;
 
 
+
+class DummyProgram {
+    /** Command Args **/
+    static argTypes = {
+        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity, ArgType.onended],
+        playTrack: [ArgType.trackName, ArgType.duration, ArgType.offset, ArgType.frequency, ArgType.velocity],
+        program: [ArgType.program]
+    }
+
+
+    /** Command Aliases **/
+    static commandAliases = {
+        pf: "playFrequency",
+    }
+
+    playFrequency(...args) {
+        console.log('DummyProgram.playFrequency', ...args);
+    }
+}
 

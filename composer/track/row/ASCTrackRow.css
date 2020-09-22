@@ -3,6 +3,8 @@
 
 div.asct-row {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     cursor: pointer;
     background-color: #D0D0D0;
     /*height: 1.45em;*/
@@ -51,7 +53,9 @@ div.asct-row.playing {
 }
 
 div.asct-row.position {
-    background-color: #87b487;
+    /*background-color: #87b487;*/
+    background-color: #90BEDE;
+
 }
 
 
@@ -59,8 +63,8 @@ div.asct-row.position {
 
 div.asct-row.cursor,
 div.asct-row.selected {
-    background-color: #90BEDE;
-    position: relative;
+    /*background-color: #90BEDE;*/
+    /*position: relative;*/
     /*box-shadow: #ffeedd 0px 0px 4px;*/
     /*z-index: 2;*/
 }

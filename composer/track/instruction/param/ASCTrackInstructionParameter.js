@@ -1,7 +1,7 @@
 import * as React from "react";
 import PropTypes from 'prop-types';
 
-import {ASUIDropDownContainer} from "../../../../components/";
+import {ASUIContextMenu} from "../../../../components/";
 
 import "./ASCTrackParam.css";
 
@@ -43,7 +43,7 @@ class ASCTrackInstructionParameter extends React.Component {
             // tabIndex={0}
         >
             {this.props.children}
-            <ASUIDropDownContainer
+            <ASUIContextMenu
                 ref={this.dropdown}
                 options={this.props.options}
                 vertical={this.props.vertical}
@@ -96,7 +96,7 @@ class ASCTrackInstructionParameter extends React.Component {
     // }
 
     onContextMenu(e) {
-        if(e.defaultPrevented || e.shiftKey)
+        if(e.defaultPrevented || e.altKey)
             return;
         e.preventDefault();
         if(e.button === 0)

@@ -1,14 +1,31 @@
 import React from "react";
+
 import {
     ASUIMenuAction,
     ASUIMenuDropDown, ASUIMenuBreak, ASUIMenuItem,
 } from "../../../components";
-import {LibraryIterator} from "../../../song";
-import {ProgramLoader} from "../../../common";
-import {ASCPresetBrowser} from "../index";
+import {LibraryProcessor, ProgramLoader} from "../../../song";
+import ASCPresetBrowser from "../browser/ASCPresetBrowser";
 
 
 export default class ASCProgramRendererBase extends React.Component {
+    constructor(props) {
+        super(props);
+        this.cb = {
+            togglePresetBrowser: () => this.togglePresetBrowser(),
+            toggleContainer: e => this.toggleContainer(),
+            onFocus: e => this.onFocus(e),
+            menuRoot: () => this.renderMenuRoot(),
+            parentMenu: programID => this.renderMenuManageProgram(programID),
+            programLoad: (programID, programClass, programConfig) => this.programLoad(programID, programClass, programConfig),
+            setProps: (programID, props) => this.setProps(programID, props)
+        }
+        // this.state = {
+        //     open: false
+        // }
+    }
+
+
     // constructor(props) {
     //     super(props);
     //     // this.state = {
@@ -19,6 +36,10 @@ export default class ASCProgramRendererBase extends React.Component {
     getProgramID() { return this.props.programID; }
     getComposer() { return this.props.composer; }
     getSong() { return this.getComposer().getSong(); }
+    getProgramData(proxiedData=true) {
+        const loader = new ProgramLoader(this.getSong());
+        return loader.getData(this.getProgramID(), proxiedData)
+    }
     // getProgramEntry(proxiedData=true) {
     //     let songData = proxiedData
     //         ? this.getSong().data
@@ -29,7 +50,25 @@ export default class ASCProgramRendererBase extends React.Component {
 
     renderProgramContent() {
         try {
-            return this.getSong().programLoadRenderer(this.props.programID);
+            let songData = this.getSong().getProxiedData();
+
+            const programID = this.props.programID;
+            const program = songData.programs[programID];
+            const [className, config] = program;
+            const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
+            const programProps = this.getProgramRendererState().programProps || {};
+            // console.log('this.getProgramRendererState()', this.getProgramRendererState(), className);
+            return (
+                <Renderer
+                    programID={programID}
+                    program={program}
+                    config={config}
+                    setProps={this.cb.setProps}
+                    programLoad={this.cb.programLoad}
+                    parentMenu={this.cb.parentMenu}
+                    {...programProps}
+                />
+            );
 
         } catch (e) {
             return e.message;
@@ -38,21 +77,12 @@ export default class ASCProgramRendererBase extends React.Component {
 
 
     renderPresetBrowser() {
-        const program = this.getSong().getProxiedData().programs[this.props.programID] || ['Empty', {}];
+        const program = this.getProgramData(this.props.programID, true) || ['Empty', {}];
         return <ASCPresetBrowser
-            composer={this.getComposer()}
+            programLoad={this.cb.programLoad}
             programID={this.props.programID}
             program={program}
         />;
-    }
-
-    /** Input **/
-
-    handleMIDIInput(e) {
-        // console.log('handleMIDIInput', e);
-        const destination = this.getComposer().getDestination();
-        this.getSong().playMIDIEvent(destination, this.getProgramID(), e.data);
-
     }
 
     /** Actions **/
@@ -69,32 +99,10 @@ export default class ASCProgramRendererBase extends React.Component {
     }
     programRemove() {
         const programID = this.props.programID;
-        this.getSong().programRemove(programID);
+        this.getComposer().programRemovePrompt(programID);
     }
 
-    getProgramState() {
-        return this.getComposer().programGetState(this.props.programID) || {};
-    }
-
-    setProgramState(state) {
-        this.getComposer().programSetState(this.props.programID, state);
-    }
-
-    toggleContainer() {
-        const programState = this.getProgramState();
-        programState.open = !programState.open
-        this.setProgramState(programState);
-    }
-
-    togglePresetBrowser() {
-        const programState = this.getProgramState();
-        programState.showBrowser = !programState.showBrowser;
-        if(programState.showBrowser)
-            programState.open = true;
-        this.setProgramState(programState);
-    }
-
-    async loadPreset(presetClassName, presetConfig={}) {
+    async programLoad(presetClassName, presetConfig={}) {
         console.log("Loading preset: ", presetClassName, presetConfig);
         const instance = ProgramLoader.loadInstance(presetClassName, presetConfig);
         if(typeof instance.waitForAssetLoad)
@@ -104,70 +112,132 @@ export default class ASCProgramRendererBase extends React.Component {
         song.programReplace(programID, presetClassName, presetConfig);
     }
 
+    // getProgramState() {
+    //     return this.getComposer().programGetState(this.props.programID) || {};
+    // }
+    //
+    // setProgramState(state) {
+    //     this.getComposer().programSetState(this.props.programID, state);
+    // }
 
-    /** @deprecated **/
-    wrapPreset(presetClassName, presetConfig={}) {
-        const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(presetClassName);
-        const [oldClassName, oldConfig] = this.getSong().getProxiedData().programs[this.props.programID] || ['Empty', {}];
-        Renderer.addChildProgramToConfig(presetConfig, oldClassName, oldConfig);
-        this.loadPreset(presetClassName, presetConfig);
-        // TODO: if classes match, prompt confirm
+    setProps(programID, props) {
+        const rendererState = this.getProgramRendererState();
+        if(!rendererState.programProps)     rendererState.programProps = props;
+        else                                Object.assign(rendererState.programProps, props);
+        this.setProgramRendererState(rendererState);
     }
+
+    getProgramRendererState() {
+        return this.props.composer.state.programStates[this.props.programID] || {};
+    }
+    setProgramRendererState(state) {
+        const programStates = this.props.composer.state.programStates;
+        const programID = this.props.programID;
+        if(!programStates[programID])   programStates[programID] = state;
+        else                            Object.assign(programStates[programID], state);
+        this.props.composer.setState({
+            programStates
+        });
+    }
+
+    toggleContainer() {
+        const rendererState = this.getProgramRendererState();
+        rendererState.open = !rendererState.open;
+        if(!rendererState.programProps)
+            rendererState.programProps = {open: true};
+        this.setProgramRendererState(rendererState);
+    }
+
+
+
+    togglePresetBrowser() {
+        const rendererState = this.getProgramRendererState();
+        rendererState.open = rendererState.open === 'browser' ? true : 'browser';
+        this.setProgramRendererState(rendererState);
+    }
+
+
+
+    // wrapPreset(presetClassName, presetConfig={}) {
+    //     const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(presetClassName);
+    //     const [oldClassName, oldConfig] = this.getSong().getProxiedData().programs[this.props.programID] || ['Empty', {}];
+    //     Renderer.addChildProgramToConfig(presetConfig, oldClassName, oldConfig);
+    //     this.loadPreset(presetClassName, presetConfig);
+    //     // TODO: if classes match, prompt confirm
+    // }
 
     /** Menu **/
 
 
-    renderMenuRoot() {
+    renderMenuManageProgram() {
         const composer = this.getComposer();
-        const programState = this.getProgramState();
         return (<>
-            <ASUIMenuAction onAction={() => this.togglePresetBrowser()}>{programState.showBrowser ? 'Hide' : 'Show'} Preset Browser</ASUIMenuAction>
-            <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuChangeProgram()}>Change Program</ASUIMenuDropDown>
-            <ASUIMenuBreak />
-            {/*<ASUIMenuDropDown options={() => this.renderMenuWrapProgram()}>Wrap Program</ASUIMenuDropDown>*/}
-            {/*<ASUIMenuBreak />*/}
             <ASUIMenuAction onAction={e => composer.programRenamePrompt(this.props.programID)}>Rename Program</ASUIMenuAction>
             <ASUIMenuAction onAction={e => composer.programRemovePrompt(this.props.programID)}>Remove Program</ASUIMenuAction>
         </>);
     }
 
-    renderMenuChangeProgram(menuTitle = "Change Program") {
+
+    renderMenuRoot() {
+        // const composer = this.getComposer();
+        // const programState = this.getGlobalProgramState();
         return (<>
-            <ASUIMenuItem>{menuTitle}</ASUIMenuItem>
-            <ASUIMenuBreak/>
-            <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Using Preset</ASUIMenuDropDown>
+            <ASUIMenuAction onAction={this.cb.togglePresetBrowser}>{this.props.open === 'browser' ? 'Hide' : 'Show'} Preset Browser</ASUIMenuAction>
             <ASUIMenuBreak />
+            <ASUIMenuDropDown options={() => this.renderMenuChangeProgram()}>Change Program</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Change Preset</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            {this.renderMenuManageProgram()}
+        </>);
+    }
+
+    renderMenuChangeProgram() {
+        return (<>
             {ProgramLoader.getRegisteredPrograms().map((config, i) =>
-                <ASUIMenuAction key={i} onAction={e => this.loadPreset(config.className)}       >{config.title}</ASUIMenuAction>
+                <ASUIMenuAction key={i} onAction={e => this.programLoad(config.className)}       >{config.title}</ASUIMenuAction>
             )}
         </>);
     }
 
 
-    renderMenuWrapProgram(menuTitle = "Wrap Program") {
+    // renderMenuWrapProgram(menuTitle = "Wrap Program") {
+    //     return (<>
+    //         <ASUIMenuItem>{menuTitle}</ASUIMenuItem>
+    //         <ASUIMenuBreak/>
+    //         <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Using Preset</ASUIMenuDropDown>
+    //         <ASUIMenuBreak />
+    //         {ProgramLoader.getRegisteredPrograms().filter((config, i) => {
+    //             return config.classRenderer && config.classRenderer.addChildProgramToConfig;
+    //         }).map((config, i) =>
+    //             <ASUIMenuAction key={i} onAction={e => this.wrapPreset(config.className)}       >{config.title}</ASUIMenuAction>
+    //         )}
+    //     </>);
+    // }
+
+
+    renderMenuChangePreset(library=null) {
+        library = library || LibraryProcessor.loadDefault();
+        const libraryOptions = library.renderMenuLibraryOptions((library) =>
+            () => this.renderMenuChangePreset(library)
+        );
+        const presetOptions = library.renderMenuPresets(
+            (presetClass, presetConfig) => this.programLoad(presetClass, presetConfig)
+        );
         return (<>
-            <ASUIMenuItem>{menuTitle}</ASUIMenuItem>
-            <ASUIMenuBreak/>
-            <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Using Preset</ASUIMenuDropDown>
+            <ASUIMenuItem>Library: {library.getTitle()}</ASUIMenuItem>
             <ASUIMenuBreak />
-            {ProgramLoader.getRegisteredPrograms().filter((config, i) => {
-                return config.classRenderer && config.classRenderer.addChildProgramToConfig;
-            }).map((config, i) =>
-                <ASUIMenuAction key={i} onAction={e => this.wrapPreset(config.className)}       >{config.title}</ASUIMenuAction>
-            )}
-        </>);
+            {libraryOptions ? <>${libraryOptions}<ASUIMenuBreak/></> : <ASUIMenuItem>No Libraries</ASUIMenuItem>}
+            {presetOptions ? presetOptions : <ASUIMenuItem>No Presets</ASUIMenuItem>}
+        </>)
     }
 
-    async renderMenuChangePreset() {
-        const library = LibraryIterator.loadDefault();
-        const programID = this.props.programID;
-        let programClassName = null;
-        if(this.getSong().hasProgram(programID))
-            programClassName = this.getSong().programGetClassName(programID);
-        return await library.renderMenuProgramAllPresets((className, presetConfig) => {
-            this.loadPreset(className, presetConfig);
-        }, programClassName);
+    /** Input **/
+
+    handleMIDIInput(e) {
+        // console.log('handleMIDIInput', e);
+        const destination = this.getComposer().getDestination();
+        this.getSong().playMIDIEvent(destination, this.getProgramID(), e.data);
+
     }
 
 }

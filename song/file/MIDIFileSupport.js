@@ -1,6 +1,6 @@
 import {parseArrayBuffer} from 'midi-json-parser';
-import Values from "../../common/values/Values";
-import {Song} from "../";
+import Song from "../Song";
+import Values from "../values/Values";
 
 
 export default class MIDIFileSupport {
@@ -11,7 +11,7 @@ export default class MIDIFileSupport {
         const midiData = await parseArrayBuffer(fileBuffer);
 
         const song = new Song();
-        const songData = song.getProxiedData();
+        const songData = song.data;
         songData.tracks.root = [];
         songData.title = filePath.split('/').pop();
 
@@ -23,7 +23,7 @@ export default class MIDIFileSupport {
             let songPositionInTicks = 0;
 
 
-            let trackName = 'track' + trackID;
+            let trackName = 't' + trackID;
             let programName = trackName;
 
             songPositionInTicks = 0;
@@ -34,7 +34,7 @@ export default class MIDIFileSupport {
                 }
             }
 
-            songData.programs[trackID] = ['polyphony', {title: programName}]; // {url: defaultProgramURL + '', name: defaultProgramName};
+            songData.programs[trackID] = ['empty', {title: programName}]; // {url: defaultProgramURL + '', name: defaultProgramName};
             songData.tracks[trackName] = [
                 [0, '!p', trackID],
             ]; // {url: defaultProgramURL + '', name: defaultProgramName};
@@ -106,7 +106,7 @@ export default class MIDIFileSupport {
             }
         }
 
-        console.log('midiData', midiData, song.getProxiedData())
+        console.log('midiData', midiData, song.data)
         return song;
     }
 //

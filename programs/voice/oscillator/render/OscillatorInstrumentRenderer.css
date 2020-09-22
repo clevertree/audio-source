@@ -1,0 +1,93 @@
+
+/** Container **/
+div.oscillator-instrument-container  {
+    margin: 2px;
+    padding: 4px;
+    color: #000;
+    border: 1px outset #FFF;
+    border-radius: 4px;
+    background-color: #f8bbbb;
+    position: relative;
+}
+
+/** Status **/
+div.oscillator-instrument-container.loading {
+    animation: loadingBG 1s infinite alternate ease-out;
+    cursor: progress;
+}
+
+@keyframes loadingBG {
+    100% { background-color: #AAA; }
+}
+
+div.oscillator-instrument-container.error {
+    background-color: #AAA;
+}
+
+
+
+/** Header **/
+div.oscillator-instrument-container > div.header {
+    display: flex;
+}
+div.oscillator-instrument-container > div.header > div.toggle-container {
+    flex-basis: 100%;
+}
+
+
+
+
+/** Parameters **/
+div.oscillator-instrument-container > div.parameters {
+    margin: 0 0px 2px 0px;
+    padding: 4px;
+    /*border-radius: 0 0 4px 4px;*/
+    /*border: 1px inset #EEE;*/
+    /*border-top-width: 0px;*/
+    /*background-color: #CCC;*/
+    animation: slideDownOpen 0.4s ease-in;
+}
+
+div.oscillator-instrument-container > div.parameters > div {
+    /*border-bottom: 1px solid #AAA;*/
+    display: flex;
+    padding: 1px;
+}
+div.oscillator-instrument-container > div.parameters > div > div {
+    display: flex;
+    flex-direction: column;
+    flex: 3;
+}
+div.oscillator-instrument-container > div.parameters > div > div.label {
+    text-align: right;
+    font-size: small;
+    padding: 3px 8px 3px 0;
+    flex: 2;
+}
+
+/** Hover **/
+
+
+div.oscillator-instrument-container > div:hover {
+    /*background: #AAA;*/
+    /*color: #000;*/
+    /*cursor: pointer;*/
+    /*border-radius: 4px;*/
+}
+
+/** Transition **/
+
+
+@keyframes slideDownOpen {
+    0% {
+        max-height: 0;
+        overflow-y: hidden;
+    }
+    99% {
+        max-height: 300px;
+    }
+    100% {
+        max-height: inherit;
+        overflow-y: inherit;
+    }
+}

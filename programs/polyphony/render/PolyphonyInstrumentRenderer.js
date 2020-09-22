@@ -1,13 +1,12 @@
 import React from 'react';
 
-import {ASUIButtonDropDown} from "../../../components";
-import {ProgramLoader} from "../../../common/";
+import {ASUIClickableDropDown, ASUIIcon} from "../../../components";
 
 import PolyphonyInstrumentRendererBase from "./PolyphonyInstrumentRendererBase";
 import "./PolyphonyInstrumentRenderer.css";
 
-/** PolyphonyInstrumentRenderer **/
 export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRendererBase {
+
 
     render() {
         const voices = this.props.config.voices || [];
@@ -16,25 +15,15 @@ export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRend
         return (
             <div className="polyphony-instrument-renderer">
                 <div className="voices">
-                    {voices.map((voiceData, voiceID) => {
-                        const [className, config] = voiceData;
-                        const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
-                        return <Renderer
-                            onRemove={this.cb.onRemove}
-                            key={voiceID}
-                            instrumentID={voiceID}
-                            config={config}
-                            program={voiceData}
-                        />
-                    })}
+                    {voices.map((voiceData, voiceID) => this.renderVoice(voiceID, voiceData))}
                 </div>
-                <ASUIButtonDropDown
-                    title="Add new voice"
+                <ASUIClickableDropDown
+                    title="Add new Voice"
                     className="add-voice"
                     arrow={false}
                     options={() => this.renderMenuAddVoice()}>
-                    {voices.length === 0 ? 'Add Voice' : '+'}
-                </ASUIButtonDropDown>
+                    {voices.length === 0 ? 'Add Voice' : <ASUIIcon source="insert" />}
+                </ASUIClickableDropDown>
             </div>
         );
 

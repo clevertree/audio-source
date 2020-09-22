@@ -1,9 +1,8 @@
 import React from "react";
-import {Keyboard, LibraryIterator, Song, SongValues} from "../song";
+import {Keyboard, LibraryProcessor, Song} from "../song";
 
 class ASComposerBase extends React.Component {
     constructor(props) {
-        // console.log('ASComposerRenderer.constructor', props);
         super(props);
         this.state = {
             title: "Audio Source Composer",
@@ -15,15 +14,17 @@ class ASComposerBase extends React.Component {
 
             portrait: true,
             fullscreen: !!this.props.fullscreen,
-            showPanelSong: true,
-            showPanelProgram: true,
-            showPanelInstruction: true,
-            showPanelTrack: true,
-            showPanelKeyboard: true,
-            showPanelPresetBrowser: true,
+            // showPanelSong: true,
+            // showPanelProgram: true,
+            // showPanelInstruction: true,
+            // showPanelTrack: true,
+            // showPanelKeyboard: true,
             showTrackRowPositionInTicks: false,
             showTrackRowDurationInTicks: false,
+            showModal: null,
 
+            // User Session
+            session: {loggedIn: false},
 
             // Playback
             volume: Song.DEFAULT_VOLUME,
@@ -35,15 +36,12 @@ class ASComposerBase extends React.Component {
             songLength: 0,
 
             // Selected Component
-            selectedComponent: [null],
+            selectedComponent: ['track', 'root'],
 
             // Tracks
             activeTracks: {},
-            // selectedTrack: 'root',
-
-            // Track instruction selection
-            selectedTrackIndices: [],
-            selectedInstructionData: [0, 'C4', '1B'],
+            // selectedIndices: [],
+            selectedInstructionData: [0, 'C4', 96],
 
 
             // Track Playback
@@ -52,7 +50,12 @@ class ASComposerBase extends React.Component {
 
             // Programs
             programStates: [],
-            selectedProgramID: 0,
+
+            // View Modes
+            viewModes: {
+                "panel:session": "none"
+            },
+            // selectedViewKey: null,
 
             /** UI **/
 
@@ -62,17 +65,33 @@ class ASComposerBase extends React.Component {
 
         };
 
+        // this.globalState = {};
+
         this.cb = {
             songPlay: () => this.songPlay(),
             songPause: () => this.songPause(),
             songStop: () => this.songStop(),
-            loadSongFromFileInput: this.loadSongFromFileInput.bind(this),
+            openSongFromFileDialog: this.openSongFromFileDialog.bind(this),
             saveSongToFile: this.saveSongToFile.bind(this),
-            onInput: e => this.onInput(e)
+            saveSongToMemory: this.saveSongToMemory.bind(this),
+            onInput: e => this.onInput(e),
+            onSongEventCallback: (e) => this.onSongEvent(e),
+            global: {
+                addLogEntry: (text, type) => this.setStatus(text, type),
+                setViewMode: (viewKey, mode) => this.setViewMode(viewKey, mode),
+                getViewMode: (viewKey) => this.getViewMode(viewKey),
+                renderMenuViewOptions: (viewKey) => this.renderMenuViewOptions(viewKey),
+                isPortraitMode: () => this.state.portrait
+                // getGlobalKey: key => this.globalState.getKey(key),
+                // setGlobalKey: (key,  value) => this.globalState.setKey(key,  value),
+            },
         }
         this.ref = {
             container: React.createRef(),
             panelSong: React.createRef(),
+            panelTrack: React.createRef(),
+            panelProgram: React.createRef(),
+            panelSession: React.createRef(),
             activeTracks: [],
             activePrograms: [],
         }
@@ -84,35 +103,41 @@ class ASComposerBase extends React.Component {
         this.timeouts = {
             saveSongToMemory: null,
             saveState: null,
-            renderPrograms: null
+            renderPrograms: null,
+            render: null
         };
         this.autoSaveTimeout = 4000;
 
         this.keyboard = new Keyboard();
 
-        this.library = LibraryIterator.loadDefault();
+        this.library = LibraryProcessor.loadDefault();
         // console.log('library', this.library, this.library.getLibraries(), this.library.getPresets());
 
         this.song = new Song();
         this.audioContext = null;
         this.lastVolumeGain = null;
 
-        this.onSongEventCallback = (e) => this.onSongEvent(e);
 
-
-        setTimeout(async () => {
-            const midiFilePath = require('../../assets/files/midi/amarbule.mid');
-            const response = await fetch(midiFilePath);
-            const midiFileBuffer = await response.arrayBuffer();
-            console.log('midiFilePath', midiFilePath, midiFileBuffer);
-            // await this.loadSongFromBuffer(midiFileBuffer, 'test.mid');
-
-        }, 1000);
+        // setTimeout(async () => {
+        //     const midiFilePath = require('../../assets/files/midi/amarbule.mid');
+        //     const response = await fetch(midiFilePath);
+        //     const midiFileBuffer = await response.arrayBuffer();
+        //     console.log('midiFilePath', midiFilePath, midiFileBuffer);
+        //     await this.loadSongFromBuffer(midiFileBuffer, 'test.mid');
+        //
+        // }, 1000);
 
     }
 
+    /** @returns {object} **/
+    // getGlobalState() {
+    //     return this.globalState;
+    // }
+    // setGlobalState(globalState) {
+    //     Object.apply(this.globalState, globalState);
+    // }
 
-    get values() { return new SongValues(this.song); }
+    // get values() { return new SongValues(this.song); }
 
     // async connectedCallback() {
     //     this.shadowDOM = this.attachShadow({mode: 'closed'});
@@ -129,10 +154,29 @@ class ASComposerBase extends React.Component {
     // }
 
     componentDidMount() {
-        this.loadState();
 
         this.loadMIDIInterface(this.cb.onInput);
+
+        // if(this.props.location && this.props.location.hash) {
+        //     let hashString = null;
+        //     hashString = this.props.location.hash || '';
+        //     const hashSplit = hashString.substr(1).split('&');
+        //     for (let i = 0; i < hashSplit.length; i++) {
+        //         let pair = hashSplit[i].split('=');
+        //         const param = decodeURIComponent(pair[0]);
+        //         params[param] = decodeURIComponent(pair[1]);
+        //     }
+        //     console.log('hash', params, hashString, hashSplit);
+        // }
+        const songURL = this.props.url || this.props.src;
+        if(songURL) {
+            this.loadSongFromURL(songURL);
+        } else if(!this.props.skipAutoLoadSong) {
+            this.loadState();
+        }
+
         // TODO: get default library url from composer?
+        this.sessionRefresh();
     }
 
     componentWillUnmount() {
@@ -155,12 +199,6 @@ class ASComposerBase extends React.Component {
 
     openMenuByKey(menuName) {
         this.ref.container.current.openMenuByKey(menuName);
-    }
-
-
-    /** Render WebView Proxy **/
-    renderWebViewProxy() {
-        return null;
     }
 
 }

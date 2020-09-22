@@ -1,10 +1,46 @@
-div.asui-clickable {
+
+
+.asui-clickable {
+    display: inline-flex;
     cursor: pointer;
+    margin: 0 0;
+    padding: 0 2px;
+    /*position: relative;*/
+    align-items: center;
+    /*justify-content: center;*/
+    /*cursor: pointer;*/
+    white-space: nowrap;
 }
 
-div.asui-clickable.dropdown {
-    position: relative;
 
+/*div.asui-clickable.dropdown {*/
+/*    position: relative;*/
+/*}*/
+
+
+
+/** Button Style **/
+button.asui-clickable {
+    font-family: monospace;
+    min-height: 20px;
+    /*z-index: 3;*/
+
+    background: linear-gradient(#f6f6f6, #dddddd);
+    border: 1px outset #EEE;
+}
+
+/** Selection **/
+button.asui-clickable.selected {
+    border: 1px inset;
+    background: linear-gradient(#ccc, #aaa);
+}
+
+
+/** Selected **/
+div.asui-clickable.selected,
+div.asui-clickable.stick {
+    background-color: #999;
+    /*border: 1px inset #AAA;*/
 }
 
 
@@ -12,23 +48,15 @@ div.asui-clickable.dropdown {
 
 
 /** Menu Arrow **/
-div.asui-clickable > div.arrow {
+.asui-clickable > div.arrow {
     display: inline-block;
     font-size: small;
-    margin: 2px 2px 0 auto;
+    margin: 1px 2px 1px auto;
     padding-left: 0.5em;
 }
 
-
-
-/** Selected **/
-div.asui-clickable.selected {
-    border-style: inset;
-    background-color: #CAA !important;
-}
-
 /** Loading **/
-div.asui-clickable.loading {
+.asui-clickable.loading {
     background: linear-gradient(-45deg, #96e76bFF, #e73c7e66, #23a6d500, #23d5ab66) !important;
     background-size: 400% 400%;
     animation: gradientBG 5s ease infinite;
@@ -45,6 +73,35 @@ div.asui-clickable.loading {
     100% {
         background-position: 0% 50%;
     }
+}
+
+/** Hover **/
+
+.asui-clickable:hover {
+    background: linear-gradient(#ddd, #bbb);
+}
+
+/** Disabled **/
+.asui-clickable.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/** Styles **/
+.asui-clickable.wide {
+    padding: 0 6px;
+}
+.asui-clickable.small {
+    font-size: small;
+}
+
+.asui-clickable.large {
+    padding: 1em;
+    font-weight: bold;
+}
+
+.asui-clickable.center {
+    justify-content: center;
 }
 
 

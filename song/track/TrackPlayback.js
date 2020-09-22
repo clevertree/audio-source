@@ -1,5 +1,5 @@
 import TrackIterator from "./TrackIterator";
-import ProgramLoader from "../../common/program/ProgramLoader";
+import ProgramLoader from "../program/ProgramLoader";
 
 
 export default class TrackPlayback extends TrackIterator {
@@ -11,21 +11,23 @@ export default class TrackPlayback extends TrackIterator {
                 startTime: null,
             },
             filterProgramCommand
-            )
+        );
 
         if (!destination || !destination.context)
             throw new Error("Invalid destination");
         this.audioContext = destination.context;
         this.destination = destination;
+        this.lastCurrentTime = null;
 
         this.startTime = null;
-        this.seekLength = 10;
+        this.seekLength = 2;
         this.active = false;
         this.activePrograms = [];
 
         this.endPromise = new Promise((resolve, reject) => {
             this.endResolve = resolve;
         });
+        // console.log('TrackPlayback', startingTrackName, song);
     }
 
     isActive() { return this.active; }
@@ -41,7 +43,13 @@ export default class TrackPlayback extends TrackIterator {
 
     onExecuteProgram(trackStats, commandString, params) {
         const program = trackStats.program;
-        program[commandString].apply(program, params);
+        if(!program) {
+            console.warn("Failed to execute command on empty program: ", commandString, params, trackStats);
+            // TODO: error state
+        } else {
+            // console.log(program.constructor.name, `(${commandString})`, params);
+            program[commandString].apply(program, params);
+        }
     }
 
 
@@ -55,7 +63,7 @@ export default class TrackPlayback extends TrackIterator {
     onLoadProgram(trackStats, program) {
 
         const oldProgram = trackStats.program;
-        const oldDestination = trackStats.destination;
+        // const oldDestination = trackStats.destination;
         let programInstance;
         if(Array.isArray(program)) {
             programInstance = ProgramLoader.loadInstance(program[0], program[1]);
@@ -65,8 +73,8 @@ export default class TrackPlayback extends TrackIterator {
         trackStats.program = programInstance;
 
         // useDestination allows for audio processing (i.e. effects)
-        if(typeof programInstance.useDestination === 'function')
-            trackStats.destination = programInstance.useDestination(oldDestination);
+        // if(typeof programInstance.useDestination === 'function')
+        //     trackStats.destination = programInstance.useDestination(oldDestination);
 
         // useProgram allows for both note processing and audio processing effects
         if(typeof programInstance.useProgram === 'function')
@@ -84,7 +92,7 @@ export default class TrackPlayback extends TrackIterator {
         if(!stats.playingIndices)
             stats.playingIndices = [];
         const playingIndices = stats.playingIndices;
-        stats.onInstructionStart = (startTime, stats) => {
+        stats.onInstructionStart = (startTime) => {
             if(!this.active) return;
             const waitTime = startTime -this.audioContext.currentTime;
             // console.log('onInstructionStart', startTime, waitTime);
@@ -101,21 +109,19 @@ export default class TrackPlayback extends TrackIterator {
             }, waitTime * 1000);
                                     // console.log('playingIndices.push', playingIndices);
         };
-        stats.onInstructionEnd = (endTime, stats) => {
+        stats.onInstructionEnd = (index) => {
             if(!this.active) return;
-            const waitTime = endTime - this.audioContext.currentTime;
-            // console.log('onInstructionStart', endTime, waitTime);
             const event = {
                 type: 'instruction:end',
                 trackName: stats.trackName,
-                index: stats.currentIndex,
+                index,
                 playingIndices,
             }
-            setTimeout(() => {
-                if(!this.active) return;
-                playingIndices.splice(playingIndices.indexOf(event.index), 1);
-                this.song.dispatchEvent(event)
-            }, waitTime * 1000);
+            // console.log('onInstructionEnd', playingIndices, event);
+            const i = playingIndices.indexOf(event.index);
+            if(i !== -1)
+                playingIndices.splice(i, 1);
+            this.song.dispatchEvent(event)
         };
         // this.onEvent({
         //     type: 'track:start',
@@ -126,6 +132,7 @@ export default class TrackPlayback extends TrackIterator {
 
 
     play(startPosition=null) {
+        // console.log('TrackPlayback.play', startPosition);
         const stats = this.activeIterators[0].stats;
         this.active = true;
 
@@ -135,7 +142,7 @@ export default class TrackPlayback extends TrackIterator {
             this.startTime -= startPosition;
         stats.startTime = this.startTime; // TODO: redundant?
 
-        this.seekInterval = setInterval(() => this.renderPlayback(), this.seekLength / 10);
+        this.seekInterval = setInterval(() => this.renderPlayback(), (this.seekLength * 1000) / 2);
 
         this.renderPlayback();
     }
@@ -167,8 +174,12 @@ export default class TrackPlayback extends TrackIterator {
     }
 
     renderPlayback() {
-        const currentPositionSeconds = this.getPlaybackPosition();
-        // console.log('currentPositionSeconds', currentPositionSeconds);
+        const currentPositionSeconds = this.audioContext.currentTime - this.startTime;
+        if(this.audioContext.currentTime === this.lastCurrentTime)
+            console.warn("audioContext.currentTime is stalling: ", this.audioContext.currentTime, this.lastCurrentTime);
+        this.lastCurrentTime = this.audioContext.currentTime;
+
+        // console.log('renderPlayback()', {currentPositionSeconds}, this.active, this.hasReachedEnd(), this);
 
         if(!this.active || this.hasReachedEnd()) {
             clearInterval(this.seekInterval);
@@ -185,6 +196,7 @@ export default class TrackPlayback extends TrackIterator {
     }
 
     stopPlayback(stopAllNotes=true) {
+        // console.log('TrackPlayback.stopPlayback', stopAllNotes);
         if(this.active) {
             this.active = false;
             this.endResolve();

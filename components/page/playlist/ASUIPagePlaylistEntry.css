@@ -1,0 +1,59 @@
+
+/** Playlist Entry **/
+div.asui-page-playlist-entry {
+    position: relative;
+    background: #b9dabf;
+    display: flex;
+    border: 1px outset;
+    border-radius: 3px;
+    padding: 8px;
+    margin: 2px;
+}
+
+div.asui-page-playlist-entry > .background {
+    z-index: 1;
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+}
+
+
+div.asui-page-playlist-entry:hover {
+    background: #998bda;
+    cursor: pointer;
+}
+div.asui-page-playlist-entry > div.image {
+}
+
+div.asui-page-playlist-entry > div.image,
+div.asui-page-playlist-entry > div.play {
+    padding-right: 8px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+div.asui-page-playlist-entry > div.info {
+    position: relative;
+    z-index: 3;
+    border-left: 2px inset #999;
+    padding-left: 8px;
+}
+
+div.asui-page-playlist-entry > div.info > div.artist {
+    font-size: smaller;
+}
+
+div.asui-page-playlist-entry > div.info > div.datePublished {
+    color: grey;
+    font-size: smaller;
+}
+div.asui-page-playlist-entry > div.play {
+    position: absolute;
+    z-index: 3;
+    right: 8px;
+}
+div.asui-page-playlist-entry > div.edit {
+    margin-left: 8px;
+}

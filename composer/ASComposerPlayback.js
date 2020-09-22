@@ -1,4 +1,3 @@
-import {Song} from "../song";
 import ASComposerActions from "./ASComposerActions";
 
 // import {TrackInfo} from "./track/";
@@ -7,12 +6,12 @@ export default class ASComposerPlayback extends ASComposerActions {
 
     loadMIDIInterface(callback) {
         // TODO: wait for user input
-        console.log('navigator.requestMIDIAccess', navigator, navigator.requestMIDIAccess);
+        // console.log('navigator.requestMIDIAccess', navigator, navigator.requestMIDIAccess);
         if (navigator.requestMIDIAccess) {
-            console.info("MIDI initializing");
+            // console.info("MIDI initializing");
             navigator.requestMIDIAccess().then(
                 (MIDI) => {
-                    console.info("MIDI initialized", MIDI);
+                    // console.info("MIDI initialized", MIDI);
                     const inputDevices = [];
                     MIDI.inputs.forEach(
                         (inputDevice) => {
@@ -34,16 +33,11 @@ export default class ASComposerPlayback extends ASComposerActions {
     }
 
 
-    /** Song Proxy **/
-    /**
-     * Sets current composer song
-     * @param song
-     */
-    setCurrentSong(song) {
-        if(!song instanceof Song)
-            throw new Error("Invalid Song object");
-        return super.setCurrentSong(song);
-    }
+    // setCurrentSong(song) {
+    //     if(!song instanceof Song)
+    //         throw new Error("Invalid Song object");
+    //     return super.setCurrentSong(song);
+    // }
 
     getVolumeGain(destination) {
         if(!destination || !destination.context)

@@ -28,12 +28,12 @@ export default class ASComposerPlayback extends ASComposerActions {
 
     /** Song Proxy **/
 
-    setCurrentSong(song) {
+    async setCurrentSong(song) {
         if(!song instanceof Song)
             throw new Error("Invalid Song object");
         song = new Proxy(song, new SongProxyListener(song, this.webViewProxy));
         // console.log("Setting song proxy: ", song);
-        return super.setCurrentSong(song);
+        return await super.setCurrentSong(song);
     }
 
 

@@ -18,14 +18,15 @@ export default class ASComposerEvents extends ASComposerInput {
             case 'instruction:start':
             case 'instruction:end':
                 // console.log(e.type, e.playingIndices);
-                if(this.trackHasActive(e.trackName)) {
-                    this.trackUpdatePlayingIndices(e.trackName, e.playingIndices);
-                }
+                const track = this.trackGetRef(e.trackName, false);
+                if(track)
+                    track.updatePlayingIndices(e.playingIndices);
+
                 // this.forceUpdate();
                 break;
 
             case 'song:seek':
-                this.updateSongPositionValue(e.position);
+                this.setSongPosition(e.position);
                 break;
 
             case 'song:volume':
@@ -39,30 +40,36 @@ export default class ASComposerEvents extends ASComposerInput {
             case 'song:play':
                 this.setState({playing: true});
                 // this.fieldSongPlaybackPause.disabled = false;
-                let updateCount = 0;
                 const updateSongPositionInterval = setInterval(e => {
                     if (!this.song.isPlaying()) {
                         clearInterval(updateSongPositionInterval);
                         // this.fieldSongPlaybackPause.disabled = true;
                         this.setState({playing: false, paused: false});
                     }
-                    this.updateSongPositionValue(this.song.getSongPlaybackPosition(), updateCount % 5 === 0);
-                    updateCount++;
+                    this.setSongPosition(this.song.getSongPlaybackPosition(), true);
                 }, 10);
                 break;
 
             case 'song:pause':
-                this.setState({paused: true});
+                if(this.state.playing)
+                    this.setState({paused: true});
                 break;
 
             case 'song:end':
-                this.setState({playing: false, paused: false});
+                if(this.state.playing)
+                    this.setState({playing: false, paused: false});
                 break;
 
 
             case 'song:modified':
+                if(!this.timeouts.render) {
+                    this.timeouts.render = setTimeout(() => {
+                        clearTimeout(this.timeouts.render);
+                        delete this.timeouts.render;
+                        this.forceUpdate();
+                    }, 100)
+                }
                 // console.log(e.type);
-                this.forceUpdate();  // TODO: might be inefficient
                 // TODO: auto save toggle
                 this.saveSongToMemoryWithTimeout();
                 break;

@@ -1,0 +1,24 @@
+
+input.asui-input-text {
+  position: relative;
+  border-width: 0px;
+}
+
+
+input.asui-input-text.large {
+  font-size: larger;
+  padding: 0.3em;
+}
+
+/** Value **/
+
+input.asui-input-text > div.value {
+  font-size: small;
+  position: absolute;
+  padding: 4px 6px;
+  z-index: 1;
+}
+
+input.asui-input-text.value-right > div.value {
+  right: 2px;
+}

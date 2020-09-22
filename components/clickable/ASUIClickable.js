@@ -27,23 +27,29 @@ export default class ASUIClickable extends ASUIClickableBase {
             className += ' selected';
         if(this.props.loading)
             className += ' loading';
+        if(this.props.size)
+            className += ' ' + this.props.size;
+        if(this.props.center)
+            className += ' center';
+        if(this.props.wide)
+            className += ' wide';
         if(this.state && this.state.open)
             className += ' open';
 
-        return (
-            <div
-                title={this.props.title}
-                className={className}
-                onClick={this.cb.onMouseInput}
-                onKeyDown={this.cb.onKeyDown}
-                onMouseEnter={this.cb.onMouseEnter}
-                onMouseLeave={this.cb.onMouseLeave}
-                // tabIndex={0}
-                ref={this.ref.container}
-            >
-                {this.renderChildren()}
-            </div>
-        );
+        const props = {
+            title: this.props.title,
+            className,
+            onClick: this.cb.onMouseInput,
+            onKeyDown: this.cb.onKeyDown,
+            onMouseEnter: this.cb.onMouseEnter,
+            onMouseLeave: this.cb.onMouseLeave,
+            ref: this.ref.container,
+            children: this.renderChildren()
+        }
+
+        if(this.props.button)
+            return <button {...props} />;
+        return <div {...props} />;
     }
 
     renderChildren(props={}) {
@@ -53,64 +59,9 @@ export default class ASUIClickable extends ASUIClickableBase {
     /** User Input **/
 
     onMouseEnter(e) {
-        // TODO: close all opened that aren't hovered
+        // const button = e.button;
         clearTimeout(this.timeoutMouseLeave);
-        this.hoverDropDown();
-        // TODO: *OR* keep track of 'leaving' state?
+        this.hoverDropDown(e);
     }
 
-
-
-    /** Hover **/
-
-    // TODO: move to ASUIDropDownContainer
-
-    isHoverEnabled() {
-        if(!this.getOverlay() || !this.getOverlay().isHoverEnabled())
-            return false;
-        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-dropdown-container')
-        // console.log('openDropDownMenus', openDropDownMenus);
-        return openDropDownMenus.length > 0;
-    }
-
-    hoverDropDown() {
-        if(!this.isHoverEnabled())
-            return;
-        this.closeAllDropDownElmsButThis();
-    }
-
-    /** DOM elements **/
-
-    getOverlayContainerElm() {
-        const thisElm = this.ref.container.current;
-        let containerElm;
-        for (containerElm = thisElm ; containerElm && containerElm !== document; containerElm = containerElm.parentNode ) {
-            if(containerElm.classList.contains('asui-contextmenu-container'))
-                break;
-        }
-        return containerElm;
-    }
-
-    closeAllDropDownElmsButThis() {
-        const thisElm = this.ref.container.current;
-        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-clickable.dropdown.open')
-        openDropDownMenus.forEach(openDropDownMenu => {
-            if(openDropDownMenu === thisElm
-                || openDropDownMenu.contains(thisElm))
-                return;
-            /** @var {ASUIMenuDropDown}**/ // TODO: switch menu to clickable or dropdown
-            const dropdown = findReactElement(openDropDownMenu); // Ugly Hack
-            dropdown.closeDropDownMenu();
-        });
-        // console.log('closeAllDropDownElmsButThis', openDropDownMenus);
-    }
-}
-
-function findReactElement(node) {
-    for (var key in node) {
-        if (key.startsWith("__reactInternalInstance$")) {
-            return node[key]._debugOwner.stateNode;
-        }
-    }
-    return null;
 }

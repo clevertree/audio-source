@@ -29,6 +29,7 @@ div.asc-preset-browser > div.preset-list > div {
 }
 div.asc-preset-browser > div.library-list > div.selected ,
 div.asc-preset-browser > div.preset-list > div.selected {
+    background-color: #BBB;
     border: #CCC inset 1px;
 }
 

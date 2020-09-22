@@ -87,13 +87,15 @@ class SongTest {
       programs: [
           ['polyphony', {
             voices: [
-              ['test'],
+              ['empty'],
             ]
           }],
-          ['test'],
+          ['empty'],
       ]
     });
-    song.data.title = 'test';
+    const proxiedData = song.getProxiedData();
+    proxiedData.title = 'test';
+    proxiedData.timeDivision = 30;
     // await song.loadSongData({});
 
 
@@ -105,7 +107,6 @@ class SongTest {
     song.instructionInsertAtIndex(testTrackName, 0, [0, '!p', 0]);
 
     // const rootTrack = song.data.tracks.root;
-    song.data.timeDivision = 30;
     const TD = song.data.timeDivision;
 
     // Insert Instructions

@@ -1,15 +1,17 @@
-import {Instruction, LibraryIterator, ProgramLoader, Song, ClientStorage, FileService, FileSupport} from "../song";
+import {LibraryProcessor, ProgramLoader, Song, ClientStorage, FileService, FileSupport} from "../song";
+import {Instruction, Values} from "../song";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
-import {InstructionProcessor} from "../common";
-import TrackState from "./track/state/TrackState";
-import Values from "../common/values/Values";
+import ClientUserAPI from "../server/user/ClientUserAPI";
 
 // import {TrackInfo} from "./track/";
 
 class ASComposerActions extends ASComposerMenu {
 
+
+    /** Status **/
     setStatus(statusText, statusType='log') {
+        console[statusType](statusText);
         this.setState({statusText, statusType: statusType + ''});
     }
 
@@ -17,10 +19,37 @@ class ASComposerActions extends ASComposerMenu {
         this.setStatus(statusText, 'error');
     }
 
+
+    /** User Session **/
+    async sessionRefresh() {
+        const userAPI = new ClientUserAPI();
+        const session = await userAPI.getSession();
+        // console.log('User Session: ', session);
+        this.setState({
+            session
+        })
+    }
+
+    sessionIsUserLoggedIn() { return this.state.session.loggedIn; }
+
+    toggleModal(modalName) {
+        this.setState({
+            showModal: this.state.showModal === modalName ? null : modalName
+        })
+    }
+
+    showModal(modalName, modalArgs=null) {
+        const state = {
+            showModal: modalName,
+            modalArgs
+        };
+        this.setState(state);
+    }
+
     /** Library **/
 
     setLibrary(library) {
-        if(!(library instanceof LibraryIterator))
+        if(!(library instanceof LibraryProcessor))
             throw new Error("Invalid library: " + typeof library);
         this.library = library;
         // console.log('Current library: ', library);
@@ -49,10 +78,15 @@ class ASComposerActions extends ASComposerMenu {
         }
     }
 
+
+    // getSelectedViewKey() {
+    //     return this.state.selectedViewKey;
+    // }
+
     getSelectedTrackName() {
-        const [type, name] = this.state.selectedComponent;
+        const [type, id] = this.state.selectedComponent;
         if(type === 'track')
-            return name;
+            return id;
         return null;
     }
 
@@ -63,7 +97,7 @@ class ASComposerActions extends ASComposerMenu {
      * Sets current composer song
      * @param song
      */
-    setCurrentSong(song) {
+    async setCurrentSong(song) {
         if(!song instanceof Song)
             throw new Error("Invalid current song");
         if(this.song) {
@@ -71,13 +105,21 @@ class ASComposerActions extends ASComposerMenu {
             if(this.song.isPlaying()) {
                 this.song.stopPlayback();
             }
-            this.song.removeEventListener('*', this.onSongEventCallback);
+            this.song.removeEventListener('*', this.cb.onSongEventCallback);
             this.song.unloadAll();
         }
         this.song = song;
-        console.log("Current Song: ", song.getProxiedData());
+        this.song.addEventListener('*', this.cb.onSongEventCallback);
 
-        this.song.addEventListener('*', this.onSongEventCallback);
+        let songLength = 0;
+        try {
+            songLength = song.getSongLengthInSeconds();
+        } catch (e) {
+            console.error("Error loading song length: ", e);
+        }
+
+        if(this.props.onSongLoad)
+            this.props.onSongLoad(song);
 
         const startTrackName = song.getStartTrackName() || 'root';
         const state = {
@@ -85,12 +127,15 @@ class ASComposerActions extends ASComposerMenu {
             statusType: 'log',
             title: song.data.title,
             songUUID: song.data.uuid,
-            songLength: song.getSongLengthInSeconds(),
+            songLength,
             selectedComponent: ['track', startTrackName],
             activeTracks: {}
         }
         state.activeTracks[startTrackName] = {}; // TODO: open root, why not?
-        this.setState(state);
+        await this.setStateAsync(state);
+        console.log("Loading Song: ", song.data, songLength);
+        await this.song.programLoadAll();
+        // console.log("Current Song: ", song.data, songLength);
     }
 
     updateCurrentSong() {
@@ -100,42 +145,45 @@ class ASComposerActions extends ASComposerMenu {
             activeTracks[selectedTrack || 'root'] = {}
 
 
-        const songData = this.song.getProxiedData();
-        for(let trackName in this.state.activeTracks) {
-            if(this.state.activeTracks.hasOwnProperty(trackName)) {
-                if (songData.tracks[trackName]) {
-                    if (this.state.activeTracks.hasOwnProperty(trackName)) {
-                        const trackState = new TrackState(this, trackName);
-                        trackState.updateRenderingProps();
-                    }
+        // const songData = this.song.getProxiedData();
+        // for(let trackName in this.state.activeTracks) {
+        //     if(this.state.activeTracks.hasOwnProperty(trackName)) {
+        //         if (songData.tracks[trackName]) {
+        //             // if (this.state.activeTracks.hasOwnProperty(trackName)) {
+        //                 // const trackState = new TrackState(this, trackName);
+        //                 // trackState.updateRenderingStats();
+        //             // }
+        //             console.log("TODO finish")
+        //         } else {
+        //             // delete activeTracks[trackName];
+        //             console.warn("Removing unavailable active track: " + trackName);
+        //         }
+        //     }
+        // }
 
-                } else {
-                    delete activeTracks[trackName];
-                    console.warn("Removing unavailable active track: " + trackName);
-                }
-            }
+        let songLength = 0;
+        try {
+            songLength = this.song.getSongLengthInSeconds();
+        } catch (e) {
+            console.error("Error loading song length: ", e);
         }
 
         this.setState({
-            songLength: this.song.getSongLengthInSeconds(),
+            songLength,
             activeTracks
         });
     }
 
 
-    /** Focus **/
 
-    focusActiveTrack() {
-        const trackName = this.getSelectedTrackName();
-        if(trackName) try {
-            const trackRef = this.trackGetRef(trackName);
-            trackRef.focus();
-        } catch (e) {
-            console.warn(e);
-        }
-    }
 
     /** State **/
+
+    async setStateAsync(state) {
+        await new Promise(resolve => {
+            this.setState(state, resolve);
+        })
+    }
 
     async loadState() {
         const storage = new ClientStorage();
@@ -151,14 +199,27 @@ class ASComposerActions extends ASComposerMenu {
             await this.loadDefaultSong(state.songUUID);
             const recentValues = state.recentValues;
             delete state.songUUID;
+            delete state.songLength;
             delete state.recentValues;
-            this.setState(state);
-            this.updateCurrentSong();
+            delete state.session;
+            await this.setStateAsync(state);
+            // this.updateCurrentSong();
             // this.setCurrentSong(this.song); // Hack: resetting current song after setting state, bad idea
 
-            if(recentValues && recentValues.recentDurations) {
-                Values.recentDurations = recentValues.recentDurations;
-                Values.recentFrequencies = recentValues.recentFrequencies;
+            if(recentValues) {
+                Values.recentDurations = recentValues.recentDurations || [];
+                Values.recentFrequencies = recentValues.recentFrequencies || [];
+                LibraryProcessor.recentSampleURLs = recentValues.recentLibrarySampleURLs || [];
+            }
+
+            for(let key in state.activeTracks) {
+                if(state.activeTracks.hasOwnProperty(key)) try {
+                    const trackState = state.activeTracks[key];
+                    const activeTrack = this.ref.activeTracks[key].current;
+                    activeTrack.setState(trackState, () => activeTrack.updateRenderingStats());
+                } catch (e) {
+                    console.error(e);
+                }
             }
         } else {
             await this.loadDefaultSong();
@@ -174,20 +235,22 @@ class ASComposerActions extends ASComposerMenu {
     saveState() {
         const storage = new ClientStorage();
         const state = Object.assign({}, this.state, {
-            // activeTracks: {}
+            activeTracks: {}
         });
         for(let key in this.ref.activeTracks) {
-            if(this.ref.activeTracks.hasOwnProperty(key)) {
+            if(this.ref.activeTracks.hasOwnProperty(key)) try {
                 const activeTrack = this.ref.activeTracks[key];
-                if(activeTrack.current) {
-                    Object.assign(state.activeTracks[key], activeTrack.current.state);
-                }
+                if(activeTrack.current)
+                    state.activeTracks[key] = activeTrack.current.getStorageState();
+            } catch (e) {
+                console.error(e);
             }
         }
 
         state.recentValues = {
             recentFrequencies: Values.recentFrequencies,
             recentDurations: Values.recentDurations,
+            recentLibrarySampleURLs: LibraryProcessor.recentSampleURLs,
         }
 
         // Delete playback stats
@@ -198,10 +261,16 @@ class ASComposerActions extends ASComposerMenu {
         delete state.version;
         delete state.portrait;
         state.songUUID = this.song.data.uuid;
-        console.log('Saving State: ', state);
+        console.log('Saving State: ', state, this.ref.activeTracks);
         storage.saveState(state, 'audio-source-composer-state');
     }
 
+    clearUIState() {
+        this.setState({
+            viewModes: {},
+            activeTracks: {},
+        });
+    }
 
 
     /** Volume **/
@@ -228,7 +297,8 @@ class ASComposerActions extends ASComposerMenu {
     setSongName(newSongTitle=null) {
         if(typeof newSongTitle !== "string")
             throw new Error("Invalid song title: " + newSongTitle);
-        this.song.data.title = newSongTitle;
+        const data = this.song.getProxiedData();
+        data.title = newSongTitle;
         this.setStatus(`Song title updated: ${newSongTitle}`);
     }
 
@@ -239,7 +309,8 @@ class ASComposerActions extends ASComposerMenu {
     setSongVersion(newSongVersion) {
         if(typeof newSongVersion !== "string")
             throw new Error("Invalid song version: " + newSongVersion);
-        this.song.data.version = newSongVersion;
+        const data = this.song.getProxiedData();
+        data.version = newSongVersion;
         this.setStatus(`Song version updated: ${newSongVersion}`);
     }
 
@@ -252,7 +323,8 @@ class ASComposerActions extends ASComposerMenu {
         const bpm = Number.parseFloat(newSongBeatsPerMinute)
         if(Number.isNaN(bpm))
             throw new Error("Invalid BPM: " + newSongBeatsPerMinute)
-        this.song.data.beatsPerMinute = bpm; // songChangeStartingBeatsPerMinute(newSongBeatsPerMinute);
+        const data = this.song.getProxiedData();
+        data.beatsPerMinute = bpm; // songChangeStartingBeatsPerMinute(newSongBeatsPerMinute);
         this.setStatus(`Song beats per minute updated: ${bpm}`);
     }
 
@@ -260,7 +332,7 @@ class ASComposerActions extends ASComposerMenu {
 
     async openSongFromFileDialog(e, accept=null) {
         const file = await this.openFileDialog(accept);
-        this.loadSongFromFileInput(e, file);
+        await this.loadSongFromFileInput(e, file);
     }
 
 
@@ -289,16 +361,18 @@ class ASComposerActions extends ASComposerMenu {
         return false;
     }
 
+
     async loadNewSongData() {
         // const storage = new Storage();
         // const defaultProgramURL = this.getDefaultProgramClass() + '';
         // let songData = storage.generateDefaultSong(defaultProgramURL);
         // const song = Song.loadSongFromData(songData);
         const song = new Song();
-        this.setCurrentSong(song);
-        // this.forceUpdate();
-        this.setStatus("Loaded new song", song.getProxiedData());
+        await this.setCurrentSong(song);
         await this.saveSongToMemory();
+        // this.forceUpdate();
+        this.clearUIState();
+        this.setStatus("Loaded new song");
     }
 
 
@@ -313,10 +387,25 @@ class ASComposerActions extends ASComposerMenu {
         return false;
     }
 
+    async loadSongFromURLPrompt() {
+        const url = await PromptManager.openPromptDialog("URL:", 'https://');
+        return await this.loadSongFromURL(url);
+    }
     async loadSongFromURL(url) {
-        const fileService = new FileService();
-        const buffer = await fileService.loadBufferFromURL(url);
-        return await this.loadSongFromBuffer(buffer, url);
+        if(typeof url !== "string")
+            throw new Error("Invalid URL: " + typeof url);
+        this.setStatus("Loading song from url: " + url);
+        try {
+            const fileService = new FileService();
+            const buffer = await fileService.loadBufferFromURL(url);
+            const song = await this.loadSongFromBuffer(buffer, url);
+            // await this.saveSongToMemory();
+            this.setStatus("Song loaded from url: " + url);
+            return song;
+        } catch (e) {
+            this.setError(e.message);
+            throw e;
+        }
     }
 
     async loadSongFromFileInput(e, file=null, accept=null) {
@@ -332,13 +421,16 @@ class ASComposerActions extends ASComposerMenu {
                 resolve(e.target.result);
             };
         });
-        return await this.loadSongFromBuffer(buffer, file.name);
+        const song = await this.loadSongFromBuffer(buffer, file.name);
+        await this.saveSongToMemory();
+        return song;
     }
 
     async loadSongFromBuffer(buffer, filePath) {
         const fileSupport = new FileSupport();
         const song = await fileSupport.processSongFromFileBuffer(buffer, filePath);
-        this.setCurrentSong(song);
+        await this.setCurrentSong(song);
+        this.clearUIState();
         return song;
     }
 
@@ -349,23 +441,24 @@ class ASComposerActions extends ASComposerMenu {
         const songData = await storage.loadSongFromMemory(songUUID);
         const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
         const song = new Song(songData);
-        song.loadSongData(songData);
+        // song.loadSongData(songData);
         song.loadSongHistory(songHistory);
-        this.setCurrentSong(song);
-        this.setStatus("Song loaded from memory: " + songUUID);
+        await this.setCurrentSong(song);
         this.saveState();
+        this.setStatus("Song loaded from memory: " + songUUID);
+        return song;
     }
 
 
     async saveSongToMemory(setStatus=true) {
         const song = this.song;
-        const songData = song.getProxiedData();
+        const songData = song.data; // getProxiedData();
         const songHistory = song.history;
         const storage = new ClientStorage();
         setStatus && this.setStatus("Saving song to memory...");
         await storage.saveSongToMemory(songData, songHistory);
-        setStatus && this.setStatus("Saved song to memory: " + (songData.title || songData.uuid));
         this.saveState();
+        setStatus && this.setStatus("Saved song to memory: " + (songData.title || songData.uuid));
     }
 
     saveSongToMemoryWithTimeout(autoSaveTimeout=null, setStatus=false) {
@@ -374,7 +467,7 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     async saveSongToFile(prompt=true) {
-        const songData = this.song.getProxiedData();
+        const songData = this.song.data; // getProxiedData();
         let fileName = (songData.title || "untitled")
                 .replace(/\s+/g, '_')
             + '.json';
@@ -397,25 +490,25 @@ class ASComposerActions extends ASComposerMenu {
         return this.setSongPosition(playbackPosition);
     }
 
-    setSongPosition(songPosition) {
-        // TODO: parse % percentage
-        if(typeof songPosition === 'string')
-            songPosition = this.values.parsePlaybackPosition(songPosition);
-        if(isNaN(songPosition))
-            throw new Error("Invalid song position: " + songPosition);
-        this.updateSongPositionValue(songPosition);
-        // this.state.songPosition = songPosition;
-        // this.setState({songPosition})
-//         console.info('setSongPosition', songPosition);
-    }
+//     setSongPosition(songPosition) {
+//         this.updateSongPositionValue(songPosition);
+//         // this.state.songPosition = songPosition;
+//         // this.setState({songPosition})
+// //         console.info('setSongPosition', songPosition);
+//     }
 
     async setSongPositionPrompt() {
-        let songPosition = this.values.formatPlaybackPosition(this.songStats.position || 0);
+        let songPosition = Values.instance.formatPlaybackPosition(this.songStats.position || 0);
         songPosition = await PromptManager.openPromptDialog("Set playback position:", songPosition);
         this.setSongPosition(songPosition);
     }
 
-    updateSongPositionValue(playbackPositionInSeconds, updateTrackPositions=true) {
+    setSongPosition(playbackPositionInSeconds, updateTrackPositions=true) {
+        // TODO: parse % percentage
+        if(typeof playbackPositionInSeconds === 'string')
+            playbackPositionInSeconds = Values.instance.parsePlaybackPosition(playbackPositionInSeconds);
+        if(isNaN(playbackPositionInSeconds))
+            throw new Error("Invalid song position: " + playbackPositionInSeconds);
         this.songStats.position = playbackPositionInSeconds;
 
         // Update Song Panel
@@ -424,11 +517,14 @@ class ASComposerActions extends ASComposerMenu {
 
         // Update Tracks
         if(updateTrackPositions) {
-            // TODO Optimize: skip update if position change is less than next row?
             for (const trackName in this.ref.activeTracks) {
                 if (this.ref.activeTracks.hasOwnProperty(trackName)) {
                     const activeTrack = this.ref.activeTracks[trackName].current;
-                    activeTrack && activeTrack.forceUpdate();
+                    if(activeTrack) {
+                        activeTrack.updateSongPosition(playbackPositionInSeconds);
+                    } else {
+                        delete this.ref.activeTracks[trackName];
+                    }
                 }
             }
         }
@@ -489,10 +585,16 @@ class ASComposerActions extends ASComposerMenu {
 
 
     trackPlaySelected(stopPlayback=true) {
-        return this.trackPlay(this.state.selectedTrack, this.state.selectedTrackIndices, stopPlayback);
+        const {selectedIndices, selectedTrackName} = this.getTrackPanelState()
+        return this.trackPlay(selectedTrackName, selectedIndices.selectedIndices, stopPlayback);
     }
 
     trackPlay(trackName, selectedIndices, stopPlayback=true) {
+        // console.log('trackPlay', trackName, selectedIndices)
+        if(typeof selectedIndices === "number")
+            selectedIndices = [selectedIndices];
+        if(!Array.isArray(selectedIndices))
+            throw new Error("Invalid selectedIndices: " + typeof selectedIndices);
         // const trackState = new ActiveTrackState(this, trackName);
 
 
@@ -505,8 +607,6 @@ class ASComposerActions extends ASComposerMenu {
 
 
         // destination = destination || this.getDestination();
-        if(!Array.isArray(selectedIndices))
-            selectedIndices = [selectedIndices];
         // console.log('playInstructions', selectedIndices);
         // const programID = typeof trackState.programID !== "undefined" ? trackState.programID : 0;
 
@@ -519,105 +619,25 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Track Commands **/
 
-    async trackAdd(newTrackName = null, promptUser = true) {
-        const song = this.song;
+    getTrackPanelState() {
+        const panelTrack = this.ref.panelTrack.current;
+        if(panelTrack)
+            return panelTrack.state;
+        return {};
+    }
 
-        newTrackName = newTrackName || song.generateInstructionTrackName();
-        if(promptUser)
-            newTrackName = await PromptManager.openPromptDialog("Create new instruction group?", newTrackName);
-        if (newTrackName) {
-            song.trackAdd(newTrackName, []);
-            await this.trackSelectIndices(newTrackName);
-        } else {
-            this.setError("Create instruction group canceled");
+    trackSelect(selectedTrack, selectedIndices=null) {
+        const [type, id] = this.state.selectedComponent;
+        if(type !== 'track' || id !== selectedTrack) {
+            this.setState({
+                selectedComponent: ['track', selectedTrack],
+            });
+            const track = this.trackGetRef(selectedTrack);
+            track.setState({viewMode: true});
         }
+        if(selectedIndices !== null)
+            this.trackSelectIndices(selectedTrack, selectedIndices);
     }
-
-    async trackRename(oldTrackName, newTrackName = null, promptUser = true) {
-        const song = this.song;
-
-        if(promptUser)
-            newTrackName = await PromptManager.openPromptDialog(`Rename instruction group (${oldTrackName})?`, oldTrackName);
-        if (newTrackName !== oldTrackName) {
-            song.trackRename(oldTrackName, newTrackName);
-            this.trackSelectIndices(newTrackName);
-            this.trackSelectIndices(oldTrackName);
-        } else {
-            this.setError("Rename instruction group canceled");
-        }
-    }
-
-    async trackRemove(trackName, promptUser = true) {
-        const song = this.song;
-
-        const result = promptUser ? await PromptManager.openPromptDialog(`Remove instruction group (${trackName})?`) : true;
-        if (result) {
-            song.trackRemove(trackName);
-            this.trackUnselect(trackName);
-        } else {
-            this.setError("Remove instruction group canceled");
-        }
-
-    }
-
-    /** Track State **/
-
-
-    trackHasActive(trackName) {
-        return !!this.state.activeTracks[trackName]
-    }
-
-    trackGetRef(trackName) {
-        const trackRef = this.ref.activeTracks[trackName];
-        if(!trackRef)
-            throw new Error("Invalid Track ref: " + trackName);
-        if(!trackRef.current)
-            throw new Error("Track ref is not rendered: " + trackName);
-        return trackRef.current;
-    }
-
-    trackGetState(trackName) {
-        return new TrackState(this, trackName);
-    }
-
-    trackUpdatePlayingIndices(trackName, playingIndices) {
-        this.trackGetState(trackName)
-            .updatePlayingIndices(playingIndices);
-    }
-
-
-    /** Track Selection **/
-
-    trackSelectActive(trackName, trackData=null, reorderLast=false) {
-        this.setState(state => {
-            const oldTrackData = state.activeTracks[trackName];
-            if(reorderLast) {
-                delete state.activeTracks[trackName];
-            }
-            state.activeTracks[trackName] = oldTrackData || {};
-            if(trackData !== null)
-                Object.assign(state.activeTracks[trackName], trackData);
-            state.selectedComponent = ['track', trackName];
-            return state;
-        });
-
-        // TODO: parent stats
-        // trackData = this.state.activeTracks[trackName];
-        // if(trackData.destinationList)
-        //     selectedTrack = trackData.destinationList.slice(-1)[0]; // Select last track
-        // else
-        //     selectedTrack = this.getSong().getStartTrackName();
-    }
-
-    async trackSelectIndicesPrompt(trackName=null) {
-        if(trackName === null)
-            trackName = this.getSelectedTrackName();
-        let selectedIndices = this.state.selectedTrackIndices.join(', ');
-        selectedIndices = await PromptManager.openPromptDialog(`Select indices for track ${trackName}: `, selectedIndices);
-        this.trackSelectIndices(trackName, selectedIndices);
-    }
-
-
 
     trackUnselect(trackName) {
         this.setState(state => {
@@ -629,153 +649,118 @@ class ASComposerActions extends ASComposerMenu {
 
 
 
-    trackSelectIndices(trackName, selectedIndices=[], clearSelection=true, playback=true) {
-        // console.log('trackSelectIndices', trackName, selectedIndices, this.state.selectedTrackIndices)
+    trackSelectIndices(selectedTrack, selectedIndices=[]) {
+        if(typeof selectedIndices === "number")
+            selectedIndices = [selectedIndices];
+        if(!Array.isArray(selectedIndices))
+            throw new Error("Invalid selectedIndices: " + typeof selectedIndices);
 
-        if (typeof selectedIndices === "string") {
-            switch (selectedIndices) {
-                case 'cursor':
-                    throw new Error('TODO');
-                case 'all':
-                    selectedIndices = [];
-                    const maxLength = this.getSong().instructionGetList(trackName).length;
-                    for (let i = 0; i < maxLength; i++)
-                        selectedIndices.push(i);
-                    break;
-                case 'segment':
+        // console.log('selectTrack', state);
+        const panelTrack = this.ref.panelTrack.current;
+        panelTrack.updateSelectedTrackIndices(selectedTrack, selectedIndices)
+    }
 
+    async trackAdd(newTrackName = null, promptUser = true) {
+        const song = this.song;
 
-                    break;
-                // selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
-                case 'row':
-                    throw new Error('TODO');
-                case 'none':
-                    selectedIndices = [];
-                    break;
-                default:
-                    selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
-                // throw new Error("Invalid selection: " + selectedIndices);
-            }
+        newTrackName = newTrackName || song.generateInstructionTrackName();
+        if(promptUser)
+            newTrackName = await PromptManager.openPromptDialog("Create new instruction track?", newTrackName);
+        if (newTrackName) {
+            song.trackAdd(newTrackName, []);
+            this.trackSelect(newTrackName);
+        } else {
+            this.setError("Create instruction track canceled");
+        }
+    }
+
+    async trackRenamePrompt(oldTrackName) {
+        const newTrackName = await PromptManager.openPromptDialog(`Rename instruction track "${oldTrackName}"?`, oldTrackName);
+        this.trackRename(oldTrackName, newTrackName);
+    }
+    trackRename(oldTrackName, newTrackName) {
+        const song = this.song;
+
+        if (!newTrackName || newTrackName !== oldTrackName) {
+            song.trackRename(oldTrackName, newTrackName);
+            this.trackSelect(newTrackName);
+            // this.trackSelect(oldTrackName);
+        } else {
+            this.setError("Rename instruction track canceled");
+        }
+    }
+
+    trackRemove(trackName) {
+        const song = this.song;
+        song.trackRemove(trackName);
+        this.trackUnselect(trackName);
+    }
+    async trackRemovePrompt(trackName) {
+        const result = await PromptManager.openConfirmDialog(`Remove instruction track "${trackName}"?`);
+        if (result) {
+            this.trackRemove(trackName);
+        } else {
+            this.setError("Remove instruction track canceled");
         }
 
-        selectedIndices = this.values.parseSelectedIndices(selectedIndices);
-        switch(clearSelection) {
-            case false:
-                if (this.state.selectedTrackIndices.length > 0)
-                    selectedIndices = this.values.filterAndSort(selectedIndices.concat(this.state.selectedTrackIndices));
-                break;
+    }
 
-            default:
-            case true:
-                break;
+    /** Track Reference **/
 
-            case 'toggle':
-                if (this.state.selectedTrackIndices.length > 0) {
-                    const toggledSelectedIndices = this.state.selectedTrackIndices.slice();
-                    for(const selectedIndex of selectedIndices) {
-                        const p = toggledSelectedIndices.indexOf(selectedIndex);
-                        if(p === -1) {
-                            toggledSelectedIndices.push(selectedIndex);
-                        } else {
-                            toggledSelectedIndices.splice(p, 1);
-                        }
-                    }
-                    selectedIndices = this.values.filterAndSort(toggledSelectedIndices);
-                }
 
-                break;
+    trackGetRef(trackName, throwException = true) {
+        const trackRef = this.ref.activeTracks[trackName];
+        if(!trackRef) {
+            if(throwException)
+                throw new Error("Invalid Track ref: " + trackName);
+            return null;
         }
-
-        const state = {
-            // selectedIndices,
-            activeTracks: this.state.activeTracks,
-            selectedComponent: ['track', trackName],
-            selectedTrackIndices: selectedIndices
+        if(!trackRef.current) {
+            if(throwException)
+                throw new Error("Track ref is not rendered: " + trackName);
+            return null;
         }
-        if(!state.activeTracks[trackName])
-            state.activeTracks[trackName] = {}; // TODO: hack
-        if(selectedIndices.length > 0) {
-            const instructionData = this.getSong().instructionDataGetByIndex(trackName, selectedIndices[0]);
-            state.selectedInstructionData = instructionData.slice();
-            state.selectedInstructionData[0] = 0;
-            // console.log('selectedInstructionData', state.selectedInstructionData);
-        }
-
-        if(this.state.playbackOnSelect && playback)
-            this.trackPlay(trackName, selectedIndices, false);
-
-
-        this.setState(state);
-        return selectedIndices;
-
+        return trackRef.current;
     }
-
-
-
-    trackerChangeQuantization(trackName=null, trackerQuantizationTicks) {
-        return this.trackGetState(trackName || this.getSelectedTrackName())
-            .changeQuantization(trackerQuantizationTicks)
-    }
-
-    async trackerChangeQuantizationPrompt(trackName) {
-        return this.trackGetState(trackName || this.getSelectedTrackName())
-            .changeQuantizationPrompt();
-    }
-
-
-    trackerChangeSegmentLength(trackName, rowLength = null) {
-        return this.trackGetState(trackName || this.getSelectedTrackName())
-            .changeRowLength(rowLength)
-    }
-
-    async trackerChangeSegmentLengthPrompt(trackName) {
-        return this.trackGetState(trackName || this.getSelectedTrackName())
-            .changeRowLengthPrompt()
-    }
-
 
 
     /** Current Instruction Args **/
 
     /** Instruction Modification **/
 
-    async instructionInsertAtCursorPrompt(trackName = null, newCommand = null, promptUser = false, select=true, playback=true) {
-        if(promptUser)
-            newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
-        return this.instructionInsertAtCursor(trackName, newCommand, select, playback);
-    }
+    // async instructionInsertAtCursorPrompt(trackName = null, newInstructionData = null) {
+    //     newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
+    //     return this.instructionInsertAtCursor(trackName, newInstructionData);
+    // }
 
-    instructionInsertBeforeCursor(trackName = null, newCommand = null, select=true, playback=true) {
+    // instructionInsertBeforeCursor(trackName = null, newCommand = null, select=true, playback=true) {
+    //
+    // }
 
-    }
-
-
-    instructionInsertAtCursor(trackName = null, newInstructionData = null) {
+    instructionInsertAtSelectedTrackCursor(trackName = null, commandString = null, parameters=null) {
         trackName = trackName || this.getSelectedTrackName();
-        // newCommand = newCommand || this.state.currentCommand;
-        const trackRef = this.trackGetRef(trackName);
-        trackRef.instructionInsertAtCursor(newInstructionData);
+        this.trackGetRef(trackName).instructionInsertAtCursor(commandString, parameters);
     }
 
-    instructionInsertAtPosition(trackName, positionTicks, newInstructionData = null) {
+    instructionInsertAtPosition(trackName, positionTicks, commandString, parameters = null, select=true) {
+        console.log('instructionInsertAtPosition', trackName, positionTicks, commandString, parameters);
         //: TODO: check for recursive group
 
-        if (newInstructionData === null)
-            newInstructionData = this.state.selectedInstructionData.slice();
-        if (!Array.isArray(newInstructionData)) {
-            const commandString = newInstructionData;
+        let newInstructionData;
+        if (Array.isArray(commandString)) {
+            newInstructionData = commandString;
+        } else if(parameters) {
+            newInstructionData = [commandString].concat(parameters);
+        } else {
             newInstructionData = this.state.selectedInstructionData.slice();
             newInstructionData.splice(1, 1, commandString);
         }
-        if (!newInstructionData)
-            throw new Error("Invalid Instruction command");
-
-        newInstructionData = Instruction.parseInstructionData(newInstructionData);
-        newInstructionData[0] = 0;
 
         const index = this.song.instructionInsertAtPosition(trackName, positionTicks, newInstructionData);
-        // if(select)      this.trackSelectIndices(trackName, index);
-        // if(playback)    this.trackPlay(trackName, index);
+        if(select)
+            this.trackSelect(trackName, index);
+        if(this.state.playbackOnChange)
+            this.trackPlay(trackName, index);
         this.updateCurrentSong();
         return index;
     }
@@ -784,7 +769,7 @@ class ASComposerActions extends ASComposerMenu {
 
     instructionReplaceArg(trackName, selectedIndices, argIndex, newArgValue) {
         const song = this.song;
-        selectedIndices = this.values.parseSelectedIndices(selectedIndices);
+        selectedIndices = Values.instance.parseSelectedIndices(selectedIndices);
         for (let i = 0; i < selectedIndices.length; i++) {
             song.instructionReplaceArg(trackName, selectedIndices[i], argIndex, newArgValue);
         }
@@ -796,12 +781,12 @@ class ASComposerActions extends ASComposerMenu {
 
     instructionReplaceArgByType(trackName, selectedIndices, argType, newArgValue) {
         const song = this.song;
-        selectedIndices = this.values.parseSelectedIndices(selectedIndices);
+        selectedIndices = Values.instance.parseSelectedIndices(selectedIndices);
 
         // console.log('instructionReplaceArg', trackName, selectedIndices, argIndex, newArgValue, selectedInstructionData);
 
         const selectedInstructionData = this.state.selectedInstructionData;
-        const processor = new InstructionProcessor(selectedInstructionData);
+        const processor = new Instruction(selectedInstructionData);
         processor.updateArg(argType, newArgValue)
         this.setState({selectedInstructionData});
         for (let i = 0; i < selectedIndices.length; i++) {
@@ -817,24 +802,21 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Instruction Delete **/
 
-    instructionDeleteIndices(trackName=null, selectedIndices=null) {
-        trackName = trackName || this.getSelectedTrackName();
-        selectedIndices = selectedIndices || this.state.selectedTrackIndices;
-        selectedIndices = this.values.parseSelectedIndices(selectedIndices);
+    instructionDeleteIndices() {
+        const {selectedIndices, selectedTrackName:trackName} = this.getTrackPanelState()
+        // selectedIndices = this.values.parseSelectedIndices(selectedIndices);
 
         selectedIndices.sort((a, b) => a - b);
         for (let i=selectedIndices.length-1; i>=0; i--)
             this.song.instructionDeleteAtIndex(trackName, selectedIndices[i]);
 
-        this.trackSelectIndices(trackName, 'none');
         this.updateCurrentSong();
     }
 
     /** Tracker Clip Board **/
 
     instructionCopySelected() {
-        const trackName = this.getSelectedTrackName();
-        const selectedIndices = this.state.selectedTrackIndices;
+        const {selectedIndices, selectedTrackName:trackName} = this.getTrackPanelState()
         const iterator = this.instructionGetIterator(trackName);
         let startPosition = null, lastPosition=null, copyTrack=[];
         iterator.seekToEnd((instructionData) => {
@@ -886,7 +868,7 @@ class ASComposerActions extends ASComposerMenu {
         }
 
         // console.log('pastedIndices', selectedIndices);
-        this.trackSelectIndices(trackName, selectedIndices);
+        this.trackSelect(trackName, selectedIndices);
     }
 
 
@@ -912,12 +894,21 @@ class ASComposerActions extends ASComposerMenu {
 
 
     instructionGetIterator(trackName, timeDivision=null, beatsPerMinute=null) {
-        return this.trackGetState(trackName)
+        return this.trackGetRef(trackName)
             .getIterator(timeDivision, beatsPerMinute);
     }
 
 
     /** Programs **/
+
+    programSelect(programID) {
+        const [type, id] = this.state.selectedComponent;
+        if(type !== 'program' || id !== programID) {
+            this.setState({
+                selectedComponent: ['program', programID],
+            }, () => this.ref.panelProgram.current.forceUpdate());
+        }
+    }
 
     programGetRef(programID) {
         const programRef = this.ref.activePrograms[programID];
@@ -926,26 +917,6 @@ class ASComposerActions extends ASComposerMenu {
         if(!programRef.current)
             throw new Error("Program ref is not rendered: " + programID);
         return programRef.current;
-    }
-
-    programGetState(programID) {
-        return this.state.programStates[programID];
-    }
-
-    programSetState(programID, state) {
-        const programStates = this.state.programStates || [];
-        let programState = programStates[programID] || {};
-        programState = Object.assign(programState, state);
-        programStates[programID] = programState;
-        this.setState({programStates});
-    }
-
-    toggleProgramContainer(programID) {
-        const programStates = this.state.programStates || [];
-        const programState = programStates[programID] || {};
-        programStates[programID] = programState;
-        programState.open = !programState.open;
-        this.setState({programStates});
     }
 
     async programAddPrompt(programClassName, programConfig = {}) {
@@ -1012,30 +983,42 @@ class ASComposerActions extends ASComposerMenu {
         return false;
     }
 
-    /** Toggle Playback Settings **/
-
-    togglePlaybackOnSelection()         { return this.toggleSetting('playbackOnSelect'); }
-    togglePlaybackOnChange()            { return this.toggleSetting('playbackOnChange'); }
+    // /** Toggle Playback Settings **/
+    //
+    // togglePlaybackOnSelection()         { return this.toggleSetting('playbackOnSelect'); }
+    // togglePlaybackOnChange()            { return this.toggleSetting('playbackOnChange'); }
+    //
+    // /** Toggle Track Formatting **/
+    //
+    // toggleTrackRowPositionInTicks()     { return this.toggleSetting('showTrackRowPositionInTicks'); }
+    // toggleTrackRowDurationInTicks()     { return this.toggleSetting('showTrackRowDurationInTicks'); }
 
 
     /** Toggle View Settings **/
 
-    toggleSongPanel()                   { return this.toggleSetting('showPanelSong'); }
-    toggleProgramPanel()                { return this.toggleSetting('showPanelProgram'); }
-    toggleInstructionPanel()            { return this.toggleSetting('showPanelInstruction'); }
-    toggleTrackPanel()                  { return this.toggleSetting('showPanelTrack'); }
-    togglePresetBrowserPanel()          { return this.toggleSetting('showPanelPresetBrowser'); }
+    setViewMode(viewKey, mode) {
+        const viewModes = this.state.viewModes || {};
+        if(mode === null)   delete viewModes[viewKey];
+        else                viewModes[viewKey] = mode;
+        console.log('viewModes', viewModes);
+        this.setState({viewModes});
+    }
+
+    getViewMode(viewKey) {
+        return this.state.viewModes[viewKey];
+    }
+
+    // toggleSongPanel()                   { return this.toggleSetting('showPanelSong'); }
+    // toggleProgramPanel()                { return this.toggleSetting('showPanelProgram'); }
+    // toggleInstructionPanel()            { return this.toggleSetting('showPanelInstruction'); }
+    // toggleTrackPanel()                  { return this.toggleSetting('showPanelTrack'); }
+    // togglePresetBrowserPanel()          { return this.toggleSetting('showPanelPresetBrowser'); }
 
     toggleFullscreen() {
-        this.toggleSetting('fullscreen', () => {
+        return this.toggleSetting('fullscreen', () => {
             this.onResize();
         });
     }
-
-    /** Toggle Track Formatting **/
-
-    toggleTrackRowPositionInTicks() { this.setState({showTrackRowPositionInTicks: !this.state.showTrackRowPositionInTicks}); }
-    toggleTrackRowDurationInTicks() { this.setState({showTrackRowDurationInTicks: !this.state.showTrackRowDurationInTicks}); }
 
 
     /** Tools **/

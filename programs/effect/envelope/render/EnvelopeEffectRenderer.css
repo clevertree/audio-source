@@ -1,50 +1,84 @@
 
-div.envelope-effect-renderer div.header > div.title {
-    margin-left: 4px;
-}
-div.envelope-effect-renderer div.instrument-config {
-    /*margin: 2px;*/
-}
-
-div.envelope-effect-renderer div.instrument-preset {
-    margin-left: auto;
-}
-
-
-
-
-div.envelope-effect-renderer {
-    background: #DDD;
+/** Container **/
+div.envelope-effect-container  {
+    margin: 2px;
+    padding: 4px;
+    color: #000;
     border: 1px outset #FFF;
-    padding: 0px 0px;
-    margin: 0px 0px 0px 0px;
-    display: inline-flex;
-    vertical-align: top;
-}
-
-
-div.envelope-effect-renderer.active {
-    background: #AAD;
-}
-
-
-div.envelope-effect-renderer > div.header {
-    /* font-size: smaller; */
-    border-bottom: 1px solid #AAA;
-    margin-bottom: 1px;
-    padding: 2px 3px;
-    display: flex;
-    /* background-color: #CCC; */
-}
-
-div.envelope-effect-renderer > div.header > button.toggle-container {
-}
-
-div.envelope-effect-renderer > div.voices {
-    max-width: 50vw;
-}
-
-div.envelope-effect-renderer > div.add-voice {
     border-radius: 4px;
-    /*flex-flow: column;*/
+    background-color: #96e297;
+    position: relative;
+}
+
+
+/** Header **/
+div.envelope-effect-container > div.header {
+    display: flex;
+}
+
+div.envelope-effect-container > div.header > div.toggle-container {
+    flex-basis: 100%;
+}
+
+
+/** Parameters **/
+div.envelope-effect-container > div.parameters > div {
+    /*border-left: 1px solid #888;*/
+    /*padding-right: 2px;*/
+    /*padding-left: 2px;*/
+    /*border-left: 1px solid #888;*/
+    padding-right: 4px;
+    padding-left: 4px;
+}
+
+/** Voice **/
+div.envelope-effect-container > div.voice {
+    padding-top: 4px;
+}
+
+/** Parameters **/
+div.envelope-effect-container > div.parameters {
+    padding-top: 2px;
+    /*border-radius: 4px;*/
+    /*border: 1px outset #EEE;*/
+    /*background-color: #DDD;*/
+}
+
+div.envelope-effect-container > div.parameters > div {
+    /*border-bottom: 1px solid #AAA;*/
+    display: flex;
+    padding: 1px;
+}
+div.envelope-effect-container > div.parameters > div > div {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+}
+div.envelope-effect-container > div.parameters > div > div.label {
+    text-align: right;
+    font-size: small;
+    padding: 4px 4px 0 0;
+    flex: 1;
+}
+
+
+
+/** Transition **/
+
+div.envelope-effect-container.open > div.parameters {
+    animation: slideDownOpen 0.4s ease-in;
+}
+
+@keyframes slideDownOpen {
+    0% {
+        max-height: 0;
+        overflow-y: hidden;
+    }
+    99% {
+        max-height: 300px;
+    }
+    100% {
+        max-height: inherit;
+        overflow-y: inherit;
+    }
 }

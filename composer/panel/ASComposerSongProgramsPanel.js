@@ -1,6 +1,6 @@
 import React from "react";
 
-import {ASUIPanel, ASUIButtonDropDown} from "../../components";
+import {ASUIPanel, ASUIClickableDropDown, ASUIIcon} from "../../components";
 import {ASCProgramRenderer} from "../program";
 
 export default class ASComposerSongProgramsPanel extends React.Component {
@@ -12,17 +12,21 @@ export default class ASComposerSongProgramsPanel extends React.Component {
     }
 
     render() {
+        // console.log(this.constructor.name + '.render()')
         const composer = this.props.composer;
         // composer.ref.activePrograms = {};
         const activePrograms = composer.ref.activePrograms;
 
         const programStates = composer.state.programStates || [];
-        const selectedProgramID = composer.state.selectedProgramID || 0;
+        let selectedProgramID = null;
+        const [type, id] = composer.state.selectedComponent;
+        if(type === 'program')
+            selectedProgramID = id;
         // console.log('programStates', programStates);
         // setTimeout(() => console.log('activePrograms', activePrograms), 100);
         return (
             <ASUIPanel
-                className="song-programs"
+                viewKey="programs"
                 header="Song Programs"
                 title="Song Programs (Instruments & Effects)">
                {composer.getSong().programEach((programID, programClass, programConfig) => {
@@ -37,13 +41,16 @@ export default class ASComposerSongProgramsPanel extends React.Component {
                        selected={selectedProgramID === programID}
                    />;
                })}
-               <ASUIButtonDropDown
+               <ASUIClickableDropDown
+                   button wide
                    arrow={false}
                    vertical={false}
                    className="program-add"
                    options={this.cb.menuAdd}
-                   title="Add New Program"
-               >Add</ASUIButtonDropDown>
+                   title="Add new Program"
+               >
+                   <ASUIIcon source="insert" />
+               </ASUIClickableDropDown>
             </ASUIPanel>
         );
     }

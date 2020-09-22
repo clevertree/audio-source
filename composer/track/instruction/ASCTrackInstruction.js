@@ -22,7 +22,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         }
     }
 
-    isOpen() { return this.props.cursor || this.props.selected; }
+    isOpen() { return this.props.cursor || this.props.selected || this.props.playing; }
     render() {
         let className = "asct-instruction";
         // if(this.props.className)
@@ -100,40 +100,41 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             return;
         e.preventDefault();
 
-        const newEvent = {
-            ctrlKey: e.ctrlKey,
-            clientX: e.clientX,
-            clientY: e.clientY,
-        }
+        // const newEvent = {
+        //     ctrlKey: e.ctrlKey,
+        //     clientX: e.clientX,
+        //     clientY: e.clientY,
+        // }
+        // console.log(e.type, e.button);
         if(e.button === 2) {
             this.selectInstruction(!e.ctrlKey, true, false);
             // this.getTrack().toggleDropDownMenu(newEvent); // Handled by Row Container onContextMenu
 
         } else {
             this.selectInstruction(!e.ctrlKey, e.shiftKey ? null : true);
-
-            this.timeout.mouseDown = setTimeout(() => {
-                this.getTrack().toggleDropDownMenu(newEvent);
-            }, ASCTrackInstructionBase.TIMEOUT_LONGPRESS)
+            //
+            // this.timeout.mouseDown = setTimeout(() => {
+            //     this.getTrack().toggleDropDownMenu(newEvent);
+            // }, ASCTrackInstructionBase.TIMEOUT_LONGPRESS)
         }
         // if(e.shiftKey)
         //     this.playInstruction();
 
     }
 
-    onContextMenu(e) {
-        if(e.defaultPrevented || e.altKey)
-            return;
-        e.preventDefault();
-
-        clearTimeout(this.timeout.mouseDown);
-        const selectedIndices = this.getTrack().getTrackState().getSelectedIndices();
-        if(selectedIndices.indexOf(this.props.index) === -1)
-            this.selectInstruction(!e.ctrlKey, null, false);
-        // if(e.shiftKey)
-        //     this.playInstruction();
-        this.getTrack().toggleDropDownMenu(e);
-    }
+    // onContextMenu(e) {
+    //     if(e.defaultPrevented || e.altKey)
+    //         return;
+    //     e.preventDefault();
+    //
+    //     clearTimeout(this.timeout.mouseDown);
+    //     const selectedIndices = this.getTrack().getTrackState().getSelectedIndices();
+    //     if(selectedIndices.indexOf(this.props.index) === -1)
+    //         this.selectInstruction(!e.ctrlKey, null, false);
+    //     // if(e.shiftKey)
+    //     //     this.playInstruction();
+    //     this.getTrack().openContextMenu(e);
+    // }
 
 
 

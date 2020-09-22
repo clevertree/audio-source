@@ -1,16 +1,33 @@
 import React from 'react';
+import PropTypes from "prop-types";
 
 import {
-    ASUIMenuAction, ASUIMenuBreak, ASUIMenuItem,
+    ASUIGlobalContext,
+    ASUIMenuAction, ASUIMenuBreak, ASUIMenuItem
 } from "../../../components";
+import {PromptManager} from "../../../common/";
+import {ProgramLoader} from "../../../song";
 
-import {ProgramLoader, PromptManager} from "../../../common";
 
-/** PolyphonyInstrumentRenderer **/
 class PolyphonyInstrumentRendererBase extends React.Component {
+    /** Property validation **/
+    static propTypes = {
+        parentMenu: PropTypes.func,
+        setProps: PropTypes.func.isRequired,
+    };
+
+    /** Global Context **/
+    static contextType = ASUIGlobalContext;
+    getGlobalContext() { return this.context; }
+    setStatus(message) { this.context.addLogEntry(message); }
+    setError(message) { this.context.addLogEntry(message, 'error'); }
+    // getViewMode(viewKey)        { this.context.getViewMode(viewKey); }
+    // setViewMode(viewKey, mode)  { this.context.setViewMode(viewKey, mode); }
+
     constructor(props) {
         super(props);
         this.cb = {
+            setProps: (programID, props) => this.setVoiceProps(programID, props),
             onRemove: (voiceID) => this.removeVoice(voiceID),
             onAction: (e) => this.addVoice()
         }
@@ -18,12 +35,11 @@ class PolyphonyInstrumentRendererBase extends React.Component {
 
     /** Actions **/
 
-    // TODO: Use Context Consumer/Provider for status/error callbacks
-    setStatus(message) { console.info(this.constructor.name, 'setStatus', message); }
-    setError(message) { console.warn(this.constructor.name, 'setStatus', message); }
-
-    wrapVoiceWithNewInstrument(voiceID) {
-
+    setVoiceProps(programID, props) {
+        const voiceProps = this.props.voiceProps || [];
+        if(voiceProps[programID])   Object.assign(voiceProps[programID], props);
+        else                        voiceProps[programID] = props;
+        this.props.setProps(this.props.programID, {voiceProps});
     }
 
     async addVoicePrompt(instrumentClassName, instrumentConfig) {
@@ -57,11 +73,32 @@ class PolyphonyInstrumentRendererBase extends React.Component {
         voices.splice(voiceID, 1);
     }
 
+    /** Render **/
+
+    renderVoice(voiceID, voiceData) {
+        const [className, config] = voiceData;
+        const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
+        const voiceProps = this.props.voiceProps || [];
+        const voiceProp = voiceProps[voiceID] || {};
+        // console.log('voiceProps', voiceProps);
+        return (//<div className="voice">
+            <Renderer
+                onRemove={this.cb.onRemove}
+                key={voiceID}
+                programID={voiceID}
+                config={config}
+                program={voiceData}
+                setProps={this.cb.setProps}
+                {...voiceProp}
+            />);
+        // </div>
+    }
+
     /** Menu **/
 
     renderMenuAddVoice() {
         return (<>
-            <ASUIMenuItem>Add voice instrument</ASUIMenuItem>
+            <ASUIMenuItem>Add another Voice</ASUIMenuItem>
             <ASUIMenuBreak/>
             {ProgramLoader.getRegisteredPrograms().map(({className, title}, i) =>
                  <ASUIMenuAction key={i} onAction={() => this.addVoicePrompt(className)}>{title}</ASUIMenuAction>
@@ -81,6 +118,7 @@ class PolyphonyInstrumentRendererBase extends React.Component {
         config.voices[newVoiceID] = [childProgramClassName, childProgramConfig||{}];
         return newVoiceID;
     }
+
 }
 
 export default PolyphonyInstrumentRendererBase;

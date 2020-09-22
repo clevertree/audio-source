@@ -1,0 +1,18 @@
+
+/** Song Forms **/
+
+div.asui-form-message {
+    font-size: smaller;
+    font-weight: bold;
+    padding: 1em 2em;
+    margin: 0.5em;
+    border-radius: 6px;
+
+    background: #a0c2ea;
+
+    box-shadow: 0px 0px 8px #FFF;
+}
+
+div.asui-form-message.error {
+    background: #de6262;
+}

@@ -1,6 +1,6 @@
 {
   "name": "audio-source-composer",
-  "version": "0.6.12",
+  "version": "0.6.20",
   "type": "module",
   "description": "Audio Source Composer",
   "author": "Ari Asulin",
@@ -27,6 +27,27 @@
   },
   "homepage": "https://github.com/clevertree/audio-source-composer#readme",
   "dependencies": {
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.5.0",
+    "@testing-library/user-event": "^7.2.1",
+    "babel-preset-env": "^1.7.0",
+    "encoding-japanese": "^1.0.30",
+    "eslint-plugin-flowtype": "3.13.0",
+    "fibers": "^4.0.3",
+    "fili": "^2.0.3",
+    "lz-string": "^1.4.4",
+    "midi-json-parser": "^8.0.6",
+    "node-sass": "^4.14.1",
+    "prop-types": "^15.7.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-markdown": "^4.3.1",
+    "react-native-web": "^0.12.3",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "3.4.1",
+    "sass": "^1.26.10",
+    "typescript": "^3.9.6",
+    "webtorrent": "^0.108.6"
   },
   "devDependencies": {
   }

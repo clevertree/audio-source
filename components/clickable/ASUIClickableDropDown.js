@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
 import ASUIClickable from "./ASUIClickable";
+import ASUIContextMenu from "../menu/context/ASUIContextMenu";
 
 import "./ASUIClickable.css";
 
@@ -45,12 +45,12 @@ export default class ASUIClickableDropDown extends ASUIClickable {
         return [
             super.renderChildren(props),
             arrow ? <div className="arrow" key="arrow">{arrow}</div> : null,
-            (this.state.open && !this.props.disabled ? <ASUIDropDownContainer
+            (this.state.open ? <ASUIContextMenu
                 key="dropdown"
-                ref={this.dropdown}
                 // disabled={this.props.disabled}
+                x={this.state.openPosition[0]}
+                y={this.state.openPosition[1]}
                 options={this.props.options}
-                vertical={this.props.vertical}
                 onClose={this.cb.onClose}
                 // openOverlay={this.props.openOverlay}
             /> : null)
@@ -59,40 +59,48 @@ export default class ASUIClickableDropDown extends ASUIClickable {
 
     /** Actions **/
 
-    openDropDownMenu(onUpdated=null) {
-        // console.log('ASUIClickableDropDown.openDropDownMenu')
-        this.setState({open: true, stick: false}, onUpdated);
+    openDropDownMenu(e) {
+        if(this.props.disabled)
+            return console.error("Clickable is disabled");
+        const rect = e.target.getBoundingClientRect();
+        // console.log('ASUIClickableDropDown.openDropDownMenu', rect, e.target)
+        let x = rect.right;
+        let y = rect.top;
+        if(this.props.vertical) {
+            x = rect.left;
+            y = rect.bottom;
+        }
+        this.setState({open: true, openPosition: [x, y]});
     }
 
     // stickDropDown() {
     //     this.setState({open: true, stick: true});
     // }
 
-    closeDropDownMenu(onUpdated=null) {
-        this.setState({open: false, stick: false}, onUpdated);
+    closeDropDownMenu(e) {
+        this.setState({open: false, openPosition: null, stick: false});
     }
 
-    toggleMenu() {
+    toggleMenu(e) {
+        // console.log('open', this.state.open);
         if (!this.state.open)
-            this.openDropDownMenu();
+            this.openDropDownMenu(e);
             // else if (!this.state.stick)
         //     this.stickDropDown();
         else
-            this.closeDropDownMenu();
+            this.closeDropDownMenu(e);
     }
 
 
 
     /** Hover **/
 
-    hoverDropDown() {
-        // console.log('hoverDropDown', this.state.open === true, !this.isHoverEnabled())
+    hoverDropDown(e) {
+        // console.log('hoverDropDown', this.state.open, this.isHoverEnabled())
         if(this.state.open === true || !this.isHoverEnabled())
             return;
         // this.getOverlay().closeAllMenus();
-        this.openDropDownMenu( () => {
-            this.closeAllDropDownElmsButThis();
-        });
+        this.openDropDownMenu(e);
         // setTimeout(() => {
         //     const dropdown = this.dropdown.current;
         //     dropdown && dropdown.closeAllDropDownMenusButThis();
@@ -102,7 +110,7 @@ export default class ASUIClickableDropDown extends ASUIClickable {
     /** Actions **/
 
     doAction(e) {
-        this.toggleMenu();
+        this.toggleMenu(e);
     }
 
 

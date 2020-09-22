@@ -1,0 +1,59 @@
+body.themed {
+    background-color: #EEE;
+
+}
+
+div.asui-page-container {
+    /*background-color: #333;*/
+    /*margin: 1vw;*/
+    /*min-height: 100vh;*/
+    /*color: #BBB;*/
+
+    /*font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',*/
+    /*'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',*/
+    /*sans-serif;*/
+}
+
+
+div.asui-page-container a:not(:hover) {
+    text-decoration: none;
+    color: white;
+
+}
+
+/** Header / Footer **/
+
+div.asui-page-header,
+div.asui-page-footer {
+    text-align: center;
+}
+
+div.asui-page-header > a.image {
+    display: block;
+    background-size: contain;
+}
+
+div.asui-page-header > div.text,
+div.asui-page-footer > div.text {
+    padding: 1vw;
+}
+
+
+div.asui-page-header > div.links,
+div.asui-page-footer > div.links {
+    display: flex;
+    justify-content: center;
+}
+
+
+div.asui-page-header > div.links > a,
+div.asui-page-footer > div.links > a {
+    text-decoration: none;
+    display: block;
+    padding: 0.2vw 3vw;
+    margin: 0 1vw;
+    background-color: transparent;
+    border-radius: 1vw;
+    transition: background-color 0.3s;
+}
+

@@ -6,8 +6,6 @@ export default class ASCTrackRowBase extends React.Component {
         super(props);
         this.dropdown = React.createRef();
         this.cb = {
-            // onContextMenu: (e) => this.onContextMenu(e),
-            onKeyDown: (e) => this.onKeyDown(e),
             // onClick: e => this.onClick(e),
         };
         this.state = {
@@ -46,9 +44,10 @@ export default class ASCTrackRowBase extends React.Component {
         track.setCursorOffset(this.props.cursorPosition);
         track.selectIndices([], clearSelection); // TODO: Why clear selection?
 
-        const trackState = track.getTrackState();
-        const {positionSeconds} = trackState.getPositionInfo(this.props.positionTicks);
-        this.getComposer().setSongPosition(trackState.getStartPosition() + positionSeconds)
+        // const trackState = track.getTrackState();
+        const {positionSeconds} = track.getPositionInfo(this.props.positionTicks);
+        this.getComposer().setSongPosition(track.getStartPosition() + positionSeconds)
+        // TODO: double composer state update
     }
 
 
@@ -64,30 +63,36 @@ export default class ASCTrackRowBase extends React.Component {
     }
 
 
-    /** Menus **/
+    /** User Input **/
 
-    // renderRowMenu() {
-    //     return this.getComposer().renderMenuEdit(null);
-    //     // return (<>
-    //     //     {/*<ASUIMenuItem>Row</ASUIMenuItem>*/}
-    //     //     {/*<ASUIMenuBreak/>*/}
-    //     //     <ASUIMenuDropDown
-    //     //         options={() => this.getComposer().renderMenuEditTrackSelectIndices()}
-    //     //         children="Select"
-    //     //     />
-    //     //     <ASUIMenuBreak />
-    //     //     <ASUIMenuDropDown
-    //     //         options={() => this.renderRowInsertCommandMenu()}
-    //     //         children="Insert"
-    //     //     />
-    //     // </>);
+
+    onMouseDown(e) {
+        if (e.defaultPrevented)
+            return;
+        e.preventDefault();
+        // console.log('ASCTrackRow.onMouseDown', e);
+        this.selectRow();
+    }
+
+    // onContextMenu(e) {
+    //     if (e.defaultPrevented || e.shiftKey)
+    //         return;
+    //     e.preventDefault();
+    //     this.toggleMenu(e);
     // }
     //
-    // renderRowInsertCommandMenu() {
-    //     return this.getComposer().renderMenuSelectCommand(selectedCommand => {
-    //         this.instructionInsert(selectedCommand);
-    //     }, null, "Insert new command");
+    // onKeyDown(e) {
+    //     if (e.isDefaultPrevented())
+    //         return;
+    //     switch (e.key) {
+    //         case 'ContextMenu':
+    //             e.preventDefault();
+    //             this.toggleMenu();
+    //             break;
+    //
+    //         default:
+    //             break;
+    //     }
     // }
-
 }
 

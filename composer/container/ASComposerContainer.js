@@ -1,7 +1,5 @@
 import React from "react";
-import {ASUIMenuDropDown} from "../../components/menu";
-import {ASUIIcon} from "../../components";
-import ASUIContextMenuContainer from "../../components/dropdown/context/ASUIContextMenuContainer";
+import {ASUIIcon ,ASUIMenuDropDown, ASUIContextMenuContainer} from "../../components/";
 
 import "./assets/ASComposerContainer.css";
 
@@ -26,6 +24,9 @@ export default class ASComposerContainer extends React.Component {
                 // playback: React.createRef(),
             }
         }
+        this.cb = {
+            renderRootMenu: () => this.props.composer.renderRootMenu(this.ref.menu)
+        }
     }
 
     getContainerElement() {
@@ -36,18 +37,21 @@ export default class ASComposerContainer extends React.Component {
     render() {
         const state = this.props.composer.state;
         return (
-            <div className={"asc-container"
+            <div className={"audio-source-composer"
                 + (state.fullscreen ? ' fullscreen' : '')
                 + (state.portrait ? ' portrait' : ' landscape')}
                 ref={this.ref.container}>
                 <ASUIContextMenuContainer
                     ref={this.ref.menuContextContainer}
-                    isActive={state.portrait}
+                    portrait={state.portrait}
                     composer={this.props.composer}
                 >
-                    {this.renderHeader()}
-                    {this.renderContent()}
-                    {this.renderFooter()}
+                    <div
+                        className="asc-container">
+                        {this.renderHeader()}
+                        {this.renderContent()}
+                        {this.renderFooter()}
+                    </div>
                 </ASUIContextMenuContainer>
             </div>
         );
@@ -63,25 +67,26 @@ export default class ASComposerContainer extends React.Component {
 
     renderHeader() {
         const state = this.props.composer.state;
+        const title = this.props.composer.song.data.title;
         if (state.portrait)
             return (
                 <div className="asc-header-container">
-                    <div className="asc-title-text">{state.title}</div>
+                    <div className="asc-title-text">{title}</div>
                     <ASUIMenuDropDown
                         arrow={false}
                         className="asc-menu-button-toggle"
-                        options={() => this.props.composer.renderRootMenu(this.ref.menu)}
+                        options={this.cb.renderRootMenu}
                     >
-                        <ASUIIcon source="menu"/>
+                        <ASUIIcon source="menu" size="large"/>
                     </ASUIMenuDropDown>
                 </div>
             );
 
         return (
             <div className="asc-header-container">
-                <div key="title" className="asc-title-text">{state.title}</div>
+                <div key="title" className="asc-title-text">{title}</div>
                 <div className="asc-menu-container">
-                    {this.props.composer.renderRootMenu(this.ref.menu)}
+                    {this.cb.renderRootMenu()}
                 </div>
             </div>
         );

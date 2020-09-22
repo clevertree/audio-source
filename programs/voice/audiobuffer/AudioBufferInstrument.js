@@ -1,89 +1,110 @@
 import AudioBufferLoader from "./loader/AudioBufferLoader";
-import {Values} from "../../../common";
+import {ArgType, ProgramLoader, Values} from "../../../song";
 
-let activeNotes = [];
 
-class AudioBufferInstrument {
+export default class AudioBufferInstrument {
+    /** Command Args **/
+    static argTypes = {
+        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity, ArgType.onended],
+        pitchBendTo: [ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.onended],
+    };
+
+    /** Command Aliases **/
+    static commandAliases = {
+        pf: "playFrequency",
+        bt: "pitchBendTo",
+    }
+
+    static defaultEnvelope = ['envelope', {}];
+
+
     constructor(config={}) {
-        console.log('AudioBufferInstrument', config);
+        // console.log('AudioBufferInstrument', config);
 
         this.config = config;
-        this.freqRoot = this.config.root ? Values.instance.parseFrequencyString(this.config.root) : 220;
+        // this.freqRoot = this.config.root ? Values.instance.parseFrequencyString(this.config.root) : 220;
         this.params = {}
+        this.activeMIDINotes = []
 
 
         // Filter sample playback
-        if (config.alias) {
-            const freqAlias = Values.instance.parseFrequencyString(config.alias);
-            this.freqRange = [freqAlias, freqAlias];
-        } else {
-            this.freqRange = null;
+
+        // Envelope
+        const [envelopeClassName, envelopeConfig] = this.config.envelope || AudioBufferInstrument.defaultEnvelope;
+        let {classProgram:envelopeClass} = ProgramLoader.getProgramClassInfo(envelopeClassName);
+        this.loadedEnvelope = new envelopeClass(envelopeConfig);
+
+
+        // LFOs
+        this.loadedLFOs = [];
+        const lfos = this.config.lfos || [];
+        for (let lfoID=0; lfoID<lfos.length; lfoID++) {
+            const lfo = lfos[lfoID];
+            const [voiceClassName, voiceConfig] = lfo;
+            let {classProgram:lfoClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
+            this.loadedLFOs[lfoID] = new lfoClass(voiceConfig);
         }
 
-        this.audioBuffer = null;
-        this.source = null;
-
-        const service = new AudioBufferLoader();
-        if(typeof this.config.url !== "undefined") {
-            this.loading = service.loadAudioBufferFromURL(this.config.url)
-                .then(buffer => {
-                    console.log("Loaded audio buffer: ", this.config.url, buffer);
-                    this.audioBuffer = buffer;
-                    if (this.source)
-                        this.setBuffer(this.source)
-                });
-        }
-
-        this.activeMIDINotes = []
     }
 
 
-    setBuffer(source) {
-        source.buffer = this.audioBuffer;
+    setBuffer(source, audioBuffer) {
+        source.buffer = audioBuffer;
         // console.log("Set audio buffer: ", this.config.url, source, this.audioBuffer);
 
         if(this.config.loop) {
             source.loop = true;
             if (typeof this.config.loopStart !== "undefined")
-                source.loopStart = this.config.loopStart / this.audioBuffer.sampleRate;
+                source.loopStart = this.config.loopStart / audioBuffer.sampleRate;
             if (typeof this.config.loopEnd !== "undefined")
-                source.loopEnd = this.config.loopEnd / this.audioBuffer.sampleRate;
+                source.loopEnd = this.config.loopEnd / audioBuffer.sampleRate;
         }
         // console.log("Set audio buffer: ", this.audioBuffer, this.config.url, source);
     }
 
     /** Async loading **/
 
+
     async waitForAssetLoad() {
-        await this.loading;
+        if(this.config.url) {
+            const service = new AudioBufferLoader();
+            await service.loadAudioBufferFromURL(this.config.url);
+        }
     }
 
     /** Playback **/
 
-    playFrequency(destination, frequencyValue, startTime=null, duration=null, velocity=null, onended=null) {
-        if(this.freqRange) {
-            if(
-                this.freqRange[0] < frequencyValue
-                || this.freqRange[1] > frequencyValue
-            ) {
-                // console.log("Skipping out of range note: ", frequencyValue, this.freqRange);
+    playFrequency(destination, frequency, startTime=null, duration=null, velocity=null, onended=null) {
+        const config = this.config;
+        if(config.rangeStart) {
+            let rangeStart = config.rangeStart;
+            if(typeof rangeStart === "string")
+                rangeStart = Values.instance.parseFrequencyString(config.rangeStart);
+            if(rangeStart < frequency) {
+                // console.log("Skipping out of range note: ", rangeStart, "<", frequency, config);
                 return false;
             }
         }
-        // console.log('playFrequency', frequencyValue, this);
+        if(config.rangeEnd) {
+            let rangeEnd = config.rangeEnd;
+            if(typeof rangeEnd === "string")
+                rangeEnd = Values.instance.parseFrequencyString(config.rangeEnd);
+            if(rangeEnd > frequency) {
+                // console.log("Skipping out of range note: ", rangeEnd, ">", frequency, config);
+                return false;
+            }
+        }
 
-        let endTime;
         const audioContext = destination.context;
-        if(typeof duration === "number") {
-            endTime = startTime + duration;
-            if (endTime < audioContext.currentTime) {
-                console.info("Skipping note: ", startTime, endTime, audioContext.currentTime)
+        if (typeof duration === "number") {
+            if (startTime + duration < audioContext.currentTime) {
+                console.info("Skipping note: ", startTime, '+', duration, '<', audioContext.currentTime)
                 return false;
             }
         }
-        if(startTime === null)
+        if (startTime === null)
             startTime = audioContext.currentTime;
-        else if(startTime < 0)
+        else if (startTime < 0)
             startTime = 0; // TODO: adjust buffer offset.
 
         // Velocity
@@ -94,48 +115,106 @@ class AudioBufferInstrument {
 
         // Audio Buffer
         const source = destination.context.createBufferSource();
-        this.source = source;
-        if(this.audioBuffer)
-            this.setBuffer(source);
-        else
-            console.warn("Note playback started without an audio buffer: " + this.config.url);
 
-        const playbackRate = frequencyValue / this.freqRoot;
-        source.playbackRate.value = playbackRate; //  Math.random()*2;
+        // Load Sample
+        const service = new AudioBufferLoader();
+        if(config.url) {
+            let buffer = service.tryCache(config.url);
+            if (buffer) {
+                this.setBuffer(source, buffer);
+            } else {
+                service.loadAudioBufferFromURL(config.url)
+                    .then(audioBuffer => {
+                        this.setBuffer(source, audioBuffer);
+                    });
+            }
+        } else {
+            console.warn("No config.url is set", this);
+        }
 
-        if(typeof this.config.detune !== "undefined")
-            source.detune.value = this.config.detune;
+
+        // Playback Rate
+        const freqRoot = config.root ? Values.instance.parseFrequencyString(config.root) : 220;
+        source.playbackRate.value = frequency / freqRoot;
+
+        // Detune
+        if(typeof config.detune !== "undefined")
+            source.detune.value = config.detune;
 
 
+        // Envelope
+
+        let amplitude = 1;
+        if(typeof config.mixer !== "undefined")
+            amplitude = config.mixer / 100;
+        if(velocity !== null)
+            amplitude *= parseFloat(velocity || 127) / 127;
+        const gainNode = this.loadedEnvelope.createEnvelope(destination, startTime, amplitude);
+        destination = gainNode;
+
+        // LFOs
+
+        const activeLFOs = [];
+        for(const LFO of this.loadedLFOs) {
+            activeLFOs.push(LFO.createLFO(source, frequency, startTime, null, velocity));
+        }
+        source.lfos = activeLFOs;
+
+        // Connect Source
         source.connect(destination);
+        // Start Source
         source.start(startTime);
+        // console.log("Note Start: ", config.url, frequency);
+
+        // Set up Note-Off
+        source.noteOff = (endTime=audioContext.currentTime) => {
+            gainNode.noteOff(endTime); // End Envelope on the note end time
+
+            // Get the source end time, when the note actually stops rendering
+            const sourceEndTime = this.loadedEnvelope.increaseDurationByRelease(endTime);
+            for(const lfo of activeLFOs) {
+                lfo.noteOff(sourceEndTime); // End LFOs on the source end time.
+            }
+            // console.log('noteOff', {frequency, endTime});
+
+            // Stop the source at the source end time
+            source.stop(sourceEndTime);
+        };
+
+        // Set up on end.
+        source.onended = () => {
+            if(hasActiveNote(source)) {
+                removeActiveNote(source);
+                activeLFOs.forEach(lfo => lfo.stop());
+                onended && onended();
+            }
+            // console.log("Note Ended: ", config.url, frequency);
+        }
+
+        // Add Active Note
+        activeNotes.push(source);
+
+        // If Duration, queue note end
         if(duration !== null) {
             if(duration instanceof Promise) {
                 // Support for duration promises
-                duration.then(function() {
-                    source.stop();
-                })
+                duration.then(() => source.noteOff())
             } else {
-                source.stop(endTime);
+                source.noteOff(startTime + duration);
             }
         }
-        activeNotes.push(source);
-        // console.log("Note Start: ", this.config.url, this.audioBuffer, source);
-        source.onended = () => {
-            const i = activeNotes.indexOf(source);
-            activeNotes.splice(i, 1);
-            onended && onended();
-            // console.log("Note Ended: ", this.config.url, this.audioBuffer, source);
-        }
 
+        // Return source
         return source;
     }
+
+
 
     /** MIDI Events **/
 
     playMIDIEvent(destination, eventData, onended=null) {
         let newMIDICommand;
-
+        // console.log('playMIDIEvent', eventData);
         switch (eventData[0]) {
             case 144:   // Note On
                 newMIDICommand = Values.instance.getCommandFromMIDINote(eventData[1]);
@@ -144,22 +223,19 @@ class AudioBufferInstrument {
                 const source = this.playFrequency(destination, newMIDIFrequency, null, null, newMIDIVelocity);
                 if(source) {
                     if (this.activeMIDINotes[newMIDICommand])
-                        this.activeMIDINotes[newMIDICommand].stop();
+                        this.activeMIDINotes[newMIDICommand].noteOff();
                     this.activeMIDINotes[newMIDICommand] = source;
                 }
                 return source;
-                // console.log("MIDI On", newMIDICommand, newMIDIVelocity, eventData);
 
             case 128:   // Note Off
                 newMIDICommand = Values.instance.getCommandFromMIDINote(eventData[1]);
                 if(this.activeMIDINotes[newMIDICommand]) {
-                    this.activeMIDINotes[newMIDICommand].stop();
+                    this.activeMIDINotes[newMIDICommand].noteOff();
                     delete this.activeMIDINotes[newMIDICommand];
                     return true;
-                    // console.log("MIDI Off", newMIDICommand, eventData);
                 } else {
                     return false;
-                    // console.warn("No 'ON' note was found for : " + newMIDICommand);
                 }
 
             default:
@@ -171,14 +247,21 @@ class AudioBufferInstrument {
 
 
     static stopPlayback() {
+        console.log(this.name, `stopping ${activeNotes.length} notes`, activeNotes);
         for(const activeNote of activeNotes)
             activeNote.stop();
-
         activeNotes = [];
     }
 }
 
+let activeNotes = [];
+function removeActiveNote(source) {
+    const i=activeNotes.indexOf(source);
+    if(i !== -1)
+        activeNotes.splice(i, 1);
+}
+function hasActiveNote(source) {
+    return activeNotes.indexOf(source) !== -1;
+}
 
-
-export default AudioBufferInstrument;
 

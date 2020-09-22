@@ -5,6 +5,14 @@ div.asct-position {
     padding: 2px;
     /*color: #666;*/
     margin-right: 4px;
-    min-width: 48px;
+    min-width: 36px;
     text-align: left;
+}
+
+div.asct-position.small {
+    font-size: small;
+}
+
+div.asct-position.tiny {
+    font-size: x-small;
 }
