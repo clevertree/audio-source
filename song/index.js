@@ -9,12 +9,12 @@ import ArgType from "./instruction/argument/ArgType";
 import Values from "./values/Values";
 import InstructionIterator from "./instruction/iterator/InstructionIterator";
 import {TrackIterator, TrackPlayback} from "./track";
-import LibraryProcessor from "./library/LibraryProcessor";
 import FileService from "./file/service/FileService";
 import FileSupport from "./file/FileSupport";
+import PresetLibrary from "./library/PresetLibrary";
 export {
     Song,
-    LibraryProcessor,
+    PresetLibrary,
     ProgramLoader,
     FileService,
     FileSupport,

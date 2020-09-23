@@ -4,8 +4,8 @@ import {
     ASUIMenuBreak,
     ASUIInputRange, ASUIClickableDropDown, ASUIMenuItem,
 } from "../../../../components";
-import LibraryProcessor from "../../../../song/library/LibraryProcessor";
 import PropTypes from "prop-types";
+import PresetLibrary from "../../../../song/library/PresetLibrary";
 
 
 export default class LFOParameterRendererBase extends React.Component {
@@ -38,7 +38,7 @@ export default class LFOParameterRendererBase extends React.Component {
                 amplitude:   (newValue) => this.changeParam('amplitude', newValue),
             },
         };
-        this.library = LibraryProcessor.loadDefault();
+        this.library = PresetLibrary.loadDefault();
 
         // console.log(`${this.constructor.name}.constructor`, props);
     }

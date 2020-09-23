@@ -5,7 +5,7 @@ import {
     ASUIInputRange,
     ASUIMenuDropDown, ASUIClickableDropDown, ASUIMenuItem, ASUIGlobalContext,
 } from "../../../../components";
-import {LibraryProcessor, ProgramLoader} from "../../../../song";
+import {PresetLibrary, ProgramLoader} from "../../../../song";
 
 import PropTypes from "prop-types";
 import PeriodicWaveLoader from "../loader/PeriodicWaveLoader";
@@ -62,7 +62,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
         this.state = {
             status: null
         }
-        this.library = LibraryProcessor.loadDefault();
+        this.library = PresetLibrary.loadDefault();
     }
 
 
@@ -361,7 +361,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
     }
 
     renderMenuChangeOscillatorSampleRecent() {
-        const recentSamples = LibraryProcessor.renderMenuRecentSamples(
+        const recentSamples = PresetLibrary.renderMenuRecentSamples(
             sampleURL => this.changeSampleURL(sampleURL),
             OscillatorInstrumentRendererBase.fileRegex
         )

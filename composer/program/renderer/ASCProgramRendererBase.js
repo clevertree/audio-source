@@ -4,7 +4,7 @@ import {
     ASUIMenuAction,
     ASUIMenuDropDown, ASUIMenuBreak, ASUIMenuItem,
 } from "../../../components";
-import {LibraryProcessor, ProgramLoader} from "../../../song";
+import {PresetLibrary, ProgramLoader} from "../../../song";
 import ASCPresetBrowser from "../browser/ASCPresetBrowser";
 
 
@@ -216,7 +216,7 @@ export default class ASCProgramRendererBase extends React.Component {
 
 
     renderMenuChangePreset(library=null) {
-        library = library || LibraryProcessor.loadDefault();
+        library = library || PresetLibrary.loadDefault();
         const libraryOptions = library.renderMenuLibraryOptions((library) =>
             () => this.renderMenuChangePreset(library)
         );

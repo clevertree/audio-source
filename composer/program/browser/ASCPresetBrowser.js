@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import {ASUIClickable, ASUIGlobalContext, ASUIMenuAction, ASUIMenuItem} from "../../../components";
-import {LibraryProcessor, ProgramLoader} from "../../../song";
+import {PresetLibrary, ProgramLoader} from "../../../song";
 import {PromptManager} from "../../../common";
 import "./ASCPresetBrowser.css";
 
@@ -26,7 +26,7 @@ export default class ASCPresetBrowser extends React.Component {
 
     constructor(props) {
         super(props);
-        const library = LibraryProcessor.loadDefault();
+        const library = PresetLibrary.loadDefault();
         // const [currentPresetClass, currentPresetConfig] = props.program;
         this.state = {
             // currentPresetHash: library.getTitle() + ':' + currentPresetClass + ':' + currentPresetConfig.title,
@@ -123,7 +123,7 @@ export default class ASCPresetBrowser extends React.Component {
                     const next = libraryGenerator.next();
                     if (next.done)
                         break;
-                    const nextLibrary = new LibraryProcessor(next.value);
+                    const nextLibrary = new PresetLibrary(next.value);
                     content.push(<ASUIClickable
                         key={i}
                         onAction={() => this.setLibrary(nextLibrary)}
@@ -357,7 +357,7 @@ export default class ASCPresetBrowser extends React.Component {
     /** Menu **/
 
     async renderMenuSelectLibrary() {
-        const defaultLibrary = await LibraryProcessor.loadDefault();
+        const defaultLibrary = await PresetLibrary.loadDefault();
         const library = this.getLibrary();
         const libraries = await library.getLibraries();
         return (<>

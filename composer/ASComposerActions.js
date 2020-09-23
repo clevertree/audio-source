@@ -1,4 +1,4 @@
-import {LibraryProcessor, ProgramLoader, Song, ClientStorage, FileService, FileSupport} from "../song";
+import {PresetLibrary, ProgramLoader, Song, ClientStorage, FileService, FileSupport} from "../song";
 import {Instruction, Values} from "../song";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
@@ -49,7 +49,7 @@ class ASComposerActions extends ASComposerMenu {
     /** Library **/
 
     setLibrary(library) {
-        if(!(library instanceof LibraryProcessor))
+        if(!(library instanceof PresetLibrary))
             throw new Error("Invalid library: " + typeof library);
         this.library = library;
         // console.log('Current library: ', library);
@@ -209,7 +209,7 @@ class ASComposerActions extends ASComposerMenu {
             if(recentValues) {
                 Values.recentDurations = recentValues.recentDurations || [];
                 Values.recentFrequencies = recentValues.recentFrequencies || [];
-                LibraryProcessor.recentSampleURLs = recentValues.recentLibrarySampleURLs || [];
+                // TODO: PresetLibrary.recentSampleURLs = recentValues.recentLibrarySampleURLs || [];
             }
 
             for(let key in state.activeTracks) {
@@ -250,7 +250,7 @@ class ASComposerActions extends ASComposerMenu {
         state.recentValues = {
             recentFrequencies: Values.recentFrequencies,
             recentDurations: Values.recentDurations,
-            recentLibrarySampleURLs: LibraryProcessor.recentSampleURLs,
+            // TODO: recentLibrarySampleURLs: LibraryProcessor.recentSampleURLs,
         }
 
         // Delete playback stats

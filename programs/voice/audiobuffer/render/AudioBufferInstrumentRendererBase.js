@@ -5,7 +5,7 @@ import {
     ASUIInputRange,
     ASUIMenuDropDown, ASUIClickableDropDown, ASUIMenuItem, ASUIGlobalContext
 } from "../../../../components";
-import {LibraryProcessor, ProgramLoader, Values} from "../../../../song";
+import {PresetLibrary, ProgramLoader, Values} from "../../../../song";
 
 import PropTypes from "prop-types";
 import AudioBufferLoader from "../loader/AudioBufferLoader";
@@ -61,7 +61,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
         this.state = {
             status: null
         }
-        this.library = LibraryProcessor.loadDefault();
+        this.library = PresetLibrary.loadDefault();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -325,7 +325,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
     }
 
     renderMenuChangeAudioBuffer() {
-        const recentSamples = LibraryProcessor.renderMenuRecentSamples(
+        const recentSamples = PresetLibrary.renderMenuRecentSamples(
             sampleURL => this.changeSampleURL(sampleURL),
             AudioBufferInstrumentRendererBase.fileRegex
         )

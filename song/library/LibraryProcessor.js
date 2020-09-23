@@ -165,6 +165,29 @@ class LibraryProcessor {
 
     /** Libraries Menu **/
 
+    renderMenuLibraryOptions(onSelectLibraryOptions) {
+        let i=0;
+        const content = [];
+        const libraries = this.getLibraryGenerator();
+
+        if(libraries) {
+            let nextLibrary = libraries.next();
+            while(!nextLibrary.done) {
+                const library = new LibraryProcessor(nextLibrary.value); // TODO promise prop
+                content.push(
+                    <ASUIMenuDropDown
+                        key={`lib-${i}`}
+                        options={onSelectLibraryOptions(library)}
+                    >
+                        {library.getTitle()}
+                    </ASUIMenuDropDown>
+                )
+                nextLibrary = libraries.next();
+            }
+        }
+        return content.length === 0 ? null : content;
+    }
+
     // renderMenuLibraries(onSelectPreset) {
     //     let i=0;
     //     const content = [];
@@ -187,29 +210,6 @@ class LibraryProcessor {
     //     }
     //     return content.length === 0 ? null : content;
     // }
-
-    renderMenuLibraryOptions(onSelectLibraryOptions) {
-        let i=0;
-        const content = [];
-        const libraries = this.getLibraryGenerator();
-
-        if(libraries) {
-            let nextLibrary = libraries.next();
-            while(!nextLibrary.done) {
-                const library = new LibraryProcessor(nextLibrary.value);
-                content.push(
-                    <ASUIMenuDropDown
-                        key={`lib-${i}`}
-                        options={onSelectLibraryOptions(library)}
-                    >
-                        {library.getTitle()}
-                    </ASUIMenuDropDown>
-                )
-                nextLibrary = libraries.next();
-            }
-        }
-        return content.length === 0 ? null : content;
-    }
 
 
 
