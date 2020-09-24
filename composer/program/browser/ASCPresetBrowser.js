@@ -26,14 +26,13 @@ export default class ASCPresetBrowser extends React.Component {
 
     constructor(props) {
         super(props);
-        const library = PresetLibrary.loadDefault();
         // const [currentPresetClass, currentPresetConfig] = props.program;
         this.state = {
             // currentPresetHash: library.getTitle() + ':' + currentPresetClass + ':' + currentPresetConfig.title,
-            library,
-            loading: false,
+            loading: true,
             presets: [],
             loadingPresets: [],
+            currentLibrary: null,
             libraries: [],
 
             limit: 12,
@@ -46,17 +45,29 @@ export default class ASCPresetBrowser extends React.Component {
             onWheel: e => this.onWheel(e)
         }
 
-
         console.log(this.constructor.name, this);
     }
 
-    getLibrary() { return this.state.library; }
+    // getLibrary() { return this.state.library; }
     // getComposer() { return this.props.composer; }
     getProgramID() { return this.props.programID; }
     getProgram() { return this.props.program; }
 
     componentDidMount() {
         // this.updateList();
+        this.setLibrary(PresetLibrary.loadDefault())
+    }
+
+    async setLibrary(library) {
+        this.setState({
+            currentLibrary: library,
+            loading: true,
+            offset: 0,
+        });
+        await library.waitForAssetLoad()
+        this.setState({
+            loading: false
+        });
     }
 
     // updateList() {
@@ -72,6 +83,7 @@ export default class ASCPresetBrowser extends React.Component {
     //     // console.log('presets', currentPresetConfig, {presets, libraries, tags, currentPresetID});
     //     this.setState({presets, libraries, currentPresetHash, loading: false});
     // }
+
 
     render() {
         let className = 'asc-preset-browser';
@@ -90,9 +102,7 @@ export default class ASCPresetBrowser extends React.Component {
         // return content;
     }
 
-
     renderLibraries() {
-        const library = this.getLibrary();
         let content = [];
 
         if(this.history.length > 0) {
@@ -105,31 +115,27 @@ export default class ASCPresetBrowser extends React.Component {
             />);
         }
 
-        content.push(<ASUIClickable
-            key={'library-current'}
-            className="centered"
-            // options={() => {}}
-            onAction={() => this.setLibrary(library)}
-            children={library.getTitle()}
-        />)
+        if(this.state.currentLibrary) {
+            const currentLibrary = this.state.currentLibrary;
+            content.push(<ASUIClickable
+                key={'library-current'}
+                className="centered"
+                // options={() => {}}
+                onAction={() => this.setLibrary(currentLibrary)}
+                children={currentLibrary.getTitle()}
+            />)
+        }
 
         if(this.state.loading) {
             content.push(<ASUIClickable key="loading" loading={true} onAction={() => {}}>Loading Libraries...</ASUIClickable>);
 
         } else {
-            const libraryGenerator = library.getLibraryGenerator();
-            if(libraryGenerator) {
-                for (let i = 0; ; i++) {
-                    const next = libraryGenerator.next();
-                    if (next.done)
-                        break;
-                    const nextLibrary = new PresetLibrary(next.value);
-                    content.push(<ASUIClickable
-                        key={i}
-                        onAction={() => this.setLibrary(nextLibrary)}
-                        children={nextLibrary.getTitle()}
-                    />);
-                }
+            for(const [i, library] of PresetLibrary.getLibraries().entries()) {
+                content.push(<ASUIClickable
+                    key={i}
+                    onAction={() => this.setLibrary(library)}
+                    children={library.getTitle()}
+                />);
             }
         }
 
@@ -159,13 +165,13 @@ export default class ASCPresetBrowser extends React.Component {
 
     renderPresets() {
         let content = [];
-        if(this.state.loading) {
+        if(this.state.loading || !this.state.currentLibrary) {
             content.push(<ASUIClickable key="loading" loading={true} onAction={() => {}}>Loading Presets...</ASUIClickable>);
 
         } else {
             const {offset, limit} = this.state;
 
-            const library = this.getLibrary();
+            const library = this.state.currentLibrary; // this.getLibrary();
             let presetGenerator = library.getPresetGenerator();
             if(presetGenerator) {
                 const loadingPresets = this.state.loadingPresets || [];
@@ -308,22 +314,6 @@ export default class ASCPresetBrowser extends React.Component {
         // this.updateList();
     }
 
-    async setLibrary(library, addHistory=true) {
-        await library.waitForAssetLoad();
-        const oldLibrary = this.getLibrary();
-        this.setState({library, offset: 0});
-        // this.props.composer.setLibrary(library);
-        // this.updateList();
-
-        // History
-        if(addHistory && oldLibrary) {
-            const i = this.history.indexOf(oldLibrary);
-            if (i !== -1)
-                this.history.splice(i, 1);
-            this.history.unshift(oldLibrary);
-        }
-    }
-
     popLibrary() {
         if(this.history.length === 0)
             throw new Error("Invalid library history");
@@ -358,7 +348,7 @@ export default class ASCPresetBrowser extends React.Component {
 
     async renderMenuSelectLibrary() {
         const defaultLibrary = await PresetLibrary.loadDefault();
-        const library = this.getLibrary();
+        const library = this.state.currentLibrary;
         const libraries = await library.getLibraries();
         return (<>
             {libraries.length === 0

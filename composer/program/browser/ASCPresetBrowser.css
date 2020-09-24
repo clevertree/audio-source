@@ -35,7 +35,7 @@ div.asc-preset-browser > div.preset-list > div.selected {
 
 div.asc-preset-browser > div.library-list > div.centered ,
 div.asc-preset-browser > div.preset-list > div.centered {
-    text-align: center;
+    justify-content: center;
 }
 
 

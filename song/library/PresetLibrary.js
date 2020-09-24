@@ -2,18 +2,25 @@ import React from "react";
 import {ASUIMenuAction} from "../../components";
 
 export default class PresetLibrary {
-    async * getPresets() {
+    /** Async loading **/
+    async waitForAssetLoad() {    }
+
+    /** Preset Iterator **/
+    * getPresetGenerator() {
         throw new Error("Not implemented")
     }
-    async * getSamples() {
+
+    /** Sample Iterator **/
+    * getSampleGenerator() {
         throw new Error("Not implemented")
     }
+
 
 
 
     /** Sample Menu **/
 
-    async renderMenuSamples(onSelectSample, fileRegex=null) { ///^(.*\.(?!(htm|html|class|js)$))?[^.]*$/i
+    renderMenuSamples(onSelectSample, fileRegex=null) { ///^(.*\.(?!(htm|html|class|js)$))?[^.]*$/i
         const callback = onSelectSample;
         onSelectSample = function(sampleURL) {
             addUnique(sampleURL, recentSampleURLs);
@@ -22,7 +29,7 @@ export default class PresetLibrary {
 
         let i=0;
         const content = [];
-        for await (let sampleURL of this.getSamples()) {
+        for (let sampleURL of this.getSamples()) {
             if (fileRegex !== null) {
                 if (!fileRegex.test(sampleURL))
                     continue;
@@ -55,12 +62,12 @@ export default class PresetLibrary {
 
     /** Preset Menu **/
 
-    async renderMenuPresets(onSelectPreset) {
+    renderMenuPresets(onSelectPreset) {
         // TODO: recent
         let i=0;
         const content = [];
 
-        for await (const [presetClassName, presetConfig] of this.getPresets()) {
+        for (const [presetClassName, presetConfig] of this.getPresets()) {
             content.push(
                 <ASUIMenuAction key={`preset-${i}`} onAction={e => onSelectPreset(presetClassName, presetConfig)}>
                     {presetConfig.title || 'Untitled Preset #' + i}
