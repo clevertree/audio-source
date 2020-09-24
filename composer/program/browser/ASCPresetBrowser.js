@@ -172,8 +172,8 @@ export default class ASCPresetBrowser extends React.Component {
             const {offset, limit} = this.state;
 
             const library = this.state.currentLibrary; // this.getLibrary();
-            let presetGenerator = library.getPresetGenerator();
-            if(presetGenerator) {
+            let presetList = library.getPresetList();
+            if(presetList) {
                 const loadingPresets = this.state.loadingPresets || [];
                 const searchString = (this.state.searchString || '').toLowerCase();
                 const [currentPresetClass, currentPresetConfig] = this.props.program;
@@ -181,15 +181,12 @@ export default class ASCPresetBrowser extends React.Component {
 
                 // const limitedList = presetList
                 //     .slice(offset, offset + limit);
-                let presetCount=0, endFound = false;
-                for(let presetID=0; limit>content.length; presetID++) {
-                    const next = presetGenerator.next();
-                    if(next.done) {
-                        endFound = true;
+                let presetCount=0;
+                for(let presetID=0; presetID < presetList.length; presetID++) {
+                    if(limit <= content.length)
                         break;
-                    }
-                    const [presetClass, presetConfig] = next.value;
-                    const currentPresetHash = library.getTitle() + ':' + presetClass + ':' + presetConfig.title;
+                    const [presetClass, presetConfig] = presetList[presetID];
+                    const currentPresetHash = library.getUUID() + ':' + presetClass + ':' + presetConfig.title;
 
                     if(searchString) {
                         let filtered = true;
@@ -239,7 +236,7 @@ export default class ASCPresetBrowser extends React.Component {
                     />);
                 }
                 let nextOffset = offset + limit;
-                if(!endFound) {
+                if(presetCount === presetList.length) {
                     content.push(<ASUIClickable
                         key="preset-next"
                         onAction={() => this.setOffset(nextOffset)}
@@ -295,6 +292,7 @@ export default class ASCPresetBrowser extends React.Component {
         const instance = ProgramLoader.loadInstance(presetClassName, presetConfig);
         let error = false;
         if(typeof instance.waitForAssetLoad === "function") {
+            console.log('presetLoad', presetHash, presetClassName, presetConfig, instance);
             const timeout = setTimeout(() => {
                 error = true;
                 this.removeLoadingPreset(presetHash);

@@ -2,20 +2,44 @@ import React from "react";
 import {ASUIMenuAction} from "../../components";
 
 export default class PresetLibrary {
+    constructor(title, uuid=null) {
+        this.title = title;
+        this.uuid = uuid || title.toLowerCase().replace('/W+', '_');
+        this.presets = null;
+    }
+
+    getTitle() { return this.title; }
+    getUUID() { return this.uuid; }
+
     /** Async loading **/
     async waitForAssetLoad() {    }
 
-    /** Preset Iterator **/
-    * getPresetGenerator() {
-        throw new Error("Not implemented")
+
+    getPresetList() {
+        if(!this.presets)
+            throw new Error("Preset list was not fetched. Please reload");
+        return this.presets;
     }
 
-    /** Sample Iterator **/
-    * getSampleGenerator() {
-        throw new Error("Not implemented")
+    getSampleList() {
+        const data = this.getData();
+        const presets = data.presets;
+        for (let i = 0; i < presets.length; i++) {
+            const presetData = presets[i];
+            for (let voiceData of presetData.voices) {
+                const url = new URL(data.urlPrefix + voiceData.url, this.url).toString();
+            }
+        }
     }
 
-
+    setPresetList(presets, url=null) {
+        if(!Array.isArray(presets))
+            throw new Error("Invalid preset list");
+        this.presets = presets;
+        if(url)
+            fixPresetURLs(presets, url);
+        console.log('fixPresetURLs', url, presets);
+    }
 
 
     /** Sample Menu **/
@@ -67,7 +91,7 @@ export default class PresetLibrary {
         let i=0;
         const content = [];
 
-        for (const [presetClassName, presetConfig] of this.getPresets()) {
+        for (const [presetClassName, presetConfig] of this.getPresetList()) {
             content.push(
                 <ASUIMenuAction key={`preset-${i}`} onAction={e => onSelectPreset(presetClassName, presetConfig)}>
                     {presetConfig.title || 'Untitled Preset #' + i}
@@ -119,3 +143,19 @@ function addUnique(value, array, limit=10) {
         array.pop();
 }
 
+
+function fixPresetURLs(object, baseURL) {
+    if(typeof object !== "object")
+        return;
+    if(Array.isArray(object)) {
+        for (let i = 0; i < object.length; i++) {
+            fixPresetURLs(object[i], baseURL);
+        }
+        return;
+    }
+    if(typeof object.url !== "undefined")
+        object.url = new URL(object.url, baseURL).toString();
+    Object.keys(object).forEach(key => {
+        fixPresetURLs(object[key], baseURL);
+    })
+}
