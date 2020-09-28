@@ -1,5 +1,6 @@
 import React from "react";
-import {ASUIMenuAction} from "../../components";
+import {ASUIMenuAction, ASUIMenuDropDown, ASUIMenuItem} from "../../components";
+import Preset from "./Preset";
 
 export default class PresetLibrary {
     constructor(title, uuid=null) {
@@ -22,38 +23,70 @@ export default class PresetLibrary {
     }
 
     getSampleList() {
-        const data = this.getData();
-        const presets = data.presets;
-        for (let i = 0; i < presets.length; i++) {
-            const presetData = presets[i];
-            for (let voiceData of presetData.voices) {
-                const url = new URL(data.urlPrefix + voiceData.url, this.url).toString();
-            }
-        }
+        const sampleList = [];
+        eachSampleURL(this.presets, (object, url) => {
+            sampleList.push(url);
+        })
+        // console.log('sampleList', sampleList);
+        return sampleList;
     }
 
-    setPresetList(presets, url=null) {
+    setPresetList(presets, libraryURL=null) {
         if(!Array.isArray(presets))
             throw new Error("Invalid preset list");
-        this.presets = presets;
-        if(url)
-            fixPresetURLs(presets, url);
-        console.log('fixPresetURLs', url, presets);
+        if(libraryURL)
+            fixPresetURLs(this.presets, libraryURL);
+        // console.log('fixPresetURLs', url, presets);
     }
+
+
+    /** Preset Menu **/
+
+    renderMenuPresets(onSelectPreset) {
+        const onSelectPresetCallback = function(presetClassName, presetConfig) {
+            addRecentPreset(presetClassName, presetConfig)
+            onSelectPreset(presetClassName, presetConfig);
+        }
+        // TODO: recent
+        let i=0;
+        const content = [];
+
+        for (const [presetClassName, presetConfig] of this.getPresetList()) {
+            content.push(
+                <ASUIMenuAction key={`preset-${i}`} onAction={e => onSelectPresetCallback(presetClassName, presetConfig)}>
+                    {presetConfig.title || 'Untitled Preset #' + i}
+                </ASUIMenuAction>
+            )
+            // TODO: scrollable container?
+        }
+        return content.length === 0 ? null : content;
+    }
+
+    static renderMenuRecentPresets(onSelectPreset, classFilter=null) {
+        const content = PresetLibrary.recentPresets
+            .filter(([presetClassName, presetConfig]) => !classFilter || classFilter === presetClassName)
+            .map(([presetClassName, presetConfig], i) => (
+                <ASUIMenuAction key={`preset-${i}`} onAction={e => onSelectPreset(presetClassName, presetConfig)}>
+                    {presetConfig.title || 'Untitled Preset #' + i}
+                </ASUIMenuAction>
+            ));
+
+        return content.length === 0 ? null : content;
+    }
+
 
 
     /** Sample Menu **/
 
     renderMenuSamples(onSelectSample, fileRegex=null) { ///^(.*\.(?!(htm|html|class|js)$))?[^.]*$/i
-        const callback = onSelectSample;
-        onSelectSample = function(sampleURL) {
-            addUnique(sampleURL, recentSampleURLs);
-            callback(sampleURL);
+        const onSelectSampleCallback = function(sampleURL) {
+            addSampleURL(sampleURL);
+            onSelectSample(sampleURL);
         }
 
         let i=0;
         const content = [];
-        for (let sampleURL of this.getSamples()) {
+        for (let sampleURL of this.getSampleList()) {
             if (fileRegex !== null) {
                 if (!fileRegex.test(sampleURL))
                     continue;
@@ -62,17 +95,17 @@ export default class PresetLibrary {
             content.push(
                 <ASUIMenuAction
                     key={`sample-${i}`}
-                    onAction={e => onSelectSample(sampleURL)}>
+                    onAction={e => onSelectSampleCallback(sampleURL)}>
                     {title || 'Untitled Sample'}
                 </ASUIMenuAction>
             )
             // TODO: scrollable container?
         }
-        return content.length === 0 ? null : content;
+        return content.length === 0 ? <ASUIMenuItem>No Samples</ASUIMenuItem> : content;
     }
 
     static renderMenuRecentSamples(onSelectSample, fileRegex=null) { ///^(.*\.(?!(htm|html|class|js)$))?[^.]*$/i
-        const content = recentSampleURLs
+        const content = PresetLibrary.recentSampleURLs
             .filter(sampleURL => !fileRegex || fileRegex.test(sampleURL))
             .map((sampleURL, i) => (
                 <ASUIMenuAction key={i} onAction={e => onSelectSample(sampleURL)}>
@@ -83,36 +116,6 @@ export default class PresetLibrary {
         return content.length === 0 ? null : content;
     }
 
-
-    /** Preset Menu **/
-
-    renderMenuPresets(onSelectPreset) {
-        // TODO: recent
-        let i=0;
-        const content = [];
-
-        for (const [presetClassName, presetConfig] of this.getPresetList()) {
-            content.push(
-                <ASUIMenuAction key={`preset-${i}`} onAction={e => onSelectPreset(presetClassName, presetConfig)}>
-                    {presetConfig.title || 'Untitled Preset #' + i}
-                </ASUIMenuAction>
-            )
-            // TODO: scrollable container?
-        }
-        return content.length === 0 ? null : content;
-    }
-
-    static renderMenuRecentPresets(onSelectPreset, classFilter=null) {
-        const content = recentPresets
-            .filter(([presetClassName, presetConfig]) => !classFilter || classFilter === presetClassName)
-            .map(([presetClassName, presetConfig], i) => (
-                <ASUIMenuAction key={`preset-${i}`} onAction={e => onSelectPreset(presetClassName, presetConfig)}>
-                    {presetConfig.title || 'Untitled Preset #' + i}
-                </ASUIMenuAction>
-            ));
-
-        return content.length === 0 ? null : content;
-    }
 
     /** Libraries **/
 
@@ -130,32 +133,94 @@ export default class PresetLibrary {
     static loadDefault() {
         return libraries[0];
     }
+
+
+
+    /** Libraries Menu **/
+
+    static renderMenuLibraries(onSelectLibrary) {
+        return PresetLibrary.getLibraries()
+            .map((library, i) => <ASUIMenuAction
+                key={`lib-${i}`}
+                onAction={onSelectLibrary(library)}
+            >
+                {library.getTitle()}
+            </ASUIMenuAction>)
+    }
+    static renderMenuLibraryOptions(onSelectLibraryOptions) {
+        return PresetLibrary.getLibraries()
+            .map((library, i) => <ASUIMenuDropDown
+                key={`lib-${i}`}
+                options={onSelectLibraryOptions(library)}
+            >
+                {library.getTitle()}
+            </ASUIMenuDropDown>)
+    }
+
+
 }
 
 const libraries = [];
-const recentPresets = [];
-const recentSampleURLs = [];
+PresetLibrary.recentPresets = [];
+PresetLibrary.recentSampleURLs = [];
+PresetLibrary.recentSampleURLLimit = 10;
 
-function addUnique(value, array, limit=10) {
-    if(array.indexOf(value) === -1)
-        array.unshift(value);
-    while(array.length > limit)
-        array.pop();
+function addSampleURL(value) {
+    const recentSampleURLs = PresetLibrary.recentSampleURLs;
+    if(recentSampleURLs.indexOf(value) === -1)
+        recentSampleURLs.unshift(value);
+    while(recentSampleURLs.length > PresetLibrary.recentSampleURLLimit)
+        recentSampleURLs.pop();
+}
+
+function addRecentPreset(presetClassName, presetConfig) {
+    const recentPresets = PresetLibrary.recentPresets;
+    for(let i=recentPresets.length-1; i>=0; i--) {
+        const recentPreset = recentPresets[i];
+        if(recentPreset[0] === presetClassName) {
+            if(recentPreset[1].title === presetConfig.title) {
+                recentPreset.splice(i, 1);
+            }
+        }
+    }
+    recentPresets.unshift([presetClassName, presetConfig]);
 }
 
 
+// function fixPresetURLs(object, baseURL) {
+//     if(typeof object !== "object")
+//         return;
+//     if(Array.isArray(object)) {
+//         for (let i = 0; i < object.length; i++) {
+//             fixPresetURLs(object[i], baseURL);
+//         }
+//         return;
+//     }
+//     if(typeof object.url !== "undefined")
+//         object.url = new URL(object.url, baseURL).toString();
+//     Object.keys(object).forEach(key => {
+//         fixPresetURLs(object[key], baseURL);
+//     })
+// }
+
 function fixPresetURLs(object, baseURL) {
-    if(typeof object !== "object")
+    eachSampleURL(object, (subObject, url) => {
+        subObject.url = new URL(subObject.url, baseURL).toString();
+    })
+}
+
+function eachSampleURL(object, callback) {
+    if(!object || typeof object !== "object")
         return;
     if(Array.isArray(object)) {
         for (let i = 0; i < object.length; i++) {
-            fixPresetURLs(object[i], baseURL);
+            eachSampleURL(object[i], callback);
         }
         return;
     }
     if(typeof object.url !== "undefined")
-        object.url = new URL(object.url, baseURL).toString();
+        callback(object, object.url)
     Object.keys(object).forEach(key => {
-        fixPresetURLs(object[key], baseURL);
+        eachSampleURL(object[key], callback);
     })
 }

@@ -34,8 +34,10 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
             className += ' open';
         return (
             <div className={className}
-                 // tabIndex={0}
-                 onFocus={this.cb.onFocus}>
+                 tabIndex={0}
+                 onFocus={this.cb.onFocus}
+                 onKeyPress={this.cb.onKeyPress}
+            >
                 <div className="header">
                     <ASUIClickable
                         button
@@ -70,11 +72,5 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
         // return content;
     }
 
-
-    /** Input **/
-
-    onFocus(e) {
-        this.getComposer().setSelectedComponent('program', this.getProgramID());
-    }
 
 }

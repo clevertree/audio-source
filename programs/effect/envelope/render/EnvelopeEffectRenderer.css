@@ -16,7 +16,7 @@ div.envelope-effect-container > div.header {
     display: flex;
 }
 
-div.envelope-effect-container > div.header > div.toggle-container {
+div.envelope-effect-container > div.header > .toggle-container {
     flex-basis: 100%;
 }
 

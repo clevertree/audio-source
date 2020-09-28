@@ -11,7 +11,7 @@ export default class RemotePresetLibrary extends PresetLibrary {
 
     /** Async loading **/
     async waitForAssetLoad() {
-        if(!this.data) {
+        if(!this.presets) {
             const response = await fetch(this.url);
             const json = await response.json();
             const {title, uuid, presets} = json;

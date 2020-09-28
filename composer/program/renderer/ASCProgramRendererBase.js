@@ -6,6 +6,7 @@ import {
 } from "../../../components";
 import {PresetLibrary, ProgramLoader} from "../../../song";
 import ASCPresetBrowser from "../browser/ASCPresetBrowser";
+import ASCKeyboard from "../../../common/keyboard/ASCKeyboard";
 
 
 export default class ASCProgramRendererBase extends React.Component {
@@ -15,6 +16,7 @@ export default class ASCProgramRendererBase extends React.Component {
             togglePresetBrowser: () => this.togglePresetBrowser(),
             toggleContainer: e => this.toggleContainer(),
             onFocus: e => this.onFocus(e),
+            onKeyPress: e => this.onKeyPress(e),
             menuRoot: () => this.renderMenuRoot(),
             parentMenu: programID => this.renderMenuManageProgram(programID),
             programLoad: (programID, programClass, programConfig) => this.programLoad(programID, programClass, programConfig),
@@ -56,8 +58,8 @@ export default class ASCProgramRendererBase extends React.Component {
             const program = songData.programs[programID];
             const [className, config] = program;
             const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
-            const programProps = this.getProgramRendererState().programProps || {};
-            // console.log('this.getProgramRendererState()', this.getProgramRendererState(), className);
+            const programProps = this.getRendererState().programProps || {};
+            // console.log('this.getRendererState()', this.getRendererState(), className);
             return (
                 <Renderer
                     programID={programID}
@@ -103,13 +105,19 @@ export default class ASCProgramRendererBase extends React.Component {
     }
 
     async programLoad(presetClassName, presetConfig={}) {
-        console.log("Loading preset: ", presetClassName, presetConfig);
+        const song = this.getSong();
+        let [oldProgramClass, oldProgramConfig] = song.data.programs[this.props.programID] || [null, null];
+        console.log("Loading preset: ", presetClassName, presetConfig, oldProgramConfig);
+        if(oldProgramConfig && oldProgramConfig.title && !presetConfig.title)
+            presetConfig.title = oldProgramConfig.title;
         const instance = ProgramLoader.loadInstance(presetClassName, presetConfig);
         if(typeof instance.waitForAssetLoad)
             await instance.waitForAssetLoad();
-        const song = this.getSong();
         const programID = this.props.programID;
         song.programReplace(programID, presetClassName, presetConfig);
+        this.toggleContainer(true);
+
+
     }
 
     // getProgramState() {
@@ -121,39 +129,35 @@ export default class ASCProgramRendererBase extends React.Component {
     // }
 
     setProps(programID, props) {
-        const rendererState = this.getProgramRendererState();
+        const rendererState = this.getRendererState();
         if(!rendererState.programProps)     rendererState.programProps = props;
         else                                Object.assign(rendererState.programProps, props);
-        this.setProgramRendererState(rendererState);
+        this.setRendererState(rendererState);
     }
 
-    getProgramRendererState() {
-        return this.props.composer.state.programStates[this.props.programID] || {};
+    getRendererState() {
+        return this.props.composer.programGetRendererState(this.props.programID);
     }
-    setProgramRendererState(state) {
-        const programStates = this.props.composer.state.programStates;
-        const programID = this.props.programID;
-        if(!programStates[programID])   programStates[programID] = state;
-        else                            Object.assign(programStates[programID], state);
-        this.props.composer.setState({
-            programStates
-        });
+    setRendererState(state) {
+        return this.props.composer.programSetRendererState(this.props.programID, state);
     }
 
-    toggleContainer() {
-        const rendererState = this.getProgramRendererState();
-        rendererState.open = !rendererState.open;
-        if(!rendererState.programProps)
-            rendererState.programProps = {open: true};
-        this.setProgramRendererState(rendererState);
+    toggleContainer(openState=null) {
+        const rendererState = this.getRendererState();
+        if(openState === null)
+            openState = !rendererState.open
+        rendererState.open = openState;
+        // if(!rendererState.programProps)
+        //     rendererState.programProps = {open: true};
+        this.setRendererState(rendererState);
     }
 
 
 
     togglePresetBrowser() {
-        const rendererState = this.getProgramRendererState();
+        const rendererState = this.getRendererState();
         rendererState.open = rendererState.open === 'browser' ? true : 'browser';
-        this.setProgramRendererState(rendererState);
+        this.setRendererState(rendererState);
     }
 
 
@@ -215,21 +219,27 @@ export default class ASCProgramRendererBase extends React.Component {
     // }
 
 
-    renderMenuChangePreset(library=null) {
-        library = library || PresetLibrary.loadDefault();
-        const libraryOptions = library.renderMenuLibraryOptions((library) =>
-            () => this.renderMenuChangePreset(library)
+
+    renderMenuChangePreset() {
+        const onSelectPreset = (presetClass, presetConfig) => this.programLoad(presetClass, presetConfig);
+        const libraries = PresetLibrary.renderMenuLibraryOptions(async (library) => {
+            await library.waitForAssetLoad();
+            return library.renderMenuPresets(onSelectPreset);
+        });
+        const recentPresets = PresetLibrary.renderMenuRecentPresets(onSelectPreset);
+        return (
+            <>
+                <ASUIMenuBreak />
+                {libraries}
+                {recentPresets ? <>
+                    <ASUIMenuBreak />
+                    <ASUIMenuItem>Recent Presets</ASUIMenuItem>
+                    {recentPresets}
+                </> : null}
+            </>
         );
-        const presetOptions = library.renderMenuPresets(
-            (presetClass, presetConfig) => this.programLoad(presetClass, presetConfig)
-        );
-        return (<>
-            <ASUIMenuItem>Library: {library.getTitle()}</ASUIMenuItem>
-            <ASUIMenuBreak />
-            {libraryOptions ? <>${libraryOptions}<ASUIMenuBreak/></> : <ASUIMenuItem>No Libraries</ASUIMenuItem>}
-            {presetOptions ? presetOptions : <ASUIMenuItem>No Presets</ASUIMenuItem>}
-        </>)
     }
+
 
     /** Input **/
 
@@ -238,6 +248,21 @@ export default class ASCProgramRendererBase extends React.Component {
         const destination = this.getComposer().getDestination();
         this.getSong().playMIDIEvent(destination, this.getProgramID(), e.data);
 
+    }
+
+    onFocus(e) {
+        this.getComposer().setSelectedComponent('program', this.getProgramID());
+    }
+
+    onKeyPress(e) {
+        const {keyboardOctave} = this.getComposer().getTrackPanelState();
+        const keyboardCommand = ASCKeyboard.instance.getKeyboardCommand(e.key, keyboardOctave);
+        if(keyboardCommand) {
+            const destination = this.getComposer().getDestination();
+            this.getSong().playInstrumentFrequency(destination, this.getProgramID(), keyboardCommand, null, 1000)
+        } else {
+            console.warn("No keyboard command found for: ", e.key);
+        }
     }
 
 }

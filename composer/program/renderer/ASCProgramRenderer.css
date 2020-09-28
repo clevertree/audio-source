@@ -30,11 +30,11 @@ div.asc-instrument-renderer.open > div.header {
 }
 
 
-div.asc-instrument-renderer > div.header > div.toggle-container {
+div.asc-instrument-renderer > div.header > .toggle-container {
     flex-basis: 100%;
 }
 
-div.asc-instrument-renderer > div.header > div.program-config {
+div.asc-instrument-renderer > div.header > .program-config {
     /*padding-left: 4px;*/
 }
 div.asc-instrument-renderer > div.header > div.error {
@@ -42,6 +42,6 @@ div.asc-instrument-renderer > div.header > div.error {
 }
 
 
-div.asc-instrument-renderer > div.content {
+div.asc-instrument-renderer:focus > div.content {
     cursor: default;
 }

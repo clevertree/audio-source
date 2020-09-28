@@ -1,5 +1,6 @@
 import {ArgType, Values} from "../../song";
 import ASCTrackActions from "./ASCTrackActions";
+import ASCKeyboard from "../../common/keyboard/ASCKeyboard";
 
 
 // TODO: ASCTrackRowContainer
@@ -192,7 +193,7 @@ export default class ASCTrackInput extends ASCTrackActions {
 
             default:
                 const {keyboardOctave} = composer.getTrackPanelState();
-                const keyboardCommand = composer.keyboard.getKeyboardCommand(e.key, keyboardOctave);
+                const keyboardCommand = ASCKeyboard.instance.getKeyboardCommand(e.key, keyboardOctave);
                 if(keyboardCommand) {
                     // const selectedIndices = this.getSelectedIndices();
                     // const {cursorIndex} = this.cursorGetInfo()

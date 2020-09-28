@@ -16,6 +16,54 @@ export default class OscillatorInstrument {
     }
 
     static defaultEnvelope = ['envelope', {}];
+    static defaultRootFrequency = 220;
+    static sampleFileRegex = /\.json$/i;
+
+    /** Parameters **/
+    static inputParameters = {
+        source: {
+            label:      'WaveForm',
+            title:      'Choose WaveForm',
+        },
+        mixer: {
+            label:      'Mixer',
+            title:      'Edit Mixer Amplitude',
+            default: 0.8,
+            min: 0,
+            max: 1,
+            step: 0.01,
+            format: value => `${Math.round(value*100)}%`
+        },
+        detune: {
+            label:      'Detune',
+            title:      `Detune in cents`,
+            default: 0,
+            min: -1000,
+            max: 1000,
+            step: 10,
+            format: value => `${value}c`
+
+        },
+        pulseWidth: {
+            label:      'P.Width',
+            title:      `Pulse Width`,
+            default: 0.5,
+            min: 0,
+            max: 1,
+            step: 0.01,
+            format: value => `${Math.round(value*100)}%`
+        },
+        keyRoot: {
+            label: "Root",
+            title: "Key Root",
+        }
+    }
+
+    /** Automation Parameters **/
+    static sourceParameters = {
+        frequency: "Osc Frequency",
+        detune: "Osc Detune",
+    };
 
 
     constructor(config={}) {
@@ -63,26 +111,26 @@ export default class OscillatorInstrument {
     /** Playback **/
 
     addEnvelopeDestination(destination, startTime, velocity) {
-        let amplitude = 1;
+        let amplitude = OscillatorInstrument.inputParameters.mixer.default;
         if(typeof this.config.mixer !== "undefined")
-            amplitude = this.config.mixer / 100;
+            amplitude = this.config.mixer;
         if(velocity !== null)
             amplitude *= parseFloat(velocity || 127) / 127;
         return this.loadedEnvelope.createEnvelope(destination, startTime, amplitude);
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
-    createOscillator(destination, type) {
+    createOscillator(destination) {
         const audioContext = destination.context;
 
         let source;
-        switch(type) {
+        switch(this.config.type) {
             case 'sine':
             case 'square':
             case 'sawtooth':
             case 'triangle':
                 source=audioContext.createOscillator();
-                source.type = type;
+                source.type = this.config.type;
                 // Connect Source
                 source.connect(destination);
                 return source;
@@ -111,7 +159,7 @@ export default class OscillatorInstrument {
                 return source;
 
             default:
-                throw new Error("Unknown oscillator type: " + type);
+                throw new Error("Unknown oscillator type: " + this.config.type);
         }
 
     }
@@ -123,21 +171,25 @@ export default class OscillatorInstrument {
         source.type="sawtooth";
 
         const {pulseCurve, constantOneCurve} = getPulseCurve();
-        //Use a normal oscillator as the basis of our new oscillator.
+        // Use a normal oscillator as the basis of our new oscillator.
 
-        //Shape the output into a pulse wave.
+        // Shape the output into a pulse wave.
         const pulseShaper = audioContext.createWaveShaper();
         pulseShaper.curve=pulseCurve;
         source.connect(pulseShaper);
 
-        //Use a GainNode as our new "width" audio parameter.
+        // Use a GainNode as our new "width" audio parameter.
+
         const widthGain = audioContext.createGain();
-        widthGain.gain.value=0.5; //Default width.
+        widthGain.gain.value = (typeof this.config.pulseWidth !== "undefined"
+            ? this.config.pulseWidth
+            : OscillatorInstrument.inputParameters.pulseWidth.default);
+
         source.width=widthGain.gain; //Add parameter to oscillator node.
         widthGain.connect(pulseShaper);
 
-        //Pass a constant value of 1 into the widthGain – so the "width" setting
-        //is duplicated to its output.
+        // Pass a constant value of 1 into the widthGain – so the "width" setting
+        // is duplicated to its output.
         const constantOneShaper = audioContext.createWaveShaper();
         constantOneShaper.curve=constantOneCurve;
         source.connect(constantOneShaper);
@@ -149,7 +201,7 @@ export default class OscillatorInstrument {
     }
 
 
-    playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
+    playFrequency(destination, frequency, startTime=null, duration=null, velocity=null, onended=null) {
         let endTime;
         const config = this.config;
         const audioContext = destination.context;
@@ -168,7 +220,7 @@ export default class OscillatorInstrument {
                 return false;
             }
         }
-        console.log('playFrequency', frequency, startTime, duration, velocity, config);
+        // console.log('playFrequency', frequency, startTime, duration, velocity, config);
 
 
 
@@ -179,16 +231,24 @@ export default class OscillatorInstrument {
             return false;
 
         // Envelope
-
         const gainNode = this.addEnvelopeDestination(destination, startTime, velocity);
         destination = gainNode;
 
 
         // Oscillator
-        const source = this.createOscillator(destination, this.config.type);
-        source.frequency.value = frequency;    // set Frequency (hz)
+        const source = this.createOscillator(destination);
+
+        // Detune
         if (typeof config.detune !== "undefined")
             source.detune.value = config.detune;
+
+
+        // Playback Rate
+        if(config.keyRoot) {
+            const keyRoot = Values.instance.parseFrequencyString(config.keyRoot);
+            frequency *= keyRoot / OscillatorInstrument.defaultRootFrequency;
+        }
+        source.frequency.value = frequency;    // set Frequency (hz)
 
 
         // LFOs

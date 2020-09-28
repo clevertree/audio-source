@@ -12,34 +12,34 @@ export default class MIDIFileSupport {
 
         const song = new Song();
         const songData = song.data;
-        songData.tracks.root = [];
+        songData.tracks = {
+            root: [[0, '@track*']]
+        }; // .root = [];
         songData.title = filePath.split('/').pop();
+        songData.comment = '# MIDI Tracks:';
 
         songData.timeDivision = midiData.division;
 
-
+        let programID = 0;
         for (let trackID = 0; trackID < midiData.tracks.length; trackID++) {
             const trackEvents = midiData.tracks[trackID];
             let songPositionInTicks = 0;
 
 
-            let trackName = 't' + trackID;
-            let programName = trackName;
+            let trackName = 'track' + trackID;
+            let trackText = null; // trackName.trim();
 
             songPositionInTicks = 0;
             for(const trackEvent of trackEvents) {
                 songPositionInTicks += trackEvent.delta;
                 if(trackEvent.trackName) {
-                    programName = trackEvent.trackName.trim();
+                    trackText = trackEvent.trackName.trim();
                 }
             }
 
-            songData.programs[trackID] = ['empty', {title: programName}]; // {url: defaultProgramURL + '', name: defaultProgramName};
-            songData.tracks[trackName] = [
-                [0, '!p', trackID],
-            ]; // {url: defaultProgramURL + '', name: defaultProgramName};
-            const thisTrack = songData.tracks[trackName];
-            songData.tracks.root.push([0, `@${trackName}`]);
+            // songData.tracks[trackName] = []; // {url: defaultProgramURL + '', name: defaultProgramName};
+            const newTrack = []; // songData.tracks[trackName];
+            // songData.tracks.root.push([0, `@${trackName}`]);
 
 
             const lastNote = {};
@@ -79,7 +79,7 @@ export default class MIDIFileSupport {
                     // } else {
 
                         const newInstructionData = [nextDelta, newMIDICommandOn, 0, newMIDIVelocityOn];
-                        thisTrack.push(newInstructionData);
+                        newTrack.push(newInstructionData);
                         nextDelta = 0;
 
                         if(lastNote[newMIDICommandOn])
@@ -104,6 +104,17 @@ export default class MIDIFileSupport {
                 }
 
             }
+            if(trackText)
+                songData.comment += `\n* ${trackText}`;
+            if(newTrack.length === 0) {
+                // delete songData.tracks[trackName];
+            } else {
+                songData.tracks[trackName] = newTrack;
+                newTrack.unshift([0, '!p', programID])
+                songData.programs[programID] = ['empty', {title: trackText}]; // {url: defaultProgramURL + '', name: defaultProgramName};
+                programID++;
+            }
+
         }
 
         console.log('midiData', midiData, song.data)

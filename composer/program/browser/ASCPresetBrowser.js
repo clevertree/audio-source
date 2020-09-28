@@ -40,7 +40,7 @@ export default class ASCPresetBrowser extends React.Component {
             selected: 0,
             searchString: ''
         }
-        this.history = [];
+        // this.history = [];
         this.cb = {
             onWheel: e => this.onWheel(e)
         }
@@ -94,8 +94,19 @@ export default class ASCPresetBrowser extends React.Component {
                      elm && elm.addEventListener('wheel', this.cb.onWheel, {passive: false});
                  }}
                 >
-                {this.renderLibraries()}
-                {this.renderPresets()}
+                {this.state.currentLibrary ? <div
+                    className="library-current-text"
+                    children={`Library: ${this.state.currentLibrary.getTitle()}`}
+                /> : null}
+                <div className="preset-list">
+                    {this.renderPresets()}
+                </div>
+                <div className="library-list-text">
+                    Other Libraries
+                </div>
+                <div className="library-list">
+                    {this.renderLibraries()}
+                </div>
             </div>
         );
 
@@ -103,45 +114,17 @@ export default class ASCPresetBrowser extends React.Component {
     }
 
     renderLibraries() {
-        let content = [];
-
-        if(this.history.length > 0) {
-            content.push(<ASUIClickable
-                key={-1}
-                className="centered"
-                // options={() => {}}
-                onAction={() => this.popLibrary()}
-                children={"- Previous Library -"}
-            />);
-        }
-
-        if(this.state.currentLibrary) {
-            const currentLibrary = this.state.currentLibrary;
-            content.push(<ASUIClickable
-                key={'library-current'}
-                className="centered"
-                // options={() => {}}
-                onAction={() => this.setLibrary(currentLibrary)}
-                children={currentLibrary.getTitle()}
-            />)
-        }
-
-        if(this.state.loading) {
-            content.push(<ASUIClickable key="loading" loading={true} onAction={() => {}}>Loading Libraries...</ASUIClickable>);
-
-        } else {
-            for(const [i, library] of PresetLibrary.getLibraries().entries()) {
-                content.push(<ASUIClickable
+        return PresetLibrary
+            .getLibraries()
+            .filter(library => library !== this.state.currentLibrary)
+            .map((library, i) => {
+                return <ASUIClickable
                     key={i}
                     onAction={() => this.setLibrary(library)}
                     children={library.getTitle()}
-                />);
-            }
-        }
+                />
+            })
 
-        return <div className="library-list">
-            {content}
-        </div>;
     }
 
     // getFilteredPresets() {
@@ -236,7 +219,7 @@ export default class ASCPresetBrowser extends React.Component {
                     />);
                 }
                 let nextOffset = offset + limit;
-                if(presetCount === presetList.length) {
+                if(presetCount < presetList.length) {
                     content.push(<ASUIClickable
                         key="preset-next"
                         onAction={() => this.setOffset(nextOffset)}
@@ -245,19 +228,19 @@ export default class ASCPresetBrowser extends React.Component {
                     />);
                 }
 
-                content.unshift(<ASUIClickable
-                    key="preset-search"
-                    className="centered"
-                    onAction={() => this.promptSearch()}
-                    children={`Search${this.state.searchString ? `ing '${this.state.searchString}'` : ''}`}
-                />);
+                if(presetList.length > limit) {
+                    content.unshift(<ASUIClickable
+                        key="preset-search"
+                        className="centered"
+                        onAction={() => this.promptSearch()}
+                        children={`Search${this.state.searchString ? `ing '${this.state.searchString}'` : ''}`}
+                    />);
+                }
 
             }
 
         }
-        return <div className="preset-list">
-            {content}
-        </div>
+        return content;
     }
 
     addLoadingPreset(presetHash) {
@@ -312,12 +295,12 @@ export default class ASCPresetBrowser extends React.Component {
         // this.updateList();
     }
 
-    popLibrary() {
-        if(this.history.length === 0)
-            throw new Error("Invalid library history");
-        const oldLibrary = this.history.shift();
-        this.setLibrary(oldLibrary, false);
-    }
+    // popLibrary() {
+    //     if(this.history.length === 0)
+    //         throw new Error("Invalid library history");
+    //     const oldLibrary = this.history.shift();
+    //     this.setLibrary(oldLibrary, false);
+    // }
 
     setOffset(offset) {
         this.setState({offset})

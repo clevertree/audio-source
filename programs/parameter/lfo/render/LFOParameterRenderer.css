@@ -15,7 +15,7 @@ div.lfo-parameter-container  {
 div.lfo-parameter-container > div.header {
     display: flex;
 }
-div.lfo-parameter-container > div.header > div.toggle-container {
+div.lfo-parameter-container > div.header > .toggle-container {
     flex-basis: 100%;
 }
 

@@ -41,7 +41,7 @@ export default class ASUIMenuOptionListBase extends React.Component {
         this.state = {
             offset: 0,
             limit: 25,
-            optionArray: null,
+            options: null,
             positionSelected: this.props.positionSelected || null
         }
         this.ref = {
@@ -72,12 +72,13 @@ export default class ASUIMenuOptionListBase extends React.Component {
         //     this.refresh();
         // }
         if(this.props.options !== prevProps.options) {
+            // console.log(`${this.constructor.name}.componentDidUpdate`, prevProps.options, this.props.options, this.state)
             this.processOptions();
         }
     }
 
     // refresh(force=true) {
-    //     if(force || !this.state.optionArray)
+    //     if(force || !this.state.options)
     //         this.setOptions(this.props.options);
     //
     // }
@@ -111,8 +112,14 @@ export default class ASUIMenuOptionListBase extends React.Component {
             options = options(this);
         if (options instanceof Promise) {
             // console.log('options', options);
-            options.then(options => this.setState({options: options}))
-            // this.setState({optionArray: [<ASUIMenuItem>Loading...</ASUIMenuItem>]})
+            options.then(options => {
+                if(!options) {
+                    console.log("Promise resulted in empty options", options);
+                    options = [<ASUIMenuItem>Error: No options returned from promise</ASUIMenuItem>];
+                }
+                this.setState({options: options})
+            })
+            // this.setState({options: [<ASUIMenuItem>Loading...</ASUIMenuItem>]})
             // options = await options;
         }
     }
@@ -124,7 +131,7 @@ export default class ASUIMenuOptionListBase extends React.Component {
         if(options instanceof Promise) {
             return [<ASUIMenuItem>Loading...</ASUIMenuItem>];
             // throw new Error("Promise unsupported");
-            // this.setState({optionArray: [<ASUIMenuItem>Loading...</ASUIMenuItem>]})
+            // this.setState({options: [<ASUIMenuItem>Loading...</ASUIMenuItem>]})
             // options = await options;
         }
         return options;
@@ -133,10 +140,10 @@ export default class ASUIMenuOptionListBase extends React.Component {
     getFilteredOptions() {
         let options = this.getOptions();
 
-        let optionArray = MenuOptionProcessor.processArray(options);
+        options = MenuOptionProcessor.processArray(options);
         // let positionSelected = this.state.positionSelected;
         let currentPosition = 0;
-        optionArray = optionArray
+        options = options
             .filter(option => option.type !== React.Fragment)
             .map((option, i) => {
 
@@ -158,31 +165,31 @@ export default class ASUIMenuOptionListBase extends React.Component {
                 return React.cloneElement(option, props);
             });
 
-        if(!optionArray || optionArray.length === 0)
+        if(!options || options.length === 0)
             return [<ASUIMenuItem>No Options</ASUIMenuItem>];
-        if(optionArray.length < this.state.limit)
-            return optionArray;
+        if(options.length < this.state.limit)
+            return options;
         if(this.state.offset > 0) {
-            optionArray = optionArray.slice(this.state.offset);
-            optionArray.unshift(<ASUIMenuBreak />)
-            optionArray.unshift(<ASUIMenuAction
+            options = options.slice(this.state.offset);
+            options.unshift(<ASUIMenuBreak />)
+            options.unshift(<ASUIMenuAction
                 onAction={() => {
                     this.setOffset(this.state.offset - this.state.limit);
                     return false;
                 }}
             >... Previous ...</ASUIMenuAction>)
         }
-        if(optionArray.length > this.state.limit) {
-            optionArray = optionArray.slice(0, this.state.limit);
-            optionArray.push(<ASUIMenuBreak />)
-            optionArray.push(<ASUIMenuAction
+        if(options.length > this.state.limit) {
+            options = options.slice(0, this.state.limit);
+            options.push(<ASUIMenuBreak />)
+            options.push(<ASUIMenuAction
                 onAction={() => {
                     this.setOffset(this.state.offset + this.state.limit)
                     return false;
                 }}
             >... Next ...</ASUIMenuAction>)
         }
-        return optionArray;
+        return options;
     }
 
 
@@ -201,7 +208,7 @@ export default class ASUIMenuOptionListBase extends React.Component {
     //     if (typeof options === "function")
     //         options = options(this);
     //     if(options instanceof Promise) {
-    //         this.setState({optionArray: [<ASUIMenuItem>Loading...</ASUIMenuItem>]})
+    //         this.setState({options: [<ASUIMenuItem>Loading...</ASUIMenuItem>]})
     //         options = await options;
     //     }
     //     if (!options) {
@@ -210,9 +217,9 @@ export default class ASUIMenuOptionListBase extends React.Component {
     //     }
     //
     //
-    //     let optionArray = MenuOptionProcessor.processArray(options);
+    //     let options = MenuOptionProcessor.processArray(options);
     //     let positionSelected = this.state.positionSelected, currentPosition = 0;
-    //     optionArray = optionArray
+    //     options = options
     //         .filter(option => option.type !== React.Fragment)
     //         .map((option, i) => {
     //
@@ -235,7 +242,7 @@ export default class ASUIMenuOptionListBase extends React.Component {
     //
     //
     //     this.setState({
-    //         optionArray,
+    //         options,
     //         positionSelected: positionSelected || null,
     //         positionCount: currentPosition
     //     })

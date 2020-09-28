@@ -1,4 +1,5 @@
-class Keyboard {
+export default class ASCKeyboard {
+    static instance = new ASCKeyboard();
 
     getKeyboardLayout(layoutName=null) {
         switch(layoutName) {
@@ -46,5 +47,3 @@ class Keyboard {
 
 }
 
-
-export default Keyboard;

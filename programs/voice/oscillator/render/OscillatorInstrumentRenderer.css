@@ -30,8 +30,9 @@ div.oscillator-instrument-container.error {
 div.oscillator-instrument-container > div.header {
     display: flex;
 }
-div.oscillator-instrument-container > div.header > div.toggle-container {
+div.oscillator-instrument-container > div.header > .toggle-container {
     flex-basis: 100%;
+    padding-right: 4px;
 }
 
 
@@ -47,24 +48,29 @@ div.oscillator-instrument-container > div.parameters {
     /*background-color: #CCC;*/
     animation: slideDownOpen 0.4s ease-in;
 }
+div.oscillator-instrument-container > div.parameters > div:hover {
+    font-weight: bold;
+}
 
 div.oscillator-instrument-container > div.parameters > div {
     /*border-bottom: 1px solid #AAA;*/
-    display: flex;
-    padding: 1px;
+    /*display: flex;*/
+    /*padding: 1px;*/
+    min-height: 24px;
+    vertical-align: middle;
 }
 div.oscillator-instrument-container > div.parameters > div > div {
-    display: flex;
-    flex-direction: column;
-    flex: 3;
+    display: inline-block;
+    vertical-align: middle;
 }
 div.oscillator-instrument-container > div.parameters > div > div.label {
-    text-align: right;
     font-size: small;
-    padding: 3px 8px 3px 0;
-    flex: 2;
+    min-width: 64px;
+    padding-right: 4px;
 }
-
+div.oscillator-instrument-container > div.parameters > div > div.label:after {
+    content: ':';
+}
 /** Hover **/
 
 

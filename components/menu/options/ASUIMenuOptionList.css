@@ -40,7 +40,7 @@ div.asui-menu-option-list.stick {
     /*background-color: #9ba0a3;*/
 }
 div.asui-menu-option-list:hover {
-    /*z-index: 4;*/
+    z-index: 4;
 }
 
 div.asui-menu-option-list.vertical {

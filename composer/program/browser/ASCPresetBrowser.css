@@ -42,3 +42,9 @@ div.asc-preset-browser > div.preset-list > div.centered {
 div.asc-preset-browser > div.library-list > div {
     background-color: #938dc2;
 }
+div.asc-preset-browser > div.library-current-text,
+div.asc-preset-browser > div.library-list-text {
+    text-align: center;
+    margin-top: 6px;
+    font-weight: bold;
+}

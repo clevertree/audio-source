@@ -60,6 +60,7 @@ class ASComposerActions extends ASComposerMenu {
 
     setSelectedComponent(type, id) {
         const selectedComponent = [type, id];
+        console.log('selectedComponent', selectedComponent);
         if(this.state.selectedComponent.type === type
             && this.state.selectedComponent.id === id)
             return;
@@ -129,7 +130,8 @@ class ASComposerActions extends ASComposerMenu {
             songUUID: song.data.uuid,
             songLength,
             selectedComponent: ['track', startTrackName],
-            activeTracks: {}
+            activeTracks: {},
+            programStates: [],
         }
         state.activeTracks[startTrackName] = {}; // TODO: open root, why not?
         await this.setStateAsync(state);
@@ -209,7 +211,7 @@ class ASComposerActions extends ASComposerMenu {
             if(recentValues) {
                 Values.recentDurations = recentValues.recentDurations || [];
                 Values.recentFrequencies = recentValues.recentFrequencies || [];
-                // TODO: PresetLibrary.recentSampleURLs = recentValues.recentLibrarySampleURLs || [];
+                PresetLibrary.recentSampleURLs = recentValues.recentLibrarySampleURLs || [];
             }
 
             for(let key in state.activeTracks) {
@@ -250,7 +252,7 @@ class ASComposerActions extends ASComposerMenu {
         state.recentValues = {
             recentFrequencies: Values.recentFrequencies,
             recentDurations: Values.recentDurations,
-            // TODO: recentLibrarySampleURLs: LibraryProcessor.recentSampleURLs,
+            recentLibrarySampleURLs: PresetLibrary.recentSampleURLs,
         }
 
         // Delete playback stats
@@ -534,9 +536,7 @@ class ASComposerActions extends ASComposerMenu {
     /** Keyboard Commands **/
 
     keyboardChangeOctave(keyboardOctave = null) {
-        if (!Number.isInteger(keyboardOctave))
-            throw new Error("Invalid segment ID");
-        this.setState({keyboardOctave});
+        this.ref.panelTrack.keyboardChangeOctave(keyboardOctave)
     }
 
     /** ASComposer State **/
@@ -932,6 +932,7 @@ class ASComposerActions extends ASComposerMenu {
 
         const programID = this.song.programAdd(programClassName, programConfig);
         this.setStatus(`New program class '${programClassName}' added to song at position ${programID}`);
+        this.programSetRendererState(programID, {open: true})
     }
 
     async programReplacePrompt(programID, programClassName, programConfig = {}) {
@@ -969,6 +970,20 @@ class ASComposerActions extends ASComposerMenu {
         } else {
             this.setError(`Remove program canceled`);
         }
+    }
+
+    /** Program State **/
+
+    programGetRendererState(programID) {
+        return this.state.programStates[programID] || {};
+    }
+    programSetRendererState(programID, state) {
+        const programStates = this.state.programStates;
+        if(!programStates[programID])   programStates[programID] = state;
+        else                            Object.assign(programStates[programID], state);
+        this.setState({
+            programStates
+        }, () => this.forceUpdate());
     }
 
 

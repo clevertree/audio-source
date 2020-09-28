@@ -26,7 +26,7 @@ class Song {
         this.volume = null;
         this.lastVolumeGain = null;
         this.playback = null;
-        this.lastMIDIProgram = null; // TODO: ugly?
+        this.lastPracticeProgram = null; // TODO: ugly?
         this.playbackPosition = 0;
 
         this.data = Object.assign({
@@ -46,39 +46,22 @@ class Song {
                 ['oscillator', {
                     type: 'pulse'
                 }],
-                ['polyphony', {
-                    voices: [
-                        ['audiobuffer', {
-                        }],
-                    ]}
-                ],
-                ['oscillator', {
-                    type: 'square',
-                    envelope: ['envelope', {}],
-                    lfos: [
-                        ['lfo', {
-                            parameter: 'frequency',
-                            frequency: 5,
-                            amplitude: 10
-                        }]
-                    ]
-                }],
             ],
             tracks: {
                 root: [
-                    [0, '@track0', 96*4, 0, 'C4'],
-                    [96*12, '@track0', 96*4, 96*4, 'D4'],
-                    [96*12, '@track0', 96*4, 96*4*2, 'E4'],
+                    [0, '@track*'],
+                    // [96*12, '@track0', 96*4, 96*4, 'D4'],
+                    // [96*12, '@track0', 96*4, 96*4*2, 'E4'],
                 ],
                 track0: [
                     // ['!d', 'Effect'],
                     [0, '!p', 0],
-                    [0, 'C4', 96],
-                    [96, 'D4', 96],
-                    [96, 'E4', 96],
-                    [96, 'F4', 96],
-                    [96, 'G4', 96],
-                    [96, 'A4', 96 * 8],
+                    // [0, 'C4', 96],
+                    // [96, 'D4', 96],
+                    // [96, 'E4', 96],
+                    // [96, 'F4', 96],
+                    // [96, 'G4', 96],
+                    // [96, 'A4', 96 * 8],
                 ],
                 // track1: [
                 //     ['!p', 1],
@@ -877,22 +860,34 @@ class Song {
 
     }
 
-    playMIDIEvent(destination, programID, eventData) {
+    getPracticeProgram(programID) {
         let program;
-        const [lastMIDIProgram, lastMIDIProgramConfig] = this.lastMIDIProgram || [null, null, null];
+        const [lastPracticeProgram, lastPracticeProgramConfig] = this.lastPracticeProgram || [null, null, null];
         const [className, programConfig] = this.programGetData(programID, false);
-        if(lastMIDIProgramConfig !== programConfig) {
+        if(lastPracticeProgramConfig !== programConfig) {
             ProgramLoader.stopAllPlayback();
             program = ProgramLoader.loadInstance(className, programConfig);
-            this.lastMIDIProgram = [program, programConfig];
+            this.lastPracticeProgram = [program, programConfig];
             // console.log("Loading program for MIDI playback: ", programID, className, programConfig);
         } else {
-            program = lastMIDIProgram;
+            program = lastPracticeProgram;
         }
+        return program;
+    }
+
+    playMIDIEvent(destination, programID, eventData) {
+        let program = this.getPracticeProgram(programID);
         if(program.playMIDIEvent)
             program.playMIDIEvent(destination, eventData);
         else
             console.warn("Program " + program.constructor.name + " has no method 'playMIDIEvent'");
+    }
+
+    playInstrumentFrequency(destination, programID, frequencyString, startTime=null, duration=null, velocity=null) {
+        let program = this.getPracticeProgram(programID);
+        const frequency = Values.instance.parseFrequencyString(frequencyString);
+        console.log('playInstrumentFrequency', {program, frequencyString, frequency, startTime, duration, velocity})
+        program.playFrequency(destination, frequency, startTime, duration, velocity); // TODO: needs to use processor
     }
 
     // playInstructionAtIndex(destination, trackName, instructionIndex, noteStartTime = null) {

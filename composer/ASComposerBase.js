@@ -1,5 +1,5 @@
 import React from "react";
-import {Keyboard, PresetLibrary, Song} from "../song";
+import {ASCKeyboard, PresetLibrary, Song} from "../song";
 
 class ASComposerBase extends React.Component {
     constructor(props) {
@@ -108,7 +108,7 @@ class ASComposerBase extends React.Component {
         };
         this.autoSaveTimeout = 4000;
 
-        this.keyboard = new Keyboard();
+        // this.keyboard = new Keyboard();
 
         this.library = PresetLibrary.loadDefault();
         // console.log('library', this.library, this.library.getLibraries(), this.library.getPresets());

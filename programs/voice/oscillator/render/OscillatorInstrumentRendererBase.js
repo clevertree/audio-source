@@ -5,10 +5,11 @@ import {
     ASUIInputRange,
     ASUIMenuDropDown, ASUIClickableDropDown, ASUIMenuItem, ASUIGlobalContext,
 } from "../../../../components";
-import {PresetLibrary, ProgramLoader} from "../../../../song";
+import {PresetLibrary, ProgramLoader, Values} from "../../../../song";
 
 import PropTypes from "prop-types";
 import PeriodicWaveLoader from "../loader/PeriodicWaveLoader";
+import OscillatorInstrument from "../OscillatorInstrument";
 
 
 export default class OscillatorInstrumentRendererBase extends React.Component {
@@ -25,18 +26,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
     setStatus(message) { this.context.addLogEntry(message); }
     setError(message) { this.context.addLogEntry(message, 'error'); }
 
-    /** Automation Parameters **/
-    static sourceParameters = {
-        frequency: "Osc Frequency",
-        detune: "Osc Detune",
-    };
 
-    /** Formatting Callbacks **/
-    static formats = {
-        cents: value => `${value}c`
-    }
-
-    static fileRegex = /\.json$/i;
 
     constructor(props) {
         super(props);
@@ -47,7 +37,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
                 root: () => this.renderMenuRoot(),
             },
             renderParamMenu: {
-                // root: () => this.renderMenuChangeKeyRoot(),
+                keyRoot: () => this.renderMenuChangeKeyRoot(),
                 // alias: () => this.renderMenuChangeKeyAlias(),
                 // range: () => this.renderMenuChangeKeyRange(),
                 source: () => this.renderMenuChangeOscillator(),
@@ -55,6 +45,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
             changeParam: {
                 mixer:    (newValue) => this.changeParam('mixer', newValue),
                 detune:   (newValue) => this.changeParam('detune', newValue),
+                pulseWidth:   (newValue) => this.changeParam('pulseWidth', newValue),
             },
             setLFOProps: (lfoID, props) => this.setLFOProps(lfoID, props),
             setEnvelopeProps: (programID, props) => this.setEnvelopeProps(props),
@@ -65,14 +56,18 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
         this.library = PresetLibrary.loadDefault();
     }
 
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
+    componentDidMount() {
         const config = this.props.config;
-        if(!config.envelope) {
-            config.envelope = ['envelope', {}];
-            console.warn("Oscillator has no envelope. Defaulting to ", config.envelope);
+        if(!config.type) {
+            config.type = 'sawtooth';
+            console.warn(`No default Oscillator was set. Using ${config.type}`);
+        }
+        if(typeof this.props.open === "undefined") {
+            console.info("Auto opening", this)
+            this.setProps({open: true})
         }
     }
+
 
     getTitle() {
         return this.props.config.title
@@ -85,38 +80,30 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
 
     getParameters() {
         const config = this.props.config;
-        return [
-            {
-                label:      'WaveForm',
-                title:      'Edit Sample',
-                children:   this.renderInput('source'),
-            },
-            {
-                label:      'Mixer',
-                title:      'Edit Mixer Amplitude',
-                children:   this.renderInput('mixer'),
-            },
-            {
-                label:      'Detune',
-                title:      `Detune by ${config.detune} cents`,
-                children:   this.renderInput('detune'),
-            },
-            // {
-            //     label:      'Root',
-            //     title:      `Key Root is ${config.root}`,
-            //     children:   this.renderInput('root'),
-            // },
-            // {
-            //     label:      'Alias',
-            //     title:      `Key Alias is ${config.alias}`,
-            //     children:   this.renderInput('alias'),
-            // },
-            // {
-            //     label:      'Range',
-            //     title:      `Key Range is ${config.range}`,
-            //     children:   this.renderInput('range'),
-            // },
-        ];
+        const list = [
+            'source',
+            'mixer',
+            'detune',
+        ]
+        if(config.type === 'pulse')
+            list.splice(1, 0, 'pulseWidth');
+        if(config.keyRoot)
+            list.push('keyRoot');
+        const inputParameters = OscillatorInstrument.inputParameters;
+        return list.map(parameterName => {
+            const parameterInfo = inputParameters[parameterName] || {};
+            return {
+                label: parameterInfo.label || parameterName,
+                title: parameterInfo.title || parameterName,
+                children:   this.renderInput(parameterName),
+            }
+        })
+    }
+
+    /** Properties **/
+
+    setProps(props) {
+        this.props.setProps(this.props.programID, props);
     }
 
     /** LFO **/
@@ -132,7 +119,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
             config={config}
             programID={lfoID}
             program={lfoProgram}
-            parameters={this.constructor.sourceParameters}
+            parameters={OscillatorInstrument.sourceParameters}
             setProps={this.cb.setLFOProps}
             {...lfoProps}
         />;
@@ -142,7 +129,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
         const lfosProps = this.props.lfosProps || [];
         if(lfosProps[lfoID])   Object.assign(lfosProps[lfoID], props);
         else                   lfosProps[lfoID] = props;
-        this.props.setProps(this.props.programID, {lfosProps: lfosProps});
+        this.setProps({lfosProps: lfosProps});
     }
 
     /** Envelope **/
@@ -155,7 +142,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
             return <Renderer
                 config={config}
                 program={envelopeProgram}
-                parameters={this.constructor.sourceParameters}
+                parameters={OscillatorInstrument.sourceParameters}
                 setProps={this.cb.setEnvelopeProps}
                 {...envelopeProps}
             />;
@@ -166,15 +153,20 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
         // console.log('setEnvelopeProps', props);
         const envelopeProps = this.props.envelopeProps || {};
         Object.assign(envelopeProps, props);
-        this.props.setProps(this.props.programID, {envelopeProps});
+        this.setProps({envelopeProps});
     }
 
 
     /** Inputs **/
 
     renderInput(paramName) {
-        let value;
         const config = this.props.config;
+        const inputParameters = OscillatorInstrument.inputParameters[paramName] || {};
+        const onChange = this.cb.changeParam[paramName];
+        let value = config[paramName];
+        if(typeof value === "undefined")
+            value = inputParameters.default;
+
         switch(paramName) {
             case 'source':
                 let source = "N/A";
@@ -185,38 +177,32 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
                 if(source && source.length > 16)
                     source = '...' + source.substr(-16);
                 return <ASUIClickableDropDown
-                    className="small"
+                    {...inputParameters}
+                    // className="small"
+                    vertical
                     options={this.cb.renderParamMenu.source}
-                >{source}</ASUIClickableDropDown>
+                >{source}</ASUIClickableDropDown>;
 
+            case 'keyRoot':
+                return <ASUIClickableDropDown
+                    className="small"
+                    vertical
+                    options={this.cb.renderParamMenu.keyRoot}
+                >{config.keyRoot ? config.keyRoot : "[No Root Set]"}</ASUIClickableDropDown>
 
             case 'mixer':
-                value = typeof config.mixer !== "undefined" ? config.mixer : 100;
-                return <ASUIInputRange
-                    className="small"
-                    min={0}
-                    max={100}
-                    value={value}
-                    format={ASUIInputRange.formats.percent}
-                    onChange={this.cb.changeParam.mixer}
-                />;
-
             case 'detune':
-                value = typeof config.detune !== "undefined" ? config.detune : 0;
+            case 'pulseWidth':
                 return <ASUIInputRange
-                    // className="small"
-                    min={-1000}
-                    max={1000}
+                    {...inputParameters}
                     value={value}
-                    format={OscillatorInstrumentRendererBase.formats.cents}
-                    onChange={this.cb.changeParam.detune}
+                    onChange={onChange}
                 />
-
             // case 'root':
             //     return <ASUIClickableDropDown
             //         className="small"
             //         options={this.cb.renderParamMenu.root}
-            //     >{config.root ? config.root : "-"}</ASUIClickableDropDown>
+            //     >{config.keyRoot ? config.keyRoot : "-"}</ASUIClickableDropDown>
 
             // case 'alias':
             //     return <ASUIClickableDropDown
@@ -245,7 +231,7 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
 
     changeParam(paramName, newValue) {
         const oldValue = this.props.config[paramName];
-        console.log(`Changing parameter ${paramName}: ${newValue} [Old: ${oldValue}]`);
+        // console.log(`Changing parameter ${paramName}: ${newValue} [Old: ${oldValue}]`);
         this.props.config[paramName] = newValue;
     }
 
@@ -256,8 +242,18 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
     }
 
     changeOscillatorStandard(newType) {
-        delete this.props.config.url;
-        this.props.config.type = newType;
+        const oldConfig = Object.assign({}, this.props.config);
+        delete oldConfig.url;
+        oldConfig.type = newType;
+        switch(newType) {
+            case 'pulse':
+                oldConfig.pulseWidth = OscillatorInstrument.inputParameters.pulseWidth.default;
+                break;
+            default:
+                delete oldConfig.pulseWidth;
+                break;
+        }
+        this.props.program[1] = oldConfig;
     }
 
     async changeSampleURL(url) {
@@ -317,8 +313,9 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuChangeOscillator()}>Change Oscillator</ASUIMenuDropDown>
             <ASUIMenuBreak />
-            {/*<ASUIMenuDropDown options={() => this.renderMenuChangeMixer()}>Edit Mixer</ASUIMenuDropDown>*/}
-            <ASUIMenuDropDown options={() => this.renderMenuChangeDetune()}>Edit Detune</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChangeParameter('mixer')}>Edit Mixer</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChangeParameter('detune')}>Edit Detune</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChangeKeyRoot()}>Edit Key Root</ASUIMenuDropDown>
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuAddLFO()}>Add LFO</ASUIMenuDropDown>
 
@@ -346,24 +343,35 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
             <ASUIMenuAction onAction={e => this.changeOscillatorStandard('square')}>Square</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.changeOscillatorStandard('sawtooth')}>Sawtooth</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.changeOscillatorStandard('triangle')}>Triangle</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.changeOscillatorStandard('pulse')}>Pulse</ASUIMenuAction>
         </>);
     }
 
     renderMenuChangeOscillatorSample() {
+        const libraries = PresetLibrary.renderMenuLibraryOptions(async (library) => {
+            await library.waitForAssetLoad();
+            return this.renderMenuChangeOscillatorSampleWithLibrary(library);
+        });
         return (
             <>
                 <ASUIMenuItem>Select New Sample</ASUIMenuItem>
                 <ASUIMenuBreak />
-                {this.renderMenuChangeOscillatorSampleWithLibrary(this.library)}
+                {libraries}
                 {this.renderMenuChangeOscillatorSampleRecent()}
             </>
         );
     }
 
+    renderMenuChangeOscillatorSampleWithLibrary(library) {
+        return library.renderMenuSamples(
+            (sampleURL) => this.changeSampleURL(sampleURL),
+            OscillatorInstrument.sampleFileRegex);
+    }
+
     renderMenuChangeOscillatorSampleRecent() {
         const recentSamples = PresetLibrary.renderMenuRecentSamples(
             sampleURL => this.changeSampleURL(sampleURL),
-            OscillatorInstrumentRendererBase.fileRegex
+            OscillatorInstrument.sampleFileRegex
         )
         return recentSamples ? <>
             <ASUIMenuBreak />
@@ -372,43 +380,33 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
         </> : null;
     }
 
-    renderMenuChangeOscillatorSampleWithLibrary(library) {
-        const libraries = library.renderMenuLibraryOptions((library) =>
-            this.renderMenuChangeOscillatorSampleWithLibrary(library)
-        );
-        const samples = library.renderMenuSamples(
-            (sampleURL) => this.changeSampleURL(sampleURL),
-            OscillatorInstrumentRendererBase.fileRegex);
-        let content = [];
-        if(libraries) {
-            content = content.concat(libraries);
-        }
-        if(samples) {
-            if(content.length > 0)
-                content.push(<ASUIMenuBreak key="break-section"/>);
-            content.push(<ASUIMenuItem>{library.getTitle()}</ASUIMenuItem>);
-            content.push(<ASUIMenuBreak key="break-samples"/>);
-            content = content.concat(samples);
-        }
-        return content.length === 0 ? <ASUIMenuItem>No Samples</ASUIMenuItem> : content;
-    }
-
-    renderMenuChangeDetune() {
+    renderMenuChangeParameter(parameterName, parameterTitle=null) {
         return (<>
-            {this.renderInput('detune')}
-            <ASUIMenuBreak/>I
-            <ASUIMenuAction onAction={() => this.removeParam('detune')}>Clear Detune</ASUIMenuAction>
-            <ASUIMenuBreak/>I
+            {this.renderInput(parameterName)}
+            <ASUIMenuBreak/>
+            <ASUIMenuAction onAction={() => this.removeParam(parameterName)}>Clear {parameterTitle || parameterName}</ASUIMenuAction>
+            <ASUIMenuBreak/>
             <ASUIMenuAction onAction={() => true}>Done</ASUIMenuAction>
         </>);
     }
 
-
+    renderMenuChangeKeyRoot() {
+        let title = "Set Root Key";
+        if(this.props.config.keyRoot)
+            title = "Change Root Key: " + this.props.config.keyRoot;
+        return (<>
+            {Values.instance.renderMenuSelectFrequencyWithRecent(noteNameOctave => {
+                this.changeParam('keyRoot', noteNameOctave)
+            }, this.props.config.keyRoot, title)}
+            <ASUIMenuBreak/>
+            <ASUIMenuAction onAction={() => this.removeParam('keyRoot')}>Clear Root</ASUIMenuAction>
+        </>);
+    }
 
     /** LFO **/
 
     renderMenuAddLFO() {
-        const sourceParameters = OscillatorInstrumentRendererBase.sourceParameters;
+        const sourceParameters = OscillatorInstrument.sourceParameters;
         return Object.keys(sourceParameters).map((sourceParameter, i) => <ASUIMenuAction
             key={i++}
             onAction={() => this.addLFO(sourceParameter)}
@@ -424,4 +422,4 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
 }
 
 
-function getNameFromURL(url) { return url.split('/').pop().replace('.json', ''); }
+function getNameFromURL(url) { return url ? url.split('/').pop().replace('.json', '') : null; }

@@ -1,7 +1,7 @@
 
 import Song from "./Song";
 import ClientStorage from "../common/storage/ClientStorage";
-import Keyboard from "../common/keyboard/Keyboard"
+import ASCKeyboard from "../common/keyboard/ASCKeyboard"
 import ProgramLoader from "./program/ProgramLoader";
 
 import Instruction from "./instruction/Instruction";
@@ -29,5 +29,5 @@ export {
 
     ClientStorage,
 
-    Keyboard,
+    ASCKeyboard,
 }

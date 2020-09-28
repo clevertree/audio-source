@@ -459,11 +459,6 @@ export default class ASCTrackActions extends ASCTrackRenderer {
     //     return this.renderMenuSelectSongProgram(programID => this.trackerChangeProgramFilter(programID));
     // }
 
-    renderMenuKeyboardSetOctave() {
-        return Values.instance.getNoteOctaves(octave =>
-            <ASUIMenuAction key={octave} onAction={(e) => this.keyboardChangeOctave(octave)}>{octave}</ASUIMenuAction>
-        );
-    }
 
 
 

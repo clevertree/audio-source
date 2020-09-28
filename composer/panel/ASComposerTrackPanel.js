@@ -1,6 +1,13 @@
 import React from "react";
 
-import {ASUIIcon, ASUIFormEntry, ASUIPanel, ASUIClickable, ASUIClickableDropDown} from "../../components";
+import {
+    ASUIIcon,
+    ASUIFormEntry,
+    ASUIPanel,
+    ASUIClickable,
+    ASUIClickableDropDown,
+    ASUIMenuAction
+} from "../../components";
 import Instruction from "../../song/instruction/Instruction";
 import {ArgType, Values} from "../../song";
 
@@ -14,7 +21,7 @@ export default class ASComposerTrackPanel extends React.Component {
             trackSelectIndicesPrompt: () => composer.trackSelectIndicesPrompt(),
             instructionInsertAtSelectedTrackCursor: () => composer.instructionInsertAtSelectedTrackCursor(),
             instructionDeleteSelected: () => composer.instructionDeleteIndices(),
-            renderMenuKeyboardSetOctave: () => composer.renderMenuKeyboardSetOctave(),
+            renderMenuKeyboardSetOctave: () => this.renderMenuKeyboardSetOctave(),
         }
         this.state = {
             selectedIndices: [],
@@ -112,6 +119,15 @@ export default class ASComposerTrackPanel extends React.Component {
         ];
     }
 
+    /** Keyboard Commands **/
+
+    keyboardChangeOctave(keyboardOctave = null) {
+        if (!Number.isInteger(keyboardOctave))
+            throw new Error("Invalid segment ID");
+        this.setState({keyboardOctave});
+    }
+
+
     /** Forms **/
 
     renderInstructionForms() {
@@ -176,6 +192,12 @@ export default class ASComposerTrackPanel extends React.Component {
             composer.trackSelect(trackName)
         }, null, composer.getSelectedTrackName())
     }
+    renderMenuKeyboardSetOctave() {
+        return Values.instance.getNoteOctaves(octave =>
+            <ASUIMenuAction key={octave} onAction={(e) => this.keyboardChangeOctave(octave)}>{octave}</ASUIMenuAction>
+        );
+    }
+
 }
 
 

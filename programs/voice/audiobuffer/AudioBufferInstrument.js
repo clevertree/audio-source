@@ -16,6 +16,58 @@ export default class AudioBufferInstrument {
     }
 
     static defaultEnvelope = ['envelope', {}];
+    static defaultRootFrequency = 220;
+    static sampleFileRegex = /\.wav$/i;
+
+    /** Parameters **/
+    static inputParameters = {
+        source: {
+            label:      'Sample',
+            title:      'Choose Sample',
+        },
+        mixer: {
+            label:      'Mixer',
+            title:      'Edit Mixer Amplitude',
+            default: 0.8,
+            min: 0,
+            max: 1,
+            step: 0.01,
+            format: value => `${Math.round(value*100)}%`
+        },
+        detune: {
+            label:      'Detune',
+            title:      `Detune in cents`,
+            default: 0,
+            min: -1000,
+            max: 1000,
+            step: 10,
+            format: value => `${value}c`
+
+        },
+        pulseWidth: {
+            label:      'P.Width',
+            title:      `Pulse Width`,
+            default: 0.5,
+            min: 0,
+            max: 1,
+            step: 0.01,
+            format: value => `${Math.round(value*100)}%`
+        },
+        keyRoot: {
+            label: "Root",
+            title: "Key Root",
+        },
+        keyRange: {
+            label: "Range",
+            title: "Key Range",
+        }
+    }
+
+    /** Automation Parameters **/
+    static sourceParameters = {
+        playbackRate: "Playback Rate",
+        detune: "Detune",
+    };
 
 
     constructor(config={}) {
@@ -74,25 +126,46 @@ export default class AudioBufferInstrument {
 
     /** Playback **/
 
+    addEnvelopeDestination(destination, startTime, velocity) {
+        let amplitude = AudioBufferInstrument.inputParameters.mixer.default;
+        if(typeof this.config.mixer !== "undefined")
+            amplitude = this.config.mixer;
+        if(velocity !== null)
+            amplitude *= parseFloat(velocity || 127) / 127;
+        return this.loadedEnvelope.createEnvelope(destination, startTime, amplitude);
+    }
+
+    createAudioBuffer(destination) {
+        const config = this.config;
+        const source = destination.context.createBufferSource();
+
+        // Load Sample
+        const service = new AudioBufferLoader();
+        if(config.url) {
+            let buffer = service.tryCache(config.url);
+            if (buffer) {
+                this.setBuffer(source, buffer);
+            } else {
+                service.loadAudioBufferFromURL(config.url)
+                    .then(audioBuffer => {
+                        this.setBuffer(source, audioBuffer);
+                    });
+            }
+        } else {
+            console.warn("No config.url is set", this);
+        }
+
+        // Connect Source
+        source.connect(destination);
+
+        return source;
+    }
+
     playFrequency(destination, frequency, startTime=null, duration=null, velocity=null, onended=null) {
         const config = this.config;
-        if(config.rangeStart) {
-            let rangeStart = config.rangeStart;
-            if(typeof rangeStart === "string")
-                rangeStart = Values.instance.parseFrequencyString(config.rangeStart);
-            if(rangeStart < frequency) {
-                // console.log("Skipping out of range note: ", rangeStart, "<", frequency, config);
+        if(config.keyRange) {
+            if(!AudioBufferInstrument.isFrequencyWithinRange(frequency, config.keyRange))
                 return false;
-            }
-        }
-        if(config.rangeEnd) {
-            let rangeEnd = config.rangeEnd;
-            if(typeof rangeEnd === "string")
-                rangeEnd = Values.instance.parseFrequencyString(config.rangeEnd);
-            if(rangeEnd > frequency) {
-                // console.log("Skipping out of range note: ", rangeEnd, ">", frequency, config);
-                return false;
-            }
         }
 
         const audioContext = destination.context;
@@ -113,44 +186,25 @@ export default class AudioBufferInstrument {
         velocityGain.connect(destination);
         destination = velocityGain;
 
+        // Envelope
+        const gainNode = this.addEnvelopeDestination(destination, startTime, velocity);
+        destination = gainNode;
+
+
         // Audio Buffer
-        const source = destination.context.createBufferSource();
-
-        // Load Sample
-        const service = new AudioBufferLoader();
-        if(config.url) {
-            let buffer = service.tryCache(config.url);
-            if (buffer) {
-                this.setBuffer(source, buffer);
-            } else {
-                service.loadAudioBufferFromURL(config.url)
-                    .then(audioBuffer => {
-                        this.setBuffer(source, audioBuffer);
-                    });
-            }
-        } else {
-            console.warn("No config.url is set", this);
-        }
-
-
-        // Playback Rate
-        const freqRoot = config.root ? Values.instance.parseFrequencyString(config.root) : 220;
-        source.playbackRate.value = frequency / freqRoot;
+        const source = this.createAudioBuffer(destination);
 
         // Detune
         if(typeof config.detune !== "undefined")
             source.detune.value = config.detune;
 
+        // Playback Rate
+        const freqRoot = config.keyRoot
+            ? Values.instance.parseFrequencyString(config.keyRoot)
+            : AudioBufferInstrument.defaultRootFrequency;
+        source.playbackRate.value = frequency / freqRoot;
 
-        // Envelope
 
-        let amplitude = 1;
-        if(typeof config.mixer !== "undefined")
-            amplitude = config.mixer / 100;
-        if(velocity !== null)
-            amplitude *= parseFloat(velocity || 127) / 127;
-        const gainNode = this.loadedEnvelope.createEnvelope(destination, startTime, amplitude);
-        destination = gainNode;
 
         // LFOs
 
@@ -160,8 +214,6 @@ export default class AudioBufferInstrument {
         }
         source.lfos = activeLFOs;
 
-        // Connect Source
-        source.connect(destination);
         // Start Source
         source.start(startTime);
         // console.log("Note Start: ", config.url, frequency);
@@ -252,6 +304,45 @@ export default class AudioBufferInstrument {
             activeNote.stop();
         activeNotes = [];
     }
+
+
+    static isFrequencyWithinRange(frequency, range) {
+        let [rangeStart, rangeEnd] = this.getRange(range);
+        if(rangeStart) {
+            if(typeof rangeStart === "string")
+                rangeStart = Values.instance.parseFrequencyString(rangeStart);
+            if(rangeStart < frequency) {
+                // console.log("Skipping note below rangeStart: ", rangeStart, "<", frequency);
+                return false;
+            }
+        }
+        if(rangeEnd) {
+            if(typeof rangeEnd === "string")
+                rangeEnd = Values.instance.parseFrequencyString(rangeEnd);
+            if(rangeEnd > frequency) {
+                // console.log("Skipping note after rangeEnd: ", rangeEnd, ">", frequency);
+                return false;
+            }
+        }
+        // console.log("Frequency is within range: ", rangeStart, ">", frequency, ">", rangeEnd);
+
+        return true;
+    }
+
+    static getRange(keyRange) {
+        if(!keyRange)
+            return null;
+        let range = keyRange;
+        if(typeof range === "string")
+            range = range.split(':');
+
+        if(range.length === 1)
+            range[1] = range[0];
+
+        return range;
+    }
+
+
 }
 
 let activeNotes = [];

@@ -40,8 +40,8 @@ to work on all platforms from web browsers to desktops applications to mobile de
 * Variable BPM and other globals
 
 
-# Web Browser Demo (Beta)
-Click the image below to try Audio Source Composer (Beta) on your browser.
+# Web Browser Demo (Alpha)
+Click the image below to try Audio Source Composer (Alpha) on your browser.
 
 [![Browser Portrait](https://files.audiosource.io/releases/browser/screenshots/browser-portrait1.png)](https://audiosource.io/demo "Demo")
 
