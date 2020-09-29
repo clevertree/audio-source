@@ -886,7 +886,7 @@ class Song {
     playInstrumentFrequency(destination, programID, frequencyString, startTime=null, duration=null, velocity=null) {
         let program = this.getPracticeProgram(programID);
         const frequency = Values.instance.parseFrequencyString(frequencyString);
-        console.log('playInstrumentFrequency', {program, frequencyString, frequency, startTime, duration, velocity})
+        // console.log('playInstrumentFrequency', {program, frequencyString, frequency, startTime, duration, velocity})
         program.playFrequency(destination, frequency, startTime, duration, velocity); // TODO: needs to use processor
     }
 

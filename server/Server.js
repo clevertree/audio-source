@@ -48,7 +48,9 @@ export default class Server {
         new ServerSongAPI(app, this);
 
         const buildPath = path.resolve(__dirname, '../../../build')
-        // app.use(express.static(this.getPublicPath()));
+        console.log("Adding public directory path: ", this.getPublicPath());
+        app.use(express.static(this.getPublicPath()));
+        console.log("Adding build directory path: ", buildPath);
         app.use(express.static(buildPath)); // Host the compiled app
 
         // If no files found, route to index
