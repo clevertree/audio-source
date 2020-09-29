@@ -395,13 +395,8 @@ class ASComposerMenu extends ASComposerRenderer {
     /** Command Menu **/
 
 
-    renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue, onSelectValue=null) {
-        const {selectedIndices} = this.getTrackPanelState()
-        if(onSelectValue === null) {
-            onSelectValue = (newArgValue) => {
-                this.instructionReplaceArgByType(this.getSelectedTrackName(), selectedIndices, argType, newArgValue);
-            }
-        }
+    renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue, onSelectValue) {
+
         // const processor = new InstructionProcessor(instructionData);
         // const [commandString] = processor.processInstructionArgList();
         // console.log('commandString', commandString);

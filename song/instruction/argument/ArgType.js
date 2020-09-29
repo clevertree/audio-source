@@ -57,9 +57,9 @@ ArgType.duration = new ArgType(
         // return durationSeconds;
     },
     (durationTicks, stats) => {
-        if(typeof durationTicks === "number")
-            return Values.instance.formatDuration(durationTicks, stats.timeDivision);
-        return Values.instance.formatDurationAsTicks(durationTicks);
+        // if(typeof durationTicks === "number")
+        return Values.instance.formatDuration(durationTicks, stats.timeDivision);
+        // return Values.instance.formatDurationAsTicks(durationTicks);
     },
     true
 )

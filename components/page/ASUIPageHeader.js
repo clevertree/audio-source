@@ -7,7 +7,7 @@ export default class ASUIPageHeader extends React.Component {
         const links = this.props.links;
         return (
             <div className="asui-page-header">
-                <a href="/" className="image"/>
+                <a href="/" className="image">{}</a>
                 {links ? <div className="links">
                     {links.map(([href, title], i) => {
                         const props = {

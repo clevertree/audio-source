@@ -230,14 +230,12 @@ export default class OscillatorInstrumentRendererBase extends React.Component {
     }
 
     changeParam(paramName, newValue) {
-        const oldValue = this.props.config[paramName];
-        // console.log(`Changing parameter ${paramName}: ${newValue} [Old: ${oldValue}]`);
+        // console.log(`Changing parameter ${paramName}: ${newValue} [Old: ${this.props.config[paramName]}]`);
         this.props.config[paramName] = newValue;
     }
 
     removeParam(paramName) {
-        const oldValue = this.props.config[paramName];
-        console.log(`Removing parameter ${paramName}: ${oldValue}`);
+        // console.log(`Removing parameter ${paramName}: ${this.props.config[paramName]}`);
         delete this.props.config[paramName];
     }
 

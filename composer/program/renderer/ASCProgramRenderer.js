@@ -36,7 +36,8 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
             <div className={className}
                  tabIndex={0}
                  onFocus={this.cb.onFocus}
-                 onKeyPress={this.cb.onKeyPress}
+                 onKeyDown={this.cb.onKeyPress}
+                 onKeyUp={this.cb.onKeyPress}
             >
                 <div className="header">
                     <ASUIClickable

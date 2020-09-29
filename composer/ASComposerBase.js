@@ -1,5 +1,5 @@
 import React from "react";
-import {ASCKeyboard, PresetLibrary, Song} from "../song";
+import {PresetLibrary, Song} from "../song";
 
 class ASComposerBase extends React.Component {
     constructor(props) {

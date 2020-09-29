@@ -6,7 +6,7 @@ import {
     ASUIPanel,
     ASUIClickable,
     ASUIClickableDropDown,
-    ASUIMenuAction
+    ASUIMenuAction, ASUIInputRange
 } from "../../components";
 import Instruction from "../../song/instruction/Instruction";
 import {ArgType, Values} from "../../song";
@@ -153,15 +153,17 @@ export default class ASComposerTrackPanel extends React.Component {
                 case ArgType.offset:
                 case ArgType.trackName:
                 default:
-                    return this.renderDropDownForm(instructionData, argType, argIndex, paramValue, formatStats);
+                    return this.renderDropDownForm(argType, argIndex, paramValue, formatStats);
 
                 case ArgType.velocity:
-                    return this.renderVelocityForm(instructionData, argType, argIndex, paramValue);
+                    return this.renderVelocityForm(argType, argIndex, paramValue);
             }
         });
     }
 
-    renderDropDownForm(instructionData, argType, argIndex, paramValue, formatStats={}) {
+    renderDropDownForm(argType, argIndex, paramValue, formatStats={}) {
+        const selectedInstructionData = this.state.selectedInstructionData;
+
         let header = argType.title.split(' ').pop(); // Long text hack
         const composer = this.props.composer;
         return <ASUIFormEntry key={argIndex} header={header}>
@@ -169,20 +171,36 @@ export default class ASComposerTrackPanel extends React.Component {
                 button wide
                 arrow={'▼'}
                 title={`Change ${argType.title}`}
-                options={() => composer.renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue)}
+                options={() => composer.renderMenuEditInstructionArgOptions(selectedInstructionData, argType, argIndex, paramValue, newArgValue => {
+
+                    composer.instructionReplaceArgByType(this.state.selectedTrackName, this.state.selectedIndices, argType, newArgValue);
+
+                    const selectedInstructionData = this.state.selectedInstructionData.slice();
+                    selectedInstructionData[argIndex] = newArgValue;
+                    this.setState({selectedInstructionData})
+                })}
                 // TODO: update state.selectedInstructionData
             >{argType.format(paramValue, formatStats)}</ASUIClickableDropDown>
         </ASUIFormEntry>
     }
 
-    renderVelocityForm(instructionData, argType, argIndex, paramValue, header="Velocity", title="Instruction Velocity") {
+    renderVelocityForm(argType, argIndex, paramValue, header="Velocity", title="Instruction Velocity") {
         const composer = this.props.composer;
 
         return <ASUIFormEntry key={argIndex} header={header}>
-            {Values.instance.renderInputVelocity((newVelocity) => {
-                // TODO: update state.selectedInstructionData
-                composer.instructionReplaceArgByType(composer.getSelectedTrackName(), this.state.selectedIndices, argType, newVelocity);
-            }, paramValue, title)}
+            <ASUIInputRange
+                min={0}
+                max={100}
+                title={title}
+                value={paramValue || 100}
+                format={ASUIInputRange.formats.percent}
+                onChange={(newVelocity) => {
+                    composer.instructionReplaceArgByType(this.state.selectedTrackName, this.state.selectedIndices, argType, newVelocity);
+                    const selectedInstructionData = this.state.selectedInstructionData.slice();
+                    selectedInstructionData[argIndex] = newVelocity;
+                    this.setState({selectedInstructionData})
+                }}
+            />
         </ASUIFormEntry>;
     }
 

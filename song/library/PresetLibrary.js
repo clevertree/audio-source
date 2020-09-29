@@ -1,6 +1,5 @@
 import React from "react";
 import {ASUIMenuAction, ASUIMenuDropDown, ASUIMenuItem} from "../../components";
-import Preset from "./Preset";
 
 export default class PresetLibrary {
     constructor(title, uuid=null) {

@@ -28,7 +28,6 @@ export default class ASComposerInput extends ASComposerPlayback {
         // console.log(this.ref, this.ref.container);
         if(!this.ref.container.current)
             return console.warn("containerElm not found");
-        console.log('this.ref.container.current', this.ref.container.current);
         const containerElm = this.ref.container.current;
         // TODO: detect mobile as portrait excluding horizontal ipad
         let {width, height} = containerElm.getBoundingClientRect();
