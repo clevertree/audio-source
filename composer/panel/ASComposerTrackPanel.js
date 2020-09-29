@@ -170,6 +170,7 @@ export default class ASComposerTrackPanel extends React.Component {
                 arrow={'▼'}
                 title={`Change ${argType.title}`}
                 options={() => composer.renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue)}
+                // TODO: update state.selectedInstructionData
             >{argType.format(paramValue, formatStats)}</ASUIClickableDropDown>
         </ASUIFormEntry>
     }
@@ -179,6 +180,7 @@ export default class ASComposerTrackPanel extends React.Component {
 
         return <ASUIFormEntry key={argIndex} header={header}>
             {Values.instance.renderInputVelocity((newVelocity) => {
+                // TODO: update state.selectedInstructionData
                 composer.instructionReplaceArgByType(composer.getSelectedTrackName(), this.state.selectedIndices, argType, newVelocity);
             }, paramValue, title)}
         </ASUIFormEntry>;

@@ -1,40 +1,77 @@
 import React from "react";
 
-import ASComposerContainer from "./container/ASComposerContainer";
+import ASComposerRendererBase from "./ASComposerRendererBase";
+import {ASUIContextMenuContainer, ASUIIcon, ASUIMenuDropDown} from "../components";
 import ASComposerSongPanel from "./panel/ASComposerSongPanel";
-import ASComposerSongProgramsPanel from "./panel/ASComposerSongProgramsPanel";
 import ASComposerTrackPanel from "./panel/ASComposerTrackPanel";
-import ASComposerBase from "./ASComposerBase";
-import ASUIGlobalContext from "../components/context/ASUIGlobalContext";
+import ASComposerSongProgramsPanel from "./panel/ASComposerSongProgramsPanel";
+import "./assets/ASComposer.css"
 
-import ASCTrack from "./track/ASCTrack";
+export default class ASComposerRenderer extends ASComposerRendererBase {
 
-import ASComposerLoginModal from "./modal/ASComposerLoginModal";
-import ASComposerRegistrationModal from "./modal/ASComposerRegistrationModal";
-import ASComposerPublishModal from "./modal/ASComposerPublishModal";
-import ASComposerMessageModal from "./modal/ASComposerMessageModal";
-import ASComposerLogoutModal from "./modal/ASComposerLogoutModal";
-import ASComposerPublishSuccessModal from "./modal/ASComposerPublishSuccessModal";
 
-export default class ASComposerRenderer extends ASComposerBase {
-
-    render() {
-        // console.log('ASComposerRenderer.render()');
+    renderContainer() {
         return (
-            <ASUIGlobalContext.Provider
-                value={this.cb.global}>
-                <ASComposerContainer
-                    ref={this.ref.container}
+            <div className={"audio-source-composer"
+            + ((this.state.fullscreen || this.props.fullscreen) ? ' fullscreen' : '')
+            + (this.state.portrait ? ' portrait' : ' landscape')}
+                 ref={this.ref.container}>
+                <ASUIContextMenuContainer
+                    ref={this.ref.menu.contextContainer}
+                    portrait={this.state.portrait}
                     composer={this}
-                    >
-                    {this.state.portrait ? this.renderSongPanelPortrait() : this.renderSongPanelLandscape()}
-                    {this.renderTracks()}
-                    {this.state.showModal ? this.renderModals() : null}
-                </ASComposerContainer>
-            </ASUIGlobalContext.Provider>
+                >
+                    <div
+                        className="asc-container">
+                        {this.renderHeader()}
+                        <div className="asc-content-container">
+                            {this.state.portrait ? this.renderSongPanelPortrait() : this.renderSongPanelLandscape()}
+                            {this.renderTracks()}
+                            {this.state.showModal ? this.renderModals() : null}
+                        </div>
+                        {this.renderFooter()}
+                    </div>
+                </ASUIContextMenuContainer>
+            </div>
         );
     }
-//                         {this.state.showPanelPresetBrowser ? <ASComposerPresetBrowserPanel composer={this} /> : null}
+
+    renderHeader() {
+        const state = this.state;
+        const title = this.song.data.title;
+        if (state.portrait)
+            return (
+                <div className="asc-header-container">
+                    <div className="asc-title-text">{title}</div>
+                    <ASUIMenuDropDown
+                        arrow={false}
+                        className="asc-menu-button-toggle"
+                        options={this.cb.renderRootMenu}
+                    >
+                        <ASUIIcon source="menu" size="large"/>
+                    </ASUIMenuDropDown>
+                </div>
+            );
+
+        return (
+            <div className="asc-header-container">
+                <div key="title" className="asc-title-text">{title}</div>
+                <div className="asc-menu-container">
+                    {this.cb.renderRootMenu()}
+                </div>
+            </div>
+        );
+    }
+
+    renderFooter() {
+        const state = this.state;
+        return (
+            <div key="footer" className="asc-footer-container">
+                <div className={`asc-status-text ${state.statusType}`}>{state.statusText}</div>
+                <div className="asc-version-text">{state.version}</div>
+            </div>
+        );
+    }
 
     renderSongPanelPortrait() {
         return <>
@@ -57,79 +94,6 @@ export default class ASComposerRenderer extends ASComposerBase {
             <br />
         </>
 
-    }
-
-    /** Render Modals **/
-    renderModals() {
-        const props = {
-            composer: this,
-            modalArgs: this.state.modalArgs
-        }
-        switch(this.state.showModal) {
-            case "message":
-                return <ASComposerMessageModal {...props}/>
-
-            case "login":
-                return <ASComposerLoginModal {...props}/>
-
-            case "logout":
-                return <ASComposerLogoutModal {...props}/>
-
-            case "registration":
-                return <ASComposerRegistrationModal {...props}/>
-
-            case "publish":
-                return <ASComposerPublishModal {...props}/>
-
-            case "publish-success":
-                return <ASComposerPublishSuccessModal {...props}/>
-            default:
-                throw new Error("Invalid modal: " + this.state.showModal);
-        }
-    }
-
-    /** Render Tracks **/
-
-    // TODO: auto scroll to selected track when selected track changes?
-
-    renderTracks() {
-        const songTracks = this.getSong().data.tracks;
-        // composer.ref.activeTracks = {};
-        const activeTracks = this.ref.activeTracks;
-
-        const selectedTrack = this.getSelectedTrackName();
-        // const selectedIndices = composer.state.selectedIndices;
-        // let trackList = Object.keys(songData.tracks);
-        // let collapsed = false;
-        // if(composer.state.portrait) {
-        // collapsed = true;
-        // const selectedTrackID = trackList.indexOf(selectedTrackName);
-        // if (selectedTrackID !== -1)
-        //     trackList.unshift(trackList.splice(selectedTrackID, 1)[0])
-        // }
-        return Object.keys(songTracks).map((trackName) => {
-            // if(!songData.tracks[trackName])
-            //     return null;
-            if(!activeTracks[trackName])
-                activeTracks[trackName] = React.createRef(); // TODO: flaw?
-            const selected = trackName === selectedTrack;
-            return <ASCTrack
-                ref={activeTracks[trackName]}
-                key={trackName}
-                trackName={trackName}
-                // selectedIndices={selected ? selectedIndices : []}
-                // trackState={composer.state.activeTracks[trackName]}
-                selected={selected}
-                composer={this}
-                // collapsed={collapsed && !selected}
-            />
-        })
-    }
-
-
-    /** Render WebView Proxy **/
-    renderWebViewProxy() {
-        return null;
     }
 
 }

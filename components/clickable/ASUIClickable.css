@@ -31,7 +31,7 @@ button.asui-clickable {
 
 /** Selection **/
 button.asui-clickable.selected {
-    border: 1px inset;
+    border: 1px inset #DDD;
     background: linear-gradient(#ccc, #aaa);
 }
 

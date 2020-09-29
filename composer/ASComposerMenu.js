@@ -39,8 +39,8 @@ class ASComposerMenu extends ASComposerRenderer {
             <ASUIMenuDropDown {...props} ref={ref.program} options={this.cb.menu.program}   >Program</ASUIMenuDropDown>
             <ASUIMenuDropDown {...props} ref={ref.playback} options={this.cb.menu.playback} >Playback</ASUIMenuDropDown>
             <ASUIMenuDropDown {...props} ref={ref.view} options={this.cb.menu.view}         >View</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.view} options={this.cb.menu.options}      >Options</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.view} options={this.cb.menu.server}       >Server</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.options} options={this.cb.menu.options}      >Options</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.server} options={this.cb.menu.server}       >Server</ASUIMenuDropDown>
         </>);
     }
 
@@ -303,7 +303,7 @@ class ASComposerMenu extends ASComposerRenderer {
             this.renderMenuViewOptions(viewKey);
 
         return (<>
-            <ASUIMenuAction onAction={e => this.toggleFullscreen(e)}                >{this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen</ASUIMenuAction>
+            <ASUIMenuAction disabled={this.props.fullscreen} onAction={e => this.toggleFullscreen(e)} >{this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen</ASUIMenuAction>
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:song')}>Song Panel</ASUIMenuDropDown>
             <ASUIMenuDropDown options={e => renderMenuViewOptions('panel:track')}>Track Panel</ASUIMenuDropDown>

@@ -26,14 +26,15 @@ export default class IndexRouter extends React.Component {
         return (
             <BrowserRouter>
                 <Switch>
-                    <Route component={ASComposer}               path={'/composer'} />
+                    <Route path={'/composer'} >
+                        {props => <ASComposer fullscreen {...props} {...pageProps} />}
+                    </Route>
                     <Route component={SongProxyWebViewClient}   path={['/blank', '/proxy']} />
                     <Route component={ASPlayer}                 path={['/player', '/p']}/>
 
                     {pageList.map(([page, path], i) => {
                         if (typeof page === "string")
                             return <Route path={path} key={i}>
-                                {props => <ASUIPageMarkdown file={page} {...props} {...pageProps} />}
                             </Route>;
                         if (page.prototype instanceof React.Component) {
                             const Page = page;

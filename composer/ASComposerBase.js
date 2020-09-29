@@ -13,7 +13,7 @@ class ASComposerBase extends React.Component {
             clipboard: null,
 
             portrait: true,
-            fullscreen: !!this.props.fullscreen,
+            // fullscreen: !!this.props.fullscreen,
             // showPanelSong: true,
             // showPanelProgram: true,
             // showPanelInstruction: true,
@@ -61,9 +61,9 @@ class ASComposerBase extends React.Component {
 
             // Keyboard
             keyboardOctave: 4,
-
-
         };
+        // if(this.props.fullscreen)
+        //     this.state.fullscreen = true;
 
         // this.globalState = {};
 
@@ -85,15 +85,28 @@ class ASComposerBase extends React.Component {
                 // getGlobalKey: key => this.globalState.getKey(key),
                 // setGlobalKey: (key,  value) => this.globalState.setKey(key,  value),
             },
+            renderRootMenu: () => this.renderRootMenu(this.ref.menu)
         }
         this.ref = {
             container: React.createRef(),
+            // menuContextContainer: React.createRef(),
             panelSong: React.createRef(),
             panelTrack: React.createRef(),
             panelProgram: React.createRef(),
             panelSession: React.createRef(),
             activeTracks: [],
             activePrograms: [],
+            menu: {
+                contextContainer: React.createRef(),
+                file: React.createRef(),
+                edit: React.createRef(),
+                track: React.createRef(),
+                program: React.createRef(),
+                view: React.createRef(),
+                options: React.createRef(),
+                server: React.createRef(),
+                           // playback: React.createRef(),
+            }
         }
 
         this.songStats = {
@@ -196,10 +209,6 @@ class ASComposerBase extends React.Component {
     //     console.log('componentDidCatch', error, errorInfo);
     //     this.setError(error);
     // }
-
-    openMenuByKey(menuName) {
-        this.ref.container.current.openMenuByKey(menuName);
-    }
 
 }
 

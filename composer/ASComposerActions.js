@@ -177,6 +177,25 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
+    /** Menu **/
+
+
+    openMenuByKey(menuName) {
+        if(this.state.portrait) {
+            let options = this.renderMenuByKey(menuName);
+            /** @var {ASUIContextMenuContainer} **/
+            const menuContextContainer = this.ref.menu.contextContainer.current;
+            menuContextContainer.openMenu(options);
+            return;
+        }
+        const menu = this.ref.menu[menuName];
+        console.log('menu', menu);
+        if(!menu)
+            throw new Error("Menu not found: " + menu);
+        if(!menu.current)
+            throw new Error("Menu not rendered: " + menu);
+        menu.current.openDropDownMenu();
+    }
 
 
     /** State **/
@@ -213,6 +232,10 @@ class ASComposerActions extends ASComposerMenu {
                 Values.recentFrequencies = recentValues.recentFrequencies || [];
                 PresetLibrary.recentSampleURLs = recentValues.recentLibrarySampleURLs || [];
             }
+
+            const panelTrack = this.ref.panelTrack.current;
+            if(panelTrack)
+                panelTrack.setState(state.panelTrackState);
 
             for(let key in state.activeTracks) {
                 if(state.activeTracks.hasOwnProperty(key)) try {
@@ -254,6 +277,10 @@ class ASComposerActions extends ASComposerMenu {
             recentDurations: Values.recentDurations,
             recentLibrarySampleURLs: PresetLibrary.recentSampleURLs,
         }
+
+        const panelTrack = this.ref.panelTrack.current;
+        if(panelTrack)
+            state.panelTrackState = panelTrack.state;
 
         // Delete playback stats
         delete state.paused;
