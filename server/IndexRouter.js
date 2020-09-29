@@ -51,6 +51,9 @@ export default class IndexRouter extends React.Component {
                                 case '?proxy':
                                     return <SongProxyWebViewClient/>;
                                 default:
+                                    if(isInStandaloneMode) {
+                                        return <ASComposer fullscreen {...props} {...pageProps} />;
+                                    }
                                     const homePage = pageList[0][1];
                                     return  <Redirect  to={homePage} />
                             }
@@ -62,3 +65,6 @@ export default class IndexRouter extends React.Component {
     }
 
 }
+
+const isInStandaloneMode = () =>
+    (window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone) || document.referrer.includes('android-app://');

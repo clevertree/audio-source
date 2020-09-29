@@ -325,7 +325,7 @@ class ASComposerActions extends ASComposerMenu {
     }
     setSongName(newSongTitle=null) {
         if(typeof newSongTitle !== "string")
-            throw new Error("Invalid song title: " + newSongTitle);
+            return this.setError("Invalid song title: " + newSongTitle);
         const data = this.song.getProxiedData();
         data.title = newSongTitle;
         this.setStatus(`Song title updated: ${newSongTitle}`);
@@ -337,7 +337,7 @@ class ASComposerActions extends ASComposerMenu {
     }
     setSongVersion(newSongVersion) {
         if(typeof newSongVersion !== "string")
-            throw new Error("Invalid song version: " + newSongVersion);
+            return this.setError("Invalid song version: " + newSongVersion);
         const data = this.song.getProxiedData();
         data.version = newSongVersion;
         this.setStatus(`Song version updated: ${newSongVersion}`);
@@ -351,7 +351,7 @@ class ASComposerActions extends ASComposerMenu {
     setSongStartingBPM(newSongBeatsPerMinute) {
         const bpm = Number.parseFloat(newSongBeatsPerMinute)
         if(Number.isNaN(bpm))
-            throw new Error("Invalid BPM: " + newSongBeatsPerMinute)
+            return this.setError("Invalid BPM: " + newSongBeatsPerMinute)
         const data = this.song.getProxiedData();
         data.beatsPerMinute = bpm; // songChangeStartingBeatsPerMinute(newSongBeatsPerMinute);
         this.setStatus(`Song beats per minute updated: ${bpm}`);

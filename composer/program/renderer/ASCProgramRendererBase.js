@@ -260,6 +260,14 @@ export default class ASCProgramRendererBase extends React.Component {
         const keyboardCommand = ASCKeyboard.instance.getKeyboardCommand(e.key, keyboardOctave);
         if(keyboardCommand) {
             switch(e.type) {
+                case 'keydown':
+                    if(!this.playingKeys[e.key]) {
+                        const destination = this.getComposer().getDestination();
+                        const source = this.getSong().playInstrumentFrequency(destination, this.getProgramID(), keyboardCommand, null, 1000)
+                        this.playingKeys[e.key] = source;
+                    }
+                    break;
+
                 case 'keyup':
                     if(typeof this.playingKeys.hasOwnProperty(e.key)) {
                         const source = this.playingKeys[e.key];
@@ -267,14 +275,6 @@ export default class ASCProgramRendererBase extends React.Component {
                         source && source.noteOff();
                     } else {
                         console.warn("Playing key not found: ", e.key, this.playingKeys);
-                    }
-                    break;
-
-                case 'keydown':
-                    if(!this.playingKeys[e.key]) {
-                        const destination = this.getComposer().getDestination();
-                        const source = this.getSong().playInstrumentFrequency(destination, this.getProgramID(), keyboardCommand, null, 1000)
-                        this.playingKeys[e.key] = source;
                     }
                     break;
             }
