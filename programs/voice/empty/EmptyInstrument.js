@@ -24,7 +24,20 @@ export default class EmptyInstrument {
     /** Playback **/
 
     playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
-        console.info('playFrequency(', frequency, startTime, duration, velocity, ')')
+        // console.info('playFrequency(', frequency, startTime, duration, velocity, ')')
+        const audioContext = destination.context;
+
+        // If Duration, queue note end
+        if(duration !== null) {
+            if(duration instanceof Promise) {
+                // Support for duration promises
+                duration.then(() => onended())
+            } else {
+                const waitTime = ((startTime + duration) - audioContext.currentTime) * 1000;
+                // console.log('waitTime', waitTime);
+                setTimeout(onended, waitTime);
+            }
+        }
     }
 
 

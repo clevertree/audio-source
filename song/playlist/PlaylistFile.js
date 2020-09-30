@@ -1,4 +1,5 @@
 // TODO: move out of server?
+/** @deprecated **/
 export default class PlaylistFile {
     static parseEntry(entry) {
         if(typeof entry === "string") {

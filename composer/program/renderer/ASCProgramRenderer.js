@@ -19,17 +19,17 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
         if(this.props.selected)
             className += ' selected';
 
+        let open = this.props.open;
         // let contentClass = 'error';
-        let titleHTML = '', renderProgram = false;
+        let titleHTML = '';
         if (song.hasProgram(programID)) {
             const [, programConfig] = song.programGetData(programID);
             titleHTML = programConfig.title || "No Title"
-            renderProgram = true;
         } else {
             titleHTML = `Empty`;
             className += ' empty';
+            open = 'browser';
         }
-        const open = this.props.open;
         if(open)
             className += ' open';
         return (
@@ -48,7 +48,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                     >
                         {programIDHTML}: {titleHTML}
                     </ASUIClickable>
-                    {open !== 'browser' ? <ASUIClickableDropDown
+                    {typeof open !== "string" ? <ASUIClickableDropDown
                         button
                         arrow={false}
                         vertical={false}
@@ -59,19 +59,28 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                     </ASUIClickableDropDown> : <ASUIClickable
                         button
                         className="preset-browser-close"
-                        onAction={this.cb.togglePresetBrowser}
+                        onAction={this.cb.toggleContainer}
                     >
                         <ASUIIcon source="close"/>
                     </ASUIClickable>}
                 </div>
-                {open ? <div className="content">
-                    {open === 'browser' || !renderProgram ? this.renderPresetBrowser() : this.renderProgramContent()}
-                </div> : null}
+                {open ? this.renderContent(open) : null}
             </div>
         );
 
         // return content;
     }
 
+    renderContent(open) {
+        switch(open) {
+            case 'browser':
+                return this.renderPresetBrowser();
+            case 'source':
+                return this.renderSourceEdit();
+            default:
+                return this.renderProgramContent();
+
+        }
+    }
 
 }

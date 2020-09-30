@@ -20,7 +20,7 @@ export default class TrackPlayback extends TrackIterator {
         this.lastCurrentTime = null;
 
         this.startTime = null;
-        this.seekLength = 2;
+        this.seekLength = 1;
         this.active = false;
         this.activePrograms = [];
 
@@ -94,19 +94,19 @@ export default class TrackPlayback extends TrackIterator {
         const playingIndices = stats.playingIndices;
         stats.onInstructionStart = (startTime) => {
             if(!this.active) return;
-            const waitTime = startTime -this.audioContext.currentTime;
-            // console.log('onInstructionStart', startTime, waitTime);
+            const waitTime = (startTime - this.audioContext.currentTime) * 1000;
             const event = {
                 type: 'instruction:start',
                 trackName: stats.trackName,
                 index: stats.currentIndex,
-                playingIndices,
+                playingIndices: playingIndices,
             }
             setTimeout(() => {
                 if(!this.active) return;
                 playingIndices.push(event.index);
                 this.song.dispatchEvent(event)
-            }, waitTime * 1000);
+                // console.log('onInstructionStart', startTime, waitTime);
+            }, waitTime);
                                     // console.log('playingIndices.push', playingIndices);
         };
         stats.onInstructionEnd = (index) => {
@@ -119,8 +119,11 @@ export default class TrackPlayback extends TrackIterator {
             }
             // console.log('onInstructionEnd', playingIndices, event);
             const i = playingIndices.indexOf(event.index);
-            if(i !== -1)
+            if(i !== -1) {
                 playingIndices.splice(i, 1);
+                // console.log("Removing playing instruction: ", event.index, playingIndices)
+            }else
+                console.warn("Playing instruction not found: ", event.index, playingIndices)
             this.song.dispatchEvent(event)
         };
         // this.onEvent({

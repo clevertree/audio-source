@@ -10,15 +10,8 @@ input.asui-input-text.large {
   padding: 0.3em;
 }
 
-/** Value **/
-
-input.asui-input-text > div.value {
-  font-size: small;
-  position: absolute;
-  padding: 4px 6px;
-  z-index: 1;
-}
-
-input.asui-input-text.value-right > div.value {
-  right: 2px;
+textarea.asui-input-text {
+  -moz-tab-size : 2;
+  -o-tab-size : 2;
+  tab-size : 2;
 }

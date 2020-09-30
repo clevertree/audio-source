@@ -35,7 +35,7 @@ export default class EnvelopeEffect {
     /** Create Envelope **/
 
     createEnvelope(destination, startTime, amplitude=1, onended=null) {
-        // console.log('playFrequency(', destination, frequency, startTime, duration, velocity);
+        // console.log('playFrequency(', {startTime, amplitude});
         const audioContext = destination.context;
 
         let source = destination.context.createGain();

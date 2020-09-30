@@ -12,6 +12,8 @@ import {TrackIterator, TrackPlayback} from "./track";
 import FileService from "./file/service/FileService";
 import FileSupport from "./file/FileSupport";
 import PresetLibrary from "./library/PresetLibrary";
+
+import Playlist from "./playlist/Playlist";
 export {
     Song,
     PresetLibrary,
@@ -30,4 +32,5 @@ export {
     ClientStorage,
 
     ASCKeyboard,
+    Playlist
 }

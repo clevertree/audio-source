@@ -1,8 +1,13 @@
 import React from "react";
 
 import {
+    ASUIClickable,
+    ASUIForm, ASUIFormEntry,
+    ASUIInputTextArea,
     ASUIMenuAction,
-    ASUIMenuDropDown, ASUIMenuBreak, ASUIMenuItem,
+    ASUIMenuBreak,
+    ASUIMenuDropDown,
+    ASUIMenuItem,
 } from "../../../components";
 import {PresetLibrary, ProgramLoader} from "../../../song";
 import ASCPresetBrowser from "../browser/ASCPresetBrowser";
@@ -14,13 +19,18 @@ export default class ASCProgramRendererBase extends React.Component {
         super(props);
         this.cb = {
             togglePresetBrowser: () => this.togglePresetBrowser(),
+            toggleSourceEdit: () => this.toggleSourceEdit(),
+            onSourceEdit: e => this.onSourceEdit(e),
             toggleContainer: e => this.toggleContainer(),
             onFocus: e => this.onFocus(e),
             onKeyPress: e => this.onKeyPress(e),
             menuRoot: () => this.renderMenuRoot(),
             parentMenu: programID => this.renderMenuManageProgram(programID),
             programLoad: (programID, programClass, programConfig) => this.programLoad(programID, programClass, programConfig),
-            setProps: (programID, props) => this.setProps(programID, props)
+            setProps: (programID, props) => this.setProps(programID, props),
+        }
+        this.ref = {
+            textSource: React.createRef()
         }
         // this.state = {
         //     open: false
@@ -88,6 +98,44 @@ export default class ASCProgramRendererBase extends React.Component {
         />;
     }
 
+    renderSourceEdit() {
+        const [className, config] = this.getProgramData(this.props.programID, true) || ['Empty', {}];
+        const jsonString = JSON.stringify(config, null, "\t");
+        return <ASUIForm
+            onSubmit={this.cb.onSourceEdit}
+        >
+            <ASUIFormEntry header={`Class: ${className}`}>
+                <ASUIInputTextArea
+                    defaultValue={jsonString}
+                    ref={this.ref.textSource}
+                    placeholder={`{\n  "type":"square"\n}`}
+                    rows={16}
+                    cols={28}
+
+                    />
+            </ASUIFormEntry>
+            <ASUIFormEntry header={`Update`}>
+                <ASUIClickable onAction={this.cb.onSourceEdit}>
+                    Update
+                </ASUIClickable>
+            </ASUIFormEntry>
+        </ASUIForm>;
+    }
+
+    onSourceEdit(e) {
+        const textSource = this.ref.textSource.current;
+        let jsonString = textSource.getValue();
+        try {
+            let json = JSON.parse(jsonString);
+            const program = this.getSong().getProxiedData().programs[this.props.programID];
+            program[1] = json;
+            console.log("Updated Program Source: ", json);
+            this.toggleContainer(true);
+        } catch (e) {
+            this.getComposer().setError("Invalid Source: " + e.message);
+        }
+    }
+
     /** Actions **/
 
 
@@ -145,8 +193,12 @@ export default class ASCProgramRendererBase extends React.Component {
 
     toggleContainer(openState=null) {
         const rendererState = this.getRendererState();
-        if(openState === null)
-            openState = !rendererState.open
+        if(openState === null) {
+            if(typeof rendererState.open === "string")
+                openState = true;
+            else
+                openState = !rendererState.open;
+        }
         rendererState.open = openState;
         // if(!rendererState.programProps)
         //     rendererState.programProps = {open: true};
@@ -160,6 +212,13 @@ export default class ASCProgramRendererBase extends React.Component {
         rendererState.open = rendererState.open === 'browser' ? true : 'browser';
         this.setRendererState(rendererState);
     }
+
+    toggleSourceEdit() {
+        const rendererState = this.getRendererState();
+        rendererState.open = rendererState.open === 'source' ? true : 'source';
+        this.setRendererState(rendererState);
+    }
+
 
 
 
@@ -191,6 +250,8 @@ export default class ASCProgramRendererBase extends React.Component {
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuChangeProgram()}>Change Program</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Change Preset</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            <ASUIMenuAction onAction={this.cb.toggleSourceEdit}>{this.props.open === 'source' ? 'Hide' : 'Edit'} Source</ASUIMenuAction>
             <ASUIMenuBreak />
             {this.renderMenuManageProgram()}
         </>);
@@ -256,6 +317,13 @@ export default class ASCProgramRendererBase extends React.Component {
     }
 
     onKeyPress(e) {
+        const rendererState = this.getRendererState();
+        switch(rendererState.open) {
+            case 'source':
+            case false:
+                return;
+            default:
+        }
         const {keyboardOctave} = this.getComposer().getTrackPanelState();
         const keyboardCommand = ASCKeyboard.instance.getKeyboardCommand(e.key, keyboardOctave);
         if(keyboardCommand) {
@@ -263,8 +331,9 @@ export default class ASCProgramRendererBase extends React.Component {
                 case 'keydown':
                     if(!this.playingKeys[e.key]) {
                         const destination = this.getComposer().getDestination();
-                        const source = this.getSong().playInstrumentFrequency(destination, this.getProgramID(), keyboardCommand, null, 1000)
-                        this.playingKeys[e.key] = source;
+                        this.playingKeys[e.key] = this.getSong().playInstrumentFrequency(destination, this.getProgramID(), keyboardCommand);
+                    } else {
+                        // console.warn("Key already playing: ", e.key, this.playingKeys);
                     }
                     break;
 
@@ -273,9 +342,12 @@ export default class ASCProgramRendererBase extends React.Component {
                         const source = this.playingKeys[e.key];
                         delete this.playingKeys[e.key];
                         source && source.noteOff();
+                        // console.log('source', source);
                     } else {
                         console.warn("Playing key not found: ", e.key, this.playingKeys);
                     }
+                    break;
+                default:
                     break;
             }
         } else {
