@@ -32,9 +32,10 @@ export default class ASCProgramRendererBase extends React.Component {
         this.ref = {
             textSource: React.createRef()
         }
-        // this.state = {
-        //     open: false
-        // }
+        this.state = {
+            playingFrequencies: []
+        }
+
         this.playingKeys = {};
     }
 
@@ -137,6 +138,38 @@ export default class ASCProgramRendererBase extends React.Component {
     }
 
     /** Actions **/
+
+    updatePlayingFrequency(state, frequency) {
+        const playingFrequencies = this.state.playingFrequencies;
+
+        let i;
+        switch(state) {
+            case 'play':
+                i = playingFrequencies.indexOf(frequency);
+                if(i === -1) {
+                    playingFrequencies.push(frequency);
+                    this.setState({
+                        playingFrequencies,
+                        playing: true
+                    })
+                }
+                break;
+            case 'stop':
+                i = playingFrequencies.indexOf(frequency);
+                if(i !== -1) {
+                    playingFrequencies.splice(i, 1);
+                    this.setState({
+                        playingFrequencies,
+                        playing: playingFrequencies.length > 0
+                    })
+                } else {
+                    console.warn("Playing frequency not found: ", frequency);
+                }
+                break;
+        }
+        console.log(state, frequency, playingFrequencies);
+
+    }
 
 
     // programReplace(e, programClassName, programConfig={}) {

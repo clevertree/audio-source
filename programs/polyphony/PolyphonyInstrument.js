@@ -4,6 +4,24 @@ class PolyphonyInstrument {
     constructor(config={}) {
         this.config = config;
         this.loadedVoices = [];
+        this.eventListeners = [];
+        this.cb = {
+            dispatchEvent: e => this.dispatchEvent(e)
+        }
+    }
+
+    /** Event Listeners **/
+
+    addEventListener(eventName, listenerCallback) {
+        this.eventListeners.push([eventName, listenerCallback]);
+    }
+
+    dispatchEvent(e) {
+        for (const [eventName, listenerCallback] of this.eventListeners) {
+            if(e.name === eventName || eventName === '*') {
+                listenerCallback(e);
+            }
+        }
     }
 
     /** Loading **/
@@ -16,6 +34,8 @@ class PolyphonyInstrument {
         const [voiceClassName, voiceConfig] = this.config.voices[voiceID];
         let {classProgram:voiceClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
         const loadedVoice = new voiceClass(voiceConfig);
+        if(typeof loadedVoice.addEventListener === "function")
+            loadedVoice.addEventListener('*', this.cb.dispatchEvent);
         this.loadedVoices[voiceID] = loadedVoice;
         return loadedVoice;
     }

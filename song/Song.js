@@ -152,8 +152,7 @@ class Song {
     /** Events and Listeners **/
 
     dispatchEvent(e) {
-        for (let i = 0; i < this.eventListeners.length; i++) {
-            const [eventName, listenerCallback] = this.eventListeners[i];
+        for (const [eventName, listenerCallback] of this.eventListeners) {
             if(e.name === eventName || eventName === '*') {
                 listenerCallback(e);
             }
@@ -174,6 +173,13 @@ class Song {
         }
     }
 
+    getProgramDispatchEvent(programID) {
+        return e => {
+            e.programID = programID;
+            this.dispatchEvent(e);
+            return e;
+        }
+    }
 
     unloadAll() {
         ProgramLoader.unloadAllPrograms();
@@ -861,18 +867,18 @@ class Song {
     }
 
     getPracticeProgram(programID) {
-        let program;
+        let programInstance;
         const [lastPracticeProgram, lastPracticeProgramConfig] = this.lastPracticeProgram || [null, null, null];
         const [className, programConfig] = this.programGetData(programID, false);
         if(lastPracticeProgramConfig !== programConfig) {
             ProgramLoader.stopAllPlayback();
-            program = ProgramLoader.loadInstance(className, programConfig);
-            this.lastPracticeProgram = [program, programConfig];
+            programInstance = ProgramLoader.loadInstance(className, programConfig, this.getProgramDispatchEvent(programID));
+            this.lastPracticeProgram = [programInstance, programConfig];
             // console.log("Loading program for MIDI playback: ", programID, className, programConfig);
         } else {
-            program = lastPracticeProgram;
+            programInstance = lastPracticeProgram;
         }
-        return program;
+        return programInstance;
     }
 
     playMIDIEvent(destination, programID, eventData) {
@@ -887,7 +893,22 @@ class Song {
         let program = this.getPracticeProgram(programID);
         const frequency = Values.instance.parseFrequencyString(frequencyString);
         // console.log('playInstrumentFrequency', {program, frequencyString, frequency, startTime, duration, velocity})
-        return program.playFrequency(destination, frequency, startTime, duration, velocity); // TODO: needs to use processor
+        // const playEvent = {
+        //     type: 'program:play',
+        //     programID,
+        //     frequency,
+        //     velocity
+        // }
+        // this.dispatchEvent(playEvent);
+        return program.playFrequency(destination, frequency, startTime, duration, velocity, () => {
+            const stopEvent = {
+                type: 'program:stop',
+                programID,
+                frequency,
+                velocity
+            }
+            this.dispatchEvent(stopEvent);
+        });
     }
 
     // playInstructionAtIndex(destination, trackName, instructionIndex, noteStartTime = null) {

@@ -91,7 +91,25 @@ export default class OscillatorInstrument {
 
 
         this.activeMIDINotes = []
+
+        this.eventListeners = [];
     }
+
+    /** Event Listeners **/
+
+    addEventListener(eventName, listenerCallback) {
+        this.eventListeners.push([eventName, listenerCallback]);
+    }
+
+    dispatchEvent(e) {
+        for (const [eventName, listenerCallback] of this.eventListeners) {
+            if(e.name === eventName || eventName === '*') {
+                listenerCallback(e);
+            }
+        }
+    }
+
+    /** Periodic Wave **/
 
     setPeriodicWave(oscillator, periodicWave) {
         if(!periodicWave instanceof PeriodicWave)
@@ -261,6 +279,11 @@ export default class OscillatorInstrument {
 
         // Start Source
         source.start(startTime);
+        this.dispatchEvent({
+            type: 'program:play',
+            frequency,
+            velocity
+        })
         // console.log("Note Start: ", config.url, frequency);
 
         // Set up Note-Off
@@ -285,6 +308,10 @@ export default class OscillatorInstrument {
                 activeLFOs.forEach(lfo => lfo.stop());
                 onended && onended();
             }
+            this.dispatchEvent({
+                type: 'program:stop',
+                frequency,
+            })
             // console.log("Note Ended: ", config.url, frequency);
         }
 

@@ -178,7 +178,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
                     options={this.cb.renderParamMenu.source}
                 >{source}</ASUIClickableDropDown>;
 
-            case 'keyRoot':
+            case 'keyRoot': // TODO:
                 return <ASUIClickableDropDown
                     {...inputParameters}
                     className="small"
@@ -375,7 +375,8 @@ class AudioBufferInstrumentRendererBase extends React.Component {
             title = "Change Root Key: " + this.props.config.keyRoot;
         return (<>
             {Values.instance.renderMenuSelectFrequencyWithRecent(noteNameOctave => {
-                this.changeParam('keyRoot', noteNameOctave)
+                this.changeParam('keyRoot', noteNameOctave);
+                return false;
             }, this.props.config.keyRoot, title)}
             <ASUIMenuBreak/>
             <ASUIMenuAction onAction={() => this.removeParam('keyRoot')}>Clear Root</ASUIMenuAction>
@@ -464,4 +465,4 @@ class AudioBufferInstrumentRendererBase extends React.Component {
 
 export default AudioBufferInstrumentRendererBase;
 
-function getNameFromURL(url) { return url.split('/').pop().replace('.wav', ''); }
+function getNameFromURL(url) { return url.split('/').pop().replace('.wav', '').replace('%20', ' '); }

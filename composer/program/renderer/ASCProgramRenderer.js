@@ -18,6 +18,8 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
         let className = 'asc-instrument-renderer';
         if(this.props.selected)
             className += ' selected';
+        if(this.state.playing)
+            className += ' playing';
 
         let open = this.props.open;
         // let contentClass = 'error';

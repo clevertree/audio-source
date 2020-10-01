@@ -97,8 +97,24 @@ export default class AudioBufferInstrument {
             this.loadedLFOs[lfoID] = new lfoClass(voiceConfig);
         }
 
+        this.eventListeners = [];
     }
 
+    /** Event Listeners **/
+
+    addEventListener(eventName, listenerCallback) {
+        this.eventListeners.push([eventName, listenerCallback]);
+    }
+
+    dispatchEvent(e) {
+        for (const [eventName, listenerCallback] of this.eventListeners) {
+            if(e.name === eventName || eventName === '*') {
+                listenerCallback(e);
+            }
+        }
+    }
+
+    /** Source Buffer **/
 
     setBuffer(source, audioBuffer) {
         source.buffer = audioBuffer;
@@ -199,9 +215,11 @@ export default class AudioBufferInstrument {
             source.detune.value = config.detune;
 
         // Playback Rate
-        const freqRoot = config.keyRoot
-            ? Values.instance.parseFrequencyString(config.keyRoot)
-            : AudioBufferInstrument.defaultRootFrequency;
+        let freqRoot = AudioBufferInstrument.defaultRootFrequency;
+        if(config.keyRoot) {
+            const keyRoot = Values.instance.parseFrequencyString(config.keyRoot);
+            frequency *= keyRoot / AudioBufferInstrument.defaultRootFrequency;
+        }
         source.playbackRate.value = frequency / freqRoot;
 
 
@@ -216,6 +234,11 @@ export default class AudioBufferInstrument {
 
         // Start Source
         source.start(startTime);
+        this.dispatchEvent({
+            type: 'program:play',
+            frequency,
+            velocity
+        })
         // console.log("Note Start: ", config.url, frequency);
 
         // Set up Note-Off
@@ -231,6 +254,7 @@ export default class AudioBufferInstrument {
 
             // Stop the source at the source end time
             source.stop(sourceEndTime);
+
         };
 
         // Set up on end.
@@ -240,6 +264,10 @@ export default class AudioBufferInstrument {
                 activeLFOs.forEach(lfo => lfo.stop());
                 onended && onended();
             }
+            this.dispatchEvent({
+                type: 'program:stop',
+                frequency,
+            })
             // console.log("Note Ended: ", config.url, frequency);
         }
 

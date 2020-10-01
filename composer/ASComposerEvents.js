@@ -15,13 +15,23 @@ export default class ASComposerEvents extends ASComposerInput {
             case 'track:end':
                 break;
 
-            case 'instruction:start':
-            case 'instruction:end':
-                // console.log(e.type, e.playingIndices);
-                const track = this.trackGetRef(e.trackName, false);
-                if(track)
-                    track.updatePlayingIndices(e.playingIndices);
+            case 'program:play':
+            case 'program:stop':
+                // console.log(e.type, e);
+                if(typeof e.programID !== "undefined") {
+                    const programRef = this.programGetRef(e.programID);
+                    programRef.updatePlayingFrequency(e.type.split(':').pop(), e.frequency);
+                }
+                break;
 
+            case 'instruction:play':
+            case 'instruction:stop':
+                // console.log(e.type, e);
+                if(e.trackName) {
+                    const track = this.trackGetRef(e.trackName, false);
+                    if (track)
+                        track.updatePlayingIndices(e.playingIndices);
+                }
                 // this.forceUpdate();
                 break;
 

@@ -14,6 +14,9 @@ div.asc-instrument-renderer:hover {
 div.asc-instrument-renderer.selected {
     background-color: #90BEDE;
 }
+div.asc-instrument-renderer.playing {
+    background-color: #90DEBE;
+}
 
 div.asc-instrument-renderer:focus {
 

@@ -395,8 +395,13 @@ class ASComposerMenu extends ASComposerRenderer {
     /** Command Menu **/
 
 
-    renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue, onSelectValue) {
-
+    renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue, onSelectValue=null) {
+        if(onSelectValue === null) {
+            const {selectedIndices} = this.getTrackPanelState()
+            onSelectValue = (newArgValue) => {
+                this.instructionReplaceArgByType(this.getSelectedTrackName(), selectedIndices, argType, newArgValue);
+            }
+        }
         // const processor = new InstructionProcessor(instructionData);
         // const [commandString] = processor.processInstructionArgList();
         // console.log('commandString', commandString);
@@ -411,7 +416,7 @@ class ASComposerMenu extends ASComposerRenderer {
 
             case ArgType.offset:
             case ArgType.duration:
-                return Values.instance.renderMenuSelectDuration(onSelectValue, null, paramValue);
+                return Values.instance.renderMenuSelectDuration(onSelectValue, this.song.data.timeDivision, paramValue);
 
             case ArgType.velocity:
                 return Values.instance.renderMenuSelectVelocity(onSelectValue, paramValue);

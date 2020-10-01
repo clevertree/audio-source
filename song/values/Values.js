@@ -471,7 +471,7 @@ class Values {
 
     /** Duration Menu **/
 
-    renderMenuSelectDuration(onSelectDuration, timeDivision=this.song.data.timeDivision, currentDuration = null, title=null) {
+    renderMenuSelectDuration(onSelectDuration, timeDivision=null, currentDuration = null, title=null) {
         const oldCallback = onSelectDuration;
         onSelectDuration = (selectedDuration, selectedDurationString) => {
             addRecentMenuItem(selectedDurationString, Values.recentDurations);
@@ -632,7 +632,7 @@ function addRecentMenuItem(item, collection) {
     if(i !== -1)
         collection.splice(i, 1);
     collection.unshift(item);
-    if(collection > Values.RECENT_ITEM_LIMIT)
+    if(collection.length > Values.RECENT_ITEM_LIMIT)
         collection.pop();
 }
 

@@ -67,8 +67,10 @@ export default class TrackPlayback extends TrackIterator {
         let programInstance;
         if(Array.isArray(program)) {
             programInstance = ProgramLoader.loadInstance(program[0], program[1]);
+            delete trackStats.programID;
         } else {
             programInstance = this.song.programLoadInstanceFromID(program);
+            trackStats.programID = program;
         }
         trackStats.program = programInstance;
 
@@ -95,36 +97,36 @@ export default class TrackPlayback extends TrackIterator {
         stats.onInstructionStart = (startTime) => {
             if(!this.active) return;
             const waitTime = (startTime - this.audioContext.currentTime) * 1000;
-            const event = {
-                type: 'instruction:start',
+            const iEvent = {
+                type: 'instruction:play',
                 trackName: stats.trackName,
                 index: stats.currentIndex,
                 playingIndices: playingIndices,
             }
             setTimeout(() => {
                 if(!this.active) return;
-                playingIndices.push(event.index);
-                this.song.dispatchEvent(event)
+                playingIndices.push(iEvent.index);
+                this.song.dispatchEvent(iEvent)
                 // console.log('onInstructionStart', startTime, waitTime);
             }, waitTime);
                                     // console.log('playingIndices.push', playingIndices);
         };
         stats.onInstructionEnd = (index) => {
             if(!this.active) return;
-            const event = {
-                type: 'instruction:end',
+            const iEvent = {
+                type: 'instruction:stop',
                 trackName: stats.trackName,
                 index,
                 playingIndices,
             }
             // console.log('onInstructionEnd', playingIndices, event);
-            const i = playingIndices.indexOf(event.index);
+            const i = playingIndices.indexOf(iEvent.index);
             if(i !== -1) {
                 playingIndices.splice(i, 1);
                 // console.log("Removing playing instruction: ", event.index, playingIndices)
             }else
-                console.warn("Playing instruction not found: ", event.index, playingIndices)
-            this.song.dispatchEvent(event)
+                console.warn("Playing instruction not found: ", iEvent.index, playingIndices)
+            this.song.dispatchEvent(iEvent)
         };
         // this.onEvent({
         //     type: 'track:start',

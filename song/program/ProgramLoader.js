@@ -48,7 +48,8 @@ export default class ProgramLoader {
         if(!program)
             throw new Error("Invalid Program ID: " + programID + ` (${typeof programID})`)
         const [className, config] = program;
-        return ProgramLoader.loadInstance(className, config);
+        const instance = ProgramLoader.loadInstance(className, config, this.song.getProgramDispatchEvent(programID));
+        return instance;
     }
 
 
@@ -106,9 +107,12 @@ export default class ProgramLoader {
 
     /** Static **/
 
-    static loadInstance(className, config={}) {
+    static loadInstance(className, config={}, eventListener=null) {
         const {classProgram} = this.getProgramClassInfo(className);
-        return new classProgram(config);
+        const instance = new classProgram(config);
+        if(eventListener && typeof instance.addEventListener === "function")
+            instance.addEventListener('*', eventListener);
+        return instance;
     }
 
     static getProgramClassInfo(className) {
