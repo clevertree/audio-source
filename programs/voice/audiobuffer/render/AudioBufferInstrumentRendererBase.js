@@ -195,6 +195,8 @@ class AudioBufferInstrumentRendererBase extends React.Component {
                     } else {
                         const [rangeStart, rangeEnd] = range;
                         rangeText = `${rangeStart||'[low]'} to ${rangeEnd||'[high]'}`;
+                        if(rangeStart === rangeEnd)
+                            rangeText = rangeStart;
                     }
                 }
                 return <ASUIClickableDropDown
@@ -226,7 +228,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
     }
 
     changeParam(paramName, newValue) {
-        // console.log(`Changing parameter ${paramName}: ${newValue} [Old: ${this.props.config[paramName]}]`);
+        console.log(`Changing parameter ${paramName}: ${newValue} [Old: ${this.props.config[paramName]}]`);
         this.props.config[paramName] = newValue;
     }
 
@@ -247,7 +249,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
         } else {
             range = range.join(':');
         }
-        this.changeParam('range', range);
+        this.changeParam('keyRange', range);
     }
 
 
@@ -373,10 +375,10 @@ class AudioBufferInstrumentRendererBase extends React.Component {
             title = "Change Root Key: " + this.props.config.keyRoot;
         return (<>
             {Values.instance.renderMenuSelectFrequencyWithRecent(noteNameOctave => {
-                this.changeParam('root', noteNameOctave)
+                this.changeParam('keyRoot', noteNameOctave)
             }, this.props.config.keyRoot, title)}
             <ASUIMenuBreak/>
-            <ASUIMenuAction onAction={() => this.removeParam('root')}>Clear Root</ASUIMenuAction>
+            <ASUIMenuAction onAction={() => this.removeParam('keyRoot')}>Clear Root</ASUIMenuAction>
         </>);
     }
     // renderMenuChangeKeyAlias() {
@@ -393,24 +395,34 @@ class AudioBufferInstrumentRendererBase extends React.Component {
     renderMenuChangeKeyRange() {
         let i=0;
         return [
-            <ASUIMenuDropDown key={i++} options={() => this.renderMenuChangeKeyRangeStart()}>Range Start</ASUIMenuDropDown>,
-            <ASUIMenuDropDown key={i++} options={() => this.renderMenuChangeKeyRangeEnd()}>Range End</ASUIMenuDropDown>,
+            <ASUIMenuDropDown key={i++} options={() => this.renderMenuChangeKeyRangeMode('alias')}>Set Alias</ASUIMenuDropDown>,
+            <ASUIMenuBreak key={i++} />,
+            <ASUIMenuDropDown key={i++} options={() => this.renderMenuChangeKeyRangeMode('start')}>Range Start</ASUIMenuDropDown>,
+            <ASUIMenuDropDown key={i++} options={() => this.renderMenuChangeKeyRangeMode('end')}>Range End</ASUIMenuDropDown>,
             <ASUIMenuBreak key={i++} />,
             <ASUIMenuAction  key={i++} onAction={() => {
-                this.removeParam('range');
+                this.removeParam('keyRange');
             }}>Clear Range</ASUIMenuAction>,
         ];
     }
-    renderMenuChangeKeyRangeStart() {
-        let rangeStart = null;
-        if(this.props.config.keyRange)
-            rangeStart = this.getRange()[0];
+    renderMenuChangeKeyRangeMode(mode) {
+        let rangeValue = null, rangeTitle = null;
+        if(this.props.config.keyRange) switch(mode) {
+            case 'alias':
+            case 'start': rangeValue = this.getRange()[0]; break;
+            case 'end': rangeValue = this.getRange()[1]; break;
+        }
         return (<>
             {Values.instance.renderMenuSelectFrequencyWithRecent(noteNameOctave => {
-                this.changeRange(noteNameOctave)
-            }, rangeStart, "Change Range Start")}
+                switch(mode) {
+                    case 'alias': this.changeRange(noteNameOctave, noteNameOctave); break;
+                    case 'start': this.changeRange(noteNameOctave, null); break;
+                    case 'end': this.changeRange(null, noteNameOctave); break;
+                }
+
+            }, rangeValue, "Change range " + mode)}
             <ASUIMenuBreak/>
-            <ASUIMenuAction onAction={() => this.removeParam('rangeStart')}>Clear Range Start</ASUIMenuAction>
+            <ASUIMenuAction onAction={() => this.removeParam('rangeValue')}>Clear Range Start</ASUIMenuAction>
         </>);
     }
     renderMenuChangeKeyRangeEnd() {

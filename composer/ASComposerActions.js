@@ -133,7 +133,7 @@ class ASComposerActions extends ASComposerMenu {
             activeTracks: {},
             programStates: [],
         }
-        state.activeTracks[startTrackName] = {}; // TODO: open root, why not?
+        state.activeTracks[startTrackName] = {viewMode: 'none'}; // TODO: Reset offsets
         await this.setStateAsync(state);
         console.log("Loading Song: ", song.data, songLength);
         await this.song.programLoadAll();
