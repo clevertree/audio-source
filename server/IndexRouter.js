@@ -12,6 +12,7 @@ import {ASComposer} from "../composer/";
 import SongProxyWebViewClient from "../song/proxy/SongProxyWebViewClient";
 
 import {pageList as defaultPageList, themeName as defaultThemeName} from "./pages";
+import ASUIPageMarkdown from "../components/markdown/ASUIPageMarkdown";
 
 export default class IndexRouter extends React.Component {
 
@@ -34,6 +35,7 @@ export default class IndexRouter extends React.Component {
                     {pageList.map(([page, path], i) => {
                         if (typeof page === "string")
                             return <Route path={path} key={i}>
+                                {props => <ASUIPageMarkdown file={page} {...props} {...pageProps} />}
                             </Route>;
                         if (page.prototype instanceof React.Component) {
                             const Page = page;
