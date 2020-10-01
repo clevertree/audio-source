@@ -53,6 +53,9 @@ class AudioBufferInstrumentRendererBase extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        if(!this.props.config.envelope) {
+            this.props.config.envelope = AudioBufferInstrument.defaultEnvelope;
+        }
         if(!this.props.config.url) {
             // console.log("No default AudioBuffer was set");
             // this.props.config.type = 'sawtooth';

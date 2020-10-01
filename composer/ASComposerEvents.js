@@ -17,7 +17,7 @@ export default class ASComposerEvents extends ASComposerInput {
 
             case 'program:play':
             case 'program:stop':
-                // console.log(e.type, e);
+                console.log(e.type, e);
                 if(typeof e.programID !== "undefined") {
                     const programRef = this.programGetRef(e.programID);
                     programRef.updatePlayingFrequency(e.type.split(':').pop(), e.frequency);

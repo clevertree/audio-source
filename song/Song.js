@@ -900,15 +900,7 @@ class Song {
         //     velocity
         // }
         // this.dispatchEvent(playEvent);
-        return program.playFrequency(destination, frequency, startTime, duration, velocity, () => {
-            const stopEvent = {
-                type: 'program:stop',
-                programID,
-                frequency,
-                velocity
-            }
-            this.dispatchEvent(stopEvent);
-        });
+        return program.playFrequency(destination, frequency, startTime, duration, velocity);
     }
 
     // playInstructionAtIndex(destination, trackName, instructionIndex, noteStartTime = null) {

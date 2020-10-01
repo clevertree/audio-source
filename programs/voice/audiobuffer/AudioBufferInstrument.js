@@ -114,6 +114,28 @@ export default class AudioBufferInstrument {
         }
     }
 
+    dispatchPlayEvent(waitTime, frequency, velocity) {
+        if(waitTime < 0)
+            waitTime = 0;
+        waitTime *= 1000;
+        setTimeout(() => this.dispatchEvent({
+            type: 'program:play',
+            frequency,
+            velocity
+        }), waitTime);
+    }
+
+    dispatchStopEvent(waitTime, frequency) {
+        if(waitTime < 0)
+            waitTime = 0;
+        waitTime *= 1000;
+        console.log('waitTime', waitTime);
+        setTimeout(() => this.dispatchEvent({
+            type: 'program:stop',
+            frequency,
+        }), waitTime);
+    }
+
     /** Source Buffer **/
 
     setBuffer(source, audioBuffer) {
@@ -234,11 +256,7 @@ export default class AudioBufferInstrument {
 
         // Start Source
         source.start(startTime);
-        this.dispatchEvent({
-            type: 'program:play',
-            frequency,
-            velocity
-        })
+        this.dispatchPlayEvent(startTime - audioContext.currentTime, frequency, velocity);
         // console.log("Note Start: ", config.url, frequency);
 
         // Set up Note-Off
@@ -254,6 +272,7 @@ export default class AudioBufferInstrument {
 
             // Stop the source at the source end time
             source.stop(sourceEndTime);
+            this.dispatchStopEvent(sourceEndTime - audioContext.currentTime, frequency);
 
         };
 
@@ -264,10 +283,6 @@ export default class AudioBufferInstrument {
                 activeLFOs.forEach(lfo => lfo.stop());
                 onended && onended();
             }
-            this.dispatchEvent({
-                type: 'program:stop',
-                frequency,
-            })
             // console.log("Note Ended: ", config.url, frequency);
         }
 

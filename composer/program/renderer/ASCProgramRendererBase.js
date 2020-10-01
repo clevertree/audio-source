@@ -167,7 +167,7 @@ export default class ASCProgramRendererBase extends React.Component {
                 }
                 break;
         }
-        console.log(state, frequency, playingFrequencies);
+        // console.log(state, frequency, playingFrequencies);
 
     }
 
