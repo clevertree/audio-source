@@ -47,7 +47,7 @@ Click the image below to try Audio Source Composer (Alpha) on your browser.
 
 
 
-## Android Downloads
+## Android Downloads (Out of date)
 
 The Audio Source Composer Alpha Demo is available for download on Android Devices:
 

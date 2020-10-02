@@ -35,6 +35,9 @@ div.asui-page-container.theme-default a:not(:hover) {
 .theme-default div.asui-page-footer > div.links {
     display: flex;
     justify-content: center;
+    background-color: #666;
+    padding: 0.2vw;
+    font-size: 4vw;
 }
 
 
@@ -48,6 +51,7 @@ div.asui-page-container.theme-default a:not(:hover) {
     border-radius: 1vw;
     transition: background-color 0.3s;
 }
+
 .theme-default div.asui-page-header > div.links > a:hover,
 .theme-default div.asui-page-footer > div.links > a:hover {
     background-color: #777;

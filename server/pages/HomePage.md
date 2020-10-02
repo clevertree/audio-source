@@ -1,6 +1,6 @@
-# [SNESology.net](https://snesology.net) Public Alpha
+# [SNESology.net](https://snesology.net) Public Alpha is Launched!
 
-Try out the Audio Source Composer on [SNESology.net](https://snesology.net) Public Alpha, 
+Try out the Audio Source Composer on [SNESology.net Public Alpha](https://snesology.net)
 
 Catch our presentation for 
 [MAGWest 2020](https://www.magwest.org/news/2020/9/25/schedule-is-live)
