@@ -13,7 +13,7 @@ class ASComposerBase extends React.Component {
             clipboard: null,
 
             portrait: true,
-            // fullscreen: !!this.props.fullscreen,
+            fullscreen: !!this.props.fullscreen,
             // showPanelSong: true,
             // showPanelProgram: true,
             // showPanelInstruction: true,

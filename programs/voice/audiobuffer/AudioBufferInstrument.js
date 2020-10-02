@@ -30,7 +30,7 @@ export default class AudioBufferInstrument {
             title:      'Edit Mixer Amplitude',
             default: 0.8,
             min: 0,
-            max: 1,
+            max: 5,
             step: 0.01,
             format: value => `${Math.round(value*100)}%`
         },
@@ -245,6 +245,7 @@ export default class AudioBufferInstrument {
         source.playbackRate.value = frequency / freqRoot;
 
 
+        // console.log('frequency', frequency, velocity);
 
         // LFOs
 
