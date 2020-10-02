@@ -1,5 +1,20 @@
+# [SNESology.net](https://snesology.net) Public Alpha
+
+Try out the Audio Source Composer on [SNESology.net](https://snesology.net) Public Alpha, 
+
+Catch our presentation for 
+[MAGWest 2020](https://www.magwest.org/news/2020/9/25/schedule-is-live)
+streaming live at Oct 2nd 9:30 PDT
+at [twitch.tv](https://www.twitch.tv/MAGFest).
+
+or click the video link below:
+
+[![Audi R8](http://img.youtube.com/vi/8BGDdypgcwI/0.jpg)](https://www.youtube.com/watch?v=8BGDdypgcwI "Audi R8")
+
+
+
 # Introduction to Audio Source
-The Audio Source Composer is an [Open-Source](#https://github.com/clevertree/audio-source-composer)
+The Audio Source Composer is an [Open-Source](https://github.com/clevertree/audio-source-composer)
 Digital Audio Workstation (DAW) built on the
 [WebAudioAPI](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 to work on all platforms; from browsers to desktops to mobile devices.
@@ -19,7 +34,6 @@ The main difference is that songs written in Audio Source Composer will allow us
 [active development](https://github.com/clevertree/audio-source-composer)
 and has not yet been released.
 Check back for updates as we get closer to the Beta release!
-
 
 
 

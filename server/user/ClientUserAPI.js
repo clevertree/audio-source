@@ -1,7 +1,4 @@
-const {
-    publicURL
-} = require('../../../config.json');
-const serverBaseURL = publicURL || document.location.origin;
+const serverBaseURL = document.location.origin;
 
 
 console.log('serverBaseURL', serverBaseURL);
