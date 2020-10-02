@@ -27,6 +27,8 @@ export default class ASUIPageMarkdown extends React.Component {
     }
 
     render() {
+        if(this.props.updateLinkTargets)
+            setTimeout(updateLinkTargets, 1000);
         return (
             <ASUIPageContainer {...this.props}>
                 <ASUIMarkdown
@@ -39,3 +41,14 @@ export default class ASUIPageMarkdown extends React.Component {
 }
 
 
+function updateLinkTargets() {
+    var all_links = document.querySelectorAll('a');
+    for (var i = 0; i < all_links.length; i++){
+        var a = all_links[i];
+        if(a.hostname != document.location.hostname) {
+            a.rel = 'noopener';
+            a.target = '_blank';
+            // console.log("Link is external: ", a);
+        }
+    }
+}

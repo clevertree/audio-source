@@ -9,7 +9,7 @@ at [twitch.tv](https://www.twitch.tv/MAGFest).
 
 or click the video link below:
 
-[![Audi R8](http://img.youtube.com/vi/8BGDdypgcwI/0.jpg)](https://www.youtube.com/watch?v=8BGDdypgcwI "Audi R8")
+[![Audi R8](https://img.youtube.com/vi/8BGDdypgcwI/0.jpg)](https://www.youtube.com/watch?v=8BGDdypgcwI "Audi R8")
 
 
 
