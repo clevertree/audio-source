@@ -33,10 +33,13 @@ export default class IndexRouter extends React.Component {
                     <Route component={ASPlayer}                 path={['/player', '/p']}/>
 
                     {pageList.map(([page, path], i) => {
-                        if (typeof page === "string")
+                        if(page === null)
+                            return null;
+                        if (typeof page === "string") {
                             return <Route path={path} key={i}>
                                 {props => <ASUIPageMarkdown file={page} updateLinkTargets {...props} {...pageProps} />}
                             </Route>;
+                        }
                         if (page.prototype instanceof React.Component) {
                             const Page = page;
                             return <Route path={path} key={i}>

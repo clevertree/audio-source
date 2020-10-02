@@ -15,6 +15,8 @@ export default class ASUIPageHeader extends React.Component {
                         };
                         if(this.props.currentPath === href)
                             props.className = 'selected';
+                        if( /^https?:\/\//i.test(href))
+                            props.target = '_blank';
                         return <a key={i} {...props}>{title}</a>
                     } )}
                 </div> : null}

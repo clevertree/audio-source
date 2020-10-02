@@ -122,7 +122,7 @@ export default class PresetLibrary {
         if(!library instanceof PresetLibrary)
             throw new Error("Library is not a PresetLibrary: " + typeof library);
         libraries.push(library);
-        console.log("Added library: ", library.getTitle(), library);
+        // console.log("Added library: ", library.getTitle(), library);
     }
 
     static getLibraries() {

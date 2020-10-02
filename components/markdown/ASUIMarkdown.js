@@ -30,7 +30,7 @@ function updateLinkTargets() {
         if(a.hostname != document.location.hostname) {
             a.rel = 'noopener';
             a.target = '_blank';
-            console.log("Link is external: ", a);
+            // console.log("Link is external: ", a);
         }
     }
 }
