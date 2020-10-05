@@ -2,8 +2,7 @@
 // import { render } from '@testing-library/react';
 // import Instruction from "./instruction/Instruction";
 // import Storage from "./Storage";
-import {InstructionIterator, Song} from "./";
-import Values from "../common/values/Values";
+import {InstructionIterator, Song, Values} from "./";
 import TrackInstructionRowIterator from "../composer/track/instruction/TrackInstructionRowIterator";
 
 

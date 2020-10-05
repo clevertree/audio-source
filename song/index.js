@@ -1,5 +1,4 @@
 
-import Song from "./Song";
 import ClientStorage from "../common/storage/ClientStorage";
 import ASCKeyboard from "../common/keyboard/ASCKeyboard"
 import ProgramLoader from "./program/ProgramLoader";
@@ -12,6 +11,7 @@ import {TrackIterator, TrackPlayback} from "./track";
 import FileService from "./file/service/FileService";
 import FileSupport from "./file/FileSupport";
 import PresetLibrary from "./library/PresetLibrary";
+import Song from "./Song";
 
 import Playlist from "./playlist/Playlist";
 export {

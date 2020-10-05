@@ -1,14 +1,28 @@
-import {parseArrayBuffer} from 'midi-json-parser';
+// import {parseArrayBuffer} from 'midi-json-parser';
+import MidiFileReader from 'midijs';
 import Song from "../Song";
 import Values from "../values/Values";
-
+// console.log('MidiFileReader', MidiFileReader)
 
 export default class MIDIFileSupport {
 
     // addSongEventListener(callback) { this.eventListeners.push(callback); }
 
+    async parseArrayBuffer(fileBuffer) {
+        return new Promise(resolve => {
+            var file = new MidiFileReader.File(fileBuffer, function (err) {
+                if (err) {
+                    throw err;
+                }
+                resolve(file);
+                // file.header contains header data
+                // file.tracks contains file tracks
+            });
+        })
+    }
+
     async processSongFromFileBuffer(fileBuffer, filePath) {
-        const midiData = await parseArrayBuffer(fileBuffer);
+        const midiData = await this.parseArrayBuffer(fileBuffer);
 
         const song = new Song();
         const songData = song.data;
@@ -140,3 +154,38 @@ export default class MIDIFileSupport {
 //     new MIDIFileSupport().processSongFromFileBuffer(midiFileBuffer, 'test2.mid');
 //
 // })();
+
+(async function() {
+    const File = MidiFileReader.File;
+    var file = new MidiFileReader.File();
+    file.getHeader().setTicksPerBeat(60); // speed up twice
+    file.getHeader().setFileType(File.Header.FILE_TYPE.SINGLE_TRACK); // change file type
+
+    /** edit tracks **/
+
+
+// add a track with events
+    file.addTrack(2, // position (optional)
+        new File.ChannelEvent(File.ChannelEvent.TYPE.NOTE_ON, {
+            note: 45
+        }),
+        new File.MetaEvent(File.MetaEvent.TYPE.END_OF_TRACK)
+    );
+
+    /** edit events in a track **/
+
+    file.getTracks(); // get all tracks
+    const track = file.getTrack(0); // get a track
+    track.getEvents(); // get all events
+    track.getEvent(0); // get an event
+    track.removeEvent(0); // remove given event
+    track.addEvent(1, // position (optional)
+        new File.ChannelEvent(File.ChannelEvent.TYPE.PROGRAM_CHANGE, {
+            program: MidiFileReader.gm.getProgram('Church Organ')
+        }, 0, 200)
+    );
+
+    console.log('TODO: refactor MIDI', track.getEvents());
+    file.removeTrack(0); // remove given track
+
+})();

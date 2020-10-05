@@ -72,4 +72,4 @@ export default class IndexRouter extends React.Component {
 }
 
 const isInStandaloneMode =
-    (window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone) || document.referrer.includes('android-app://');
+    window && ((window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone) || document.referrer.includes('android-app://'));

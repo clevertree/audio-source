@@ -64,9 +64,12 @@ export default class InstructionIterator {
         const stats = this.stats;
         // console.log('incrementPositionByDelta', deltaDurationTicks);
         stats.positionTicks += deltaDurationTicks;
-
+        if(stats.endPositionTicks < stats.positionTicks)
+            stats.endPositionTicks = stats.positionTicks;
         const elapsedTime = Values.instance.durationTicksToSeconds(deltaDurationTicks, stats.timeDivision, stats.beatsPerMinute);
         stats.positionSeconds += elapsedTime;
+        if(stats.endPositionSeconds < stats.positionSeconds)
+            stats.endPositionSeconds = stats.positionSeconds;
         // this.lastInstructionPositionInSeconds = this.positionSeconds;
     }
 
