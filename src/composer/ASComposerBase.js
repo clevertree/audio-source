@@ -8,7 +8,7 @@ class ASComposerBase extends React.Component {
             title: "Audio Source Composer",
             statusText: "[No Song Loaded]",
             statusType: 'log',
-            version: require('../package.json').version,
+            version: require('../../package.json').version,
 
             clipboard: null,
 

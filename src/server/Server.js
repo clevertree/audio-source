@@ -3,7 +3,7 @@ import ServerSongAPI from "./song/ServerSongAPI";
 import path from "path";
 import ServerUser from "./user/ServerUser";
 
-const {version} = require('../package.json');
+const {version} = require('../../package.json');
 const express = require('express');
 // const session = require('express-session');
 const clientSessions = require('client-sessions')

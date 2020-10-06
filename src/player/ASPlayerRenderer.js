@@ -22,7 +22,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
             title: "Audio Source Player",
             statusText: "[No Song Loaded]",
             statusType: "log",
-            version: require('../package.json').version,
+            version: require('../../package.json').version,
             // menuKey: 'root',
             fullscreen: false,
             portrait: true,
