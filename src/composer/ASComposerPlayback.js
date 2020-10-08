@@ -22,7 +22,7 @@ export default class ASComposerPlayback extends ASComposerActions {
                     console.log("MIDI input devices detected: " + inputDevices.map(d => d.name).join(', '));
                 },
                 (err) => {
-                    throw new Error("error initializing MIDI: " + err);
+                    this.setError("error initializing MIDI: " + err);
                 }
             );
         }

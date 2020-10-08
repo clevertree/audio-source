@@ -24,6 +24,14 @@ class PolyphonyInstrument {
         }
     }
 
+    getVoiceDispatchEvent(voiceID) {
+        return e => {
+            e.voiceID = voiceID;
+            this.dispatchEvent(e);
+            return e;
+        }
+    }
+
     /** Loading **/
 
     loadVoice(voiceID) {
@@ -35,7 +43,7 @@ class PolyphonyInstrument {
         let {classProgram:voiceClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
         const loadedVoice = new voiceClass(voiceConfig);
         if(typeof loadedVoice.addEventListener === "function")
-            loadedVoice.addEventListener('*', this.cb.dispatchEvent);
+            loadedVoice.addEventListener('*', this.getVoiceDispatchEvent(voiceID));
         this.loadedVoices[voiceID] = loadedVoice;
         return loadedVoice;
     }
@@ -55,29 +63,41 @@ class PolyphonyInstrument {
     }
 
     eachVoice(callback) {
-
-        let played = false;
         const voices = this.config.voices || [];
         for (let i = 0; i < voices.length; i++) {
             const voice = this.loadVoice(i);
-
-            const response = callback(voice);
-            if(response !== false)
-                played = true;
+            callback(voice);
         }
-        return played;
     }
 
     /** Playback **/
 
     playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
+        const audioContext = destination.context;
+        // console.log('frequency', frequency);
         if(typeof frequency === "string")
             frequency = Values.instance.parseFrequencyString(frequency);
-        const played = this.eachVoice(voice => {
-            return voice.playFrequency(destination, frequency, startTime, duration, velocity, onended);
+        const sources = [];
+        this.eachVoice(voice => {
+            const source = voice.playFrequency(destination, frequency, startTime, duration, velocity, onended);
+            if(source)
+                sources.push(source);
         })
-        if(!played)
+        if(sources.length === 0)
             console.warn("No voices were played: ", this.config);
+
+
+        function noteOff(endTime=audioContext.currentTime) {
+            for(const source of sources) {
+                source.noteOff(endTime)
+            }
+            onended && onended();
+        }
+
+        return {
+            noteOff,
+            stop: noteOff
+        };
     }
 
     /** MIDI Events **/

@@ -38,6 +38,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
             <div className={className}
                  tabIndex={0}
                  onFocus={this.cb.onFocus}
+                 onBlur={this.cb.onFocus}
                  onKeyDown={this.cb.onKeyPress}
                  onKeyUp={this.cb.onKeyPress}
             >

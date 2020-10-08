@@ -73,9 +73,9 @@ class AudioBufferInstrumentRendererBase extends React.Component {
                 : "empty buffer")
     }
 
-    getRange() {
-        return AudioBufferInstrument.getRange(this.props.config.keyRange);
-    }
+    // getRange() {
+    //     return AudioBufferInstrument.getRange(this.props.config.keyRange);
+    // }
 
     /** Parameters **/
 
@@ -191,16 +191,10 @@ class AudioBufferInstrumentRendererBase extends React.Component {
 
             case 'keyRange':
                 let rangeText = '[all]';
-                const range = this.getRange();
-                if(range) {
-                    if(range.length === 1) {
-                        rangeText = range[0];
-                    } else {
-                        const [rangeStart, rangeEnd] = range;
-                        rangeText = `${rangeStart||'[low]'} to ${rangeEnd||'[high]'}`;
-                        if(rangeStart === rangeEnd)
-                            rangeText = rangeStart;
-                    }
+                if(config.keyRangeLow || config.keyRangeHigh) {
+                    rangeText = `${config.keyRangeLow||'[low]'} to ${config.keyRangeHigh||'[high]'}`;
+                    if(config.keyRangeLow === config.keyRangeHigh)
+                        rangeText = config.keyRangeLow;
                 }
                 return <ASUIClickableDropDown
                     {...inputParameters}
@@ -410,11 +404,12 @@ class AudioBufferInstrumentRendererBase extends React.Component {
         ];
     }
     renderMenuChangeKeyRangeMode(mode) {
-        let rangeValue = null, rangeTitle = null;
+        let rangeValue = null;
         if(this.props.config.keyRange) switch(mode) {
             case 'alias':
             case 'start': rangeValue = this.getRange()[0]; break;
             case 'end': rangeValue = this.getRange()[1]; break;
+            default: break;
         }
         return (<>
             {Values.instance.renderMenuSelectFrequencyWithRecent(noteNameOctave => {
@@ -422,6 +417,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
                     case 'alias': this.changeRange(noteNameOctave, noteNameOctave); break;
                     case 'start': this.changeRange(noteNameOctave, null); break;
                     case 'end': this.changeRange(null, noteNameOctave); break;
+                    default: break;
                 }
 
             }, rangeValue, "Change range " + mode)}
@@ -429,7 +425,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
             <ASUIMenuAction onAction={() => this.removeParam('rangeValue')}>Clear Range Start</ASUIMenuAction>
         </>);
     }
-    renderMenuChangeKeyRangeEnd() {
+    renderMenuChangekeyRangeHigh() {
         let rangeEnd = null;
         if(this.props.config.keyRange)
             rangeEnd = this.getRange()[1];

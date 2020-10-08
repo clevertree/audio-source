@@ -29,7 +29,7 @@ export default class ASCPresetBrowser extends React.Component {
         // const [currentPresetClass, currentPresetConfig] = props.program;
         this.state = {
             // currentPresetHash: library.getTitle() + ':' + currentPresetClass + ':' + currentPresetConfig.title,
-            loading: true,
+            loading: false,
             presets: [],
             loadingPresets: [],
             currentLibrary: null,
@@ -55,16 +55,21 @@ export default class ASCPresetBrowser extends React.Component {
 
     componentDidMount() {
         // this.updateList();
-        this.setLibrary(PresetLibrary.loadDefault())
+        const defaultLibrary = PresetLibrary.loadDefault();
+        if(defaultLibrary)
+            this.setLibrary(defaultLibrary)
     }
 
     async setLibrary(library) {
+        if(!library)
+            throw new Error("Invalid library");
         this.setState({
             currentLibrary: library,
             loading: true,
             offset: 0,
         });
-        await library.waitForAssetLoad()
+        if(typeof library.waitForAssetLoad === "function")
+            await library.waitForAssetLoad()
         this.setState({
             loading: false
         });
@@ -148,8 +153,11 @@ export default class ASCPresetBrowser extends React.Component {
 
     renderPresets() {
         let content = [];
-        if(this.state.loading || !this.state.currentLibrary) {
+        if(this.state.loading ) {
             content.push(<ASUIClickable key="loading" loading={true} onAction={() => {}}>Loading Presets...</ASUIClickable>);
+
+        } else if(!this.state.currentLibrary) {
+            content.push(<ASUIClickable key="loading" loading={true} onAction={() => {}}>No library selected</ASUIClickable>);
 
         } else {
             const {offset, limit} = this.state;

@@ -31,7 +31,44 @@ class PolyphonyInstrumentRendererBase extends React.Component {
             onRemove: (voiceID) => this.removeVoice(voiceID),
             onAction: (e) => this.addVoice()
         }
+        this.state = {
+            playingVoices: []
+        }
     }
+
+    /** Events **/
+
+    onSongEvent(e) {
+        const playingVoices = this.state.playingVoices;
+        const voiceID = e.voiceID;
+
+        let i = playingVoices.indexOf(voiceID);
+        switch(e.type) {
+            case 'program:play':
+                if(i === -1) {
+                    playingVoices.push(voiceID);
+                    this.setState({
+                        playingVoices,
+                        playing: playingVoices.length > 0
+                    })
+                }
+                break;
+            case 'program:stop':
+                if(i !== -1) {
+                    playingVoices.splice(i, 1);
+                    this.setState({
+                        playingVoices,
+                        playing: playingVoices.length > 0
+                    })
+                } else {
+                    console.warn("Playing voice not found: ", voiceID);
+                }
+                break;
+            default: break;
+        }
+        // console.log('playingVoices', playingVoices);
+    }
+
 
     /** Actions **/
 
@@ -80,6 +117,7 @@ class PolyphonyInstrumentRendererBase extends React.Component {
         const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
         const voiceProps = this.props.voiceProps || [];
         const voiceProp = voiceProps[voiceID] || {};
+        const playing = this.state.playingVoices.indexOf(voiceID) !== -1;
         // console.log('voiceProps', voiceProps);
         return (//<div className="voice">
             <Renderer
@@ -88,6 +126,7 @@ class PolyphonyInstrumentRendererBase extends React.Component {
                 programID={voiceID}
                 config={config}
                 program={voiceData}
+                playing={playing}
                 setProps={this.cb.setProps}
                 {...voiceProp}
             />);

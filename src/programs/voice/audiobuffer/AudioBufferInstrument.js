@@ -129,7 +129,7 @@ export default class AudioBufferInstrument {
         if(waitTime < 0)
             waitTime = 0;
         waitTime *= 1000;
-        console.log('waitTime', waitTime);
+        // console.log('waitTime', waitTime);
         setTimeout(() => this.dispatchEvent({
             type: 'program:stop',
             frequency,
@@ -142,13 +142,16 @@ export default class AudioBufferInstrument {
         source.buffer = audioBuffer;
         // console.log("Set audio buffer: ", this.config.url, source, this.audioBuffer);
 
-        if(this.config.loop) {
-            source.loop = true;
-            if (typeof this.config.loopStart !== "undefined")
+        // if(this.config.loop) {
+            if (typeof this.config.loopStart !== "undefined") {
                 source.loopStart = this.config.loopStart / audioBuffer.sampleRate;
-            if (typeof this.config.loopEnd !== "undefined")
+                source.loop = true;
+            }
+            if (typeof this.config.loopEnd !== "undefined") {
                 source.loopEnd = this.config.loopEnd / audioBuffer.sampleRate;
-        }
+                source.loop = true;
+            }
+        // }
         // console.log("Set audio buffer: ", this.audioBuffer, this.config.url, source);
     }
 
@@ -201,9 +204,23 @@ export default class AudioBufferInstrument {
 
     playFrequency(destination, frequency, startTime=null, duration=null, velocity=null, onended=null) {
         const config = this.config;
-        if(config.keyRange) {
-            if(!AudioBufferInstrument.isFrequencyWithinRange(frequency, config.keyRange))
+        if(config.keyRangeLow) {
+            let keyRangeLow = config.keyRangeLow;
+            if(typeof keyRangeLow === "string")
+                keyRangeLow = Values.instance.parseFrequencyString(keyRangeLow);
+            if(keyRangeLow > frequency) {
+                // console.log("Skipping note below rangeStart: ", keyRangeLow, ">", frequency, config);
                 return false;
+            }
+        }
+        if(config.keyRangeHigh) {
+            let keyRangeHigh = config.keyRangeHigh;
+            if(typeof keyRangeHigh === "string")
+                keyRangeHigh = Values.instance.parseFrequencyString(keyRangeHigh);
+            if(keyRangeHigh < frequency) {
+                // console.log("Skipping note higher than rangeEnd: ", keyRangeHigh, "<", frequency, config);
+                return false;
+            }
         }
 
         const audioContext = destination.context;
@@ -231,6 +248,7 @@ export default class AudioBufferInstrument {
 
         // Audio Buffer
         const source = this.createAudioBuffer(destination);
+        // TODO: if not looping, note ends at sample length: if (waveDuration > zone.buffer.duration / playbackRate) {
 
         // Detune
         if(typeof config.detune !== "undefined")
@@ -243,7 +261,7 @@ export default class AudioBufferInstrument {
             frequency *= keyRoot / AudioBufferInstrument.defaultRootFrequency;
         }
         source.playbackRate.value = frequency / freqRoot;
-
+        // TODO: fine tune
 
         // console.log('frequency', frequency, velocity);
 
@@ -315,6 +333,7 @@ export default class AudioBufferInstrument {
             case 144:   // Note On
                 newMIDICommand = Values.instance.getCommandFromMIDINote(eventData[1]);
                 const newMIDIFrequency = Values.instance.parseFrequencyString(newMIDICommand);
+                // console.log("MIDI On", newMIDICommand, newMIDIFrequency);
                 let newMIDIVelocity = Math.round((eventData[2] / 128) * 100);
                 const source = this.playFrequency(destination, newMIDIFrequency, null, null, newMIDIVelocity);
                 if(source) {
@@ -350,41 +369,41 @@ export default class AudioBufferInstrument {
     }
 
 
-    static isFrequencyWithinRange(frequency, range) {
-        let [rangeStart, rangeEnd] = this.getRange(range);
-        if(rangeStart) {
-            if(typeof rangeStart === "string")
-                rangeStart = Values.instance.parseFrequencyString(rangeStart);
-            if(rangeStart < frequency) {
-                // console.log("Skipping note below rangeStart: ", rangeStart, "<", frequency);
-                return false;
-            }
-        }
-        if(rangeEnd) {
-            if(typeof rangeEnd === "string")
-                rangeEnd = Values.instance.parseFrequencyString(rangeEnd);
-            if(rangeEnd > frequency) {
-                // console.log("Skipping note after rangeEnd: ", rangeEnd, ">", frequency);
-                return false;
-            }
-        }
-        // console.log("Frequency is within range: ", rangeStart, ">", frequency, ">", rangeEnd);
+    // static isFrequencyWithinRange(frequency, range) {
+    //     let [rangeStart, rangeEnd] = this.getRange(range);
+    //     if(rangeStart) {
+    //         if(typeof rangeStart === "string")
+    //             rangeStart = Values.instance.parseFrequencyString(rangeStart);
+    //         if(rangeStart < frequency) {
+    //             // console.log("Skipping note below rangeStart: ", rangeStart, "<", frequency);
+    //             return false;
+    //         }
+    //     }
+    //     if(rangeEnd) {
+    //         if(typeof rangeEnd === "string")
+    //             rangeEnd = Values.instance.parseFrequencyString(rangeEnd);
+    //         if(rangeEnd > frequency) {
+    //             // console.log("Skipping note after rangeEnd: ", rangeEnd, ">", frequency);
+    //             return false;
+    //         }
+    //     }
+    //     // console.log("Frequency is within range: ", rangeStart, ">", frequency, ">", rangeEnd);
+    //
+    //     return true;
+    // }
 
-        return true;
-    }
-
-    static getRange(keyRange) {
-        if(!keyRange)
-            return null;
-        let range = keyRange;
-        if(typeof range === "string")
-            range = range.split(':');
-
-        if(range.length === 1)
-            range[1] = range[0];
-
-        return range;
-    }
+    // static getRange(keyRange) {
+    //     if(!keyRange)
+    //         return null;
+    //     let range = keyRange;
+    //     if(typeof range === "string")
+    //         range = range.split(':');
+    //
+    //     if(range.length === 1)
+    //         range[1] = range[0];
+    //
+    //     return range;
+    // }
 
 
 }

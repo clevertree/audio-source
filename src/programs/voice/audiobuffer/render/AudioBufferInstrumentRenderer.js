@@ -20,6 +20,8 @@ export default class AudioBufferInstrumentRenderer extends AudioBufferInstrument
             className += ' open';
         if(this.props.status)
             className += ' ' + this.props.status;
+        if(this.props.playing)
+            className += ' playing';
 
         const title = this.getTitle();
 

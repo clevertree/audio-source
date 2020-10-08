@@ -27,7 +27,7 @@ function updateLinkTargets() {
     var all_links = document.querySelectorAll('.asui-page-content a');
     for (var i = 0; i < all_links.length; i++){
         var a = all_links[i];
-        if(a.hostname != document.location.hostname) {
+        if(a.hostname !== document.location.hostname) {
             a.rel = 'noopener';
             a.target = '_blank';
             // console.log("Link is external: ", a);

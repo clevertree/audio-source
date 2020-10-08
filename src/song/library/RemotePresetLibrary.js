@@ -3,7 +3,7 @@ import PresetLibrary from "./PresetLibrary";
 export default class RemotePresetLibrary extends PresetLibrary {
 
     constructor(libraryURL, title) {
-        super(title);
+        super(title || libraryURL.split('/').pop().replace('.library.json', ''));
         this.url = libraryURL;
         this.clearCacheTimeout = null;
         // console.log('RemoteSampleLibrary', libraryData);

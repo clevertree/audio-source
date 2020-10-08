@@ -15,10 +15,14 @@ div.audiobuffer-instrument-container.loading {
     animation: loadingBG 1s infinite alternate ease-out;
     cursor: progress;
 }
-
 @keyframes loadingBG {
     100% { background-color: #AAA; }
 }
+div.audiobuffer-instrument-container.playing {
+    background-color: #8ee081;
+    border: 1px inset #44ff00;
+}
+
 
 div.audiobuffer-instrument-container.error {
     background-color: #AAA;

@@ -30,10 +30,11 @@ export default class ASCProgramRendererBase extends React.Component {
             setProps: (programID, props) => this.setProps(programID, props),
         }
         this.ref = {
-            textSource: React.createRef()
+            textSource: React.createRef(),
+            program: React.createRef()
         }
         this.state = {
-            playingFrequencies: []
+            playingVoices: []
         }
 
         this.playingKeys = {};
@@ -74,6 +75,7 @@ export default class ASCProgramRendererBase extends React.Component {
             // console.log('this.getRendererState()', this.getRendererState(), className);
             return (
                 <Renderer
+                    ref={this.ref.program}
                     programID={programID}
                     program={program}
                     config={config}
@@ -137,39 +139,16 @@ export default class ASCProgramRendererBase extends React.Component {
         }
     }
 
-    /** Actions **/
+    /** Events **/
 
-    updatePlayingFrequency(state, frequency) {
-        const playingFrequencies = this.state.playingFrequencies;
-
-        let i;
-        switch(state) {
-            case 'play':
-                i = playingFrequencies.indexOf(frequency);
-                if(i === -1) {
-                    playingFrequencies.push(frequency);
-                    this.setState({
-                        playingFrequencies,
-                        playing: true
-                    })
-                }
-                break;
-            case 'stop':
-                i = playingFrequencies.indexOf(frequency);
-                if(i !== -1) {
-                    playingFrequencies.splice(i, 1);
-                    this.setState({
-                        playingFrequencies,
-                        playing: playingFrequencies.length > 0
-                    })
-                } else {
-                    console.warn("Playing frequency not found: ", frequency);
-                }
-                break;
-        }
-        // console.log(state, frequency, playingFrequencies);
-
+    onSongEvent(e) {
+        // console.log("Program Song Event: ", e.type);
+        const programRef = this.ref.program.current;
+        if(programRef && typeof programRef.onSongEvent === "function")
+            programRef.onSongEvent(e);
     }
+
+    /** Actions **/
 
 
     // programReplace(e, programClassName, programConfig={}) {
@@ -346,7 +325,26 @@ export default class ASCProgramRendererBase extends React.Component {
     }
 
     onFocus(e) {
-        this.getComposer().setSelectedComponent('program', this.getProgramID());
+        // console.log(e.type, this);
+        switch(e.type) {
+            case 'focus':
+                this.getComposer().setSelectedComponent('program', this.getProgramID());
+                break;
+
+            case 'blur':
+                this.stopAllPlayingKeys();
+                break;
+            default:
+                break;
+        }
+    }
+
+    stopAllPlayingKeys() {
+        Object.keys(this.playingKeys).forEach(playingKey => {
+            const source = this.playingKeys[playingKey];
+            source.noteOff ? source.noteOff() : source.stop();
+        })
+        this.playingKeys = {};
     }
 
     onKeyPress(e) {
@@ -375,7 +373,7 @@ export default class ASCProgramRendererBase extends React.Component {
                         const source = this.playingKeys[e.key];
                         delete this.playingKeys[e.key];
                         source && source.noteOff();
-                        // console.log('source', source);
+                        // console.log('keyup source', source, e.key);
                     } else {
                         console.warn("Playing key not found: ", e.key, this.playingKeys);
                     }

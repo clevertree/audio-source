@@ -1,6 +1,6 @@
 {
   "name": "audio-source-composer",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "type": "module",
   "description": "Audio Source Composer",
   "author": "Ari Asulin",
@@ -11,7 +11,7 @@
     "start": "react-scripts start",
     "start-server": "node -r esm ./src/startServer.js",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --watchAll",
     "eject": "react-scripts eject"
   },
   "repository": {
@@ -37,6 +37,7 @@
     "eslint-plugin-flowtype": "3.13.0",
     "fibers": "^4.0.3",
     "fili": "^2.0.3",
+    "jsdom": "^16.4.0",
     "lz-string": "^1.4.4",
     "midi-json-parser": "^8.0.13",
     "midijs": "^0.12.0",

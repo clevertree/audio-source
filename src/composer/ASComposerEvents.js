@@ -4,7 +4,7 @@ export default class ASComposerEvents extends ASComposerInput {
 
     /** Song Events **/
 
-    async onSongEvent(e) {
+    onSongEvent(e) {
         // console.log("Song Event: ", e.type);
         switch (e.type) {
             case 'log':
@@ -17,10 +17,10 @@ export default class ASComposerEvents extends ASComposerInput {
 
             case 'program:play':
             case 'program:stop':
-                console.log(e.type, e);
+                // console.log(e.type, e.path);
                 if(typeof e.programID !== "undefined") {
                     const programRef = this.programGetRef(e.programID);
-                    programRef.updatePlayingFrequency(e.type.split(':').pop(), e.frequency);
+                    programRef.onSongEvent(e);
                 }
                 break;
 
