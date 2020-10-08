@@ -47,9 +47,11 @@ export default class Server {
         new ServerUserAPI(app, this);
         new ServerSongAPI(app, this);
 
-        const buildPath = path.resolve(__dirname, '../../../build')
-        console.log("Adding public directory path: ", this.getPublicPath());
-        app.use(express.static(this.getPublicPath()));
+        const publicPath = this.getPublicPath();
+        console.log("Adding public directory path: ", publicPath);
+        app.use(express.static(publicPath));
+
+        const buildPath = this.getBuildPath();
         console.log("Adding build directory path: ", buildPath);
         app.use(express.static(buildPath)); // Host the compiled app
 
@@ -86,6 +88,7 @@ export default class Server {
     /** Files **/
 
     getPublicPath(...paths) { return path.resolve(this.config.publicDirectory, ...paths); }
+    getBuildPath(...paths) { return path.resolve(this.config.buildDirectory, ...paths); }
     getPrivatePath(...paths) { return path.resolve(this.config.privateDirectory, ...paths); }
     getPublicURL(...paths) { return new URL(paths.join('/'), this.config.publicURL).toString(); }
     // getPublicUsersPath(...paths) { return ServerSongFile.getPublicUsersPath(this, ...paths); }
@@ -105,6 +108,7 @@ const defaultConfig = {
     publicURL: null,
     publicDirectory: "./public",
     privateDirectory: "./private",
+    buildDirectory: "./build",
     sessionSecret: "cb1fbb07079625629cf5858718f33713",
     corsOrigin: null
 };
