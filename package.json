@@ -51,7 +51,12 @@
     "react-scripts": "3.4.1",
     "sass": "^1.26.10",
     "typescript": "^3.9.6",
-    "webtorrent": "^0.108.6"
+    "webtorrent": "^0.108.6",
+    "esm": "^3.2.25",
+    "bcrypt": "^5.0.0",
+    "compare-versions": "^3.6.0",
+    "sanitize-html": "^2.1.0",
+    "client-sessions": "^0.8.0"
   },
   "devDependencies": {},
   "jest": {
