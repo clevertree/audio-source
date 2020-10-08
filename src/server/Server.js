@@ -3,10 +3,10 @@ import ServerSongAPI from "./song/ServerSongAPI";
 import path from "path";
 import ServerUser from "./user/ServerUser";
 
-const {version} = require('../../package.json');
-const express = require('express');
+import {version} from '../../package.json';
+import express from 'express';
 // const session = require('express-session');
-const clientSessions = require('client-sessions')
+import clientSessions from 'client-sessions';
 
 export default class Server {
     constructor(config={}) {

@@ -1,7 +1,6 @@
 {
   "name": "audio-source-composer",
   "version": "0.7.2",
-  "type": "module",
   "description": "Audio Source Composer",
   "author": "Ari Asulin",
   "license": "GPL-3.0",
