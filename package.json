@@ -10,7 +10,8 @@
     "start": "react-scripts start",
     "start-server": "node -r esm ./src/startServer.js",
     "build": "react-scripts build",
-    "test": "react-scripts test --watchAll",
+    "test": "react-scripts test --watchAll=false",
+    "test-watch": "react-scripts test --watchAll",
     "eject": "react-scripts eject"
   },
   "repository": {
