@@ -32,7 +32,7 @@ ArgType.frequency = new ArgType(
     "Frequency",
     (frequency, stats) => {
         if(typeof frequency === "string") {
-            console.log('frequency', frequency);
+            // console.log('frequency', frequency);
             frequency = Values.instance.parseFrequencyString(frequency);
         }
         if(stats.transpose)

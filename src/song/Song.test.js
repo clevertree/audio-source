@@ -44,6 +44,7 @@ class SongTest {
 
 
   testValues() {
+    Values.instance.setFrequencyA4(432)
     const values = [
       ['A3', 216],
       ['B3', 242],

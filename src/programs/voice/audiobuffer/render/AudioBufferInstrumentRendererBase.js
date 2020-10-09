@@ -41,8 +41,9 @@ class AudioBufferInstrumentRendererBase extends React.Component {
                 source: () => this.renderMenuChangeAudioBuffer(),
             },
             changeParam: {
-                mixer:    (newValue) => this.changeParam('mixer', newValue),
-                detune:   (newValue) => this.changeParam('detune', newValue),
+                mixer:      (newValue) => this.changeParam('mixer', newValue),
+                detune:     (newValue) => this.changeParam('detune', newValue),
+                transpose:  (newValue) => this.changeParam('transpose', newValue),
             },
             setLFOProps: (lfoID, props) => this.setLFOProps(lfoID, props),
             setEnvelopeProps: (programID, props) => this.setEnvelopeProps(props),
@@ -85,7 +86,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
             'source',
             'mixer',
             'detune',
-            'keyRoot',
+            'transpose',
             'keyRange',
         ]
         const inputParameters = AudioBufferInstrument.inputParameters;
@@ -184,7 +185,7 @@ class AudioBufferInstrumentRendererBase extends React.Component {
             case 'keyRoot': // TODO:
                 return <ASUIClickableDropDown
                     {...inputParameters}
-                    className="small"
+                    size="small"
                     vertical
                     options={this.cb.renderParamMenu.keyRoot}
                 >{config.keyRoot ? config.keyRoot : "[No Root Set]"}</ASUIClickableDropDown>
@@ -198,18 +199,22 @@ class AudioBufferInstrumentRendererBase extends React.Component {
                 }
                 return <ASUIClickableDropDown
                     {...inputParameters}
-                    className="small"
+                    size="small"
                     vertical
                     options={this.cb.renderParamMenu.keyRange}
                 >{rangeText}</ASUIClickableDropDown>
 
+            case 'transpose':
             case 'mixer':
             case 'detune':
             case 'pulseWidth':
                 return <ASUIInputRange
+                    size="small"
                     {...inputParameters}
                     value={value}
                     onChange={onChange}
+                    buttonIncrement
+                    buttonReset
                 />
 
             default:

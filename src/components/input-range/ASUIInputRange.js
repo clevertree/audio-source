@@ -31,9 +31,30 @@ export default class ASUIInputRange extends React.Component {
             onChange: e => this.onChange(e),
             onMouseUp: e => this.onClick(e),
         };
+        if(this.props.buttonIncrement) {
+            this.cb.onIncrementUp = e => this.onIncrementUp(e);
+            this.cb.onIncrementDown = e => this.onIncrementDown(e);
+        }
         this.state = {
             value: this.props.value
         }
+        this.ref = {
+            input: React.createRef()
+        }
+    }
+
+    getInput() {
+        return this.ref.input.current;
+    }
+
+    onIncrementUp(e) {
+        const newValue = parseFloat(this.getInput().value) + parseFloat(this.props.step);
+        this.props.onChange(newValue);
+    }
+
+    onIncrementDown(e) {
+        const newValue = parseFloat(this.getInput().value) - parseFloat(this.props.step);
+        this.props.onChange(newValue);
     }
 
     onClick(e) {
@@ -67,22 +88,34 @@ export default class ASUIInputRange extends React.Component {
         return <div
             className={className}
             >
-            <div
-                className="value"
-                children={title}
-                />
-            <input
-                key="input"
-                type="range"
-                value={value}
-                onChange={this.cb.onChange}
-                onMouseUp={this.cb.onMouseUp}
-                min={this.props.min}
-                max={this.props.max}
-                step={this.props.step}
-                name={this.props.name}
-                title={title}
-                />
+            {this.props.buttonIncrement ? <div
+                onClick={this.cb.onIncrementDown}
+                onKeyPress={this.cb.onIncrementDown}
+            >&lt;</div>: null}
+            <div>
+                <div
+                    className="value"
+                    children={title}
+                    />
+                <input
+                    ref={this.ref.input}
+                    key="input"
+                    type="range"
+                    value={value}
+                    onChange={this.cb.onChange}
+                    onMouseUp={this.cb.onMouseUp}
+                    min={this.props.min}
+                    max={this.props.max}
+                    step={this.props.step}
+                    name={this.props.name}
+                    title={title}
+                    />
+            </div>
+
+            {this.props.buttonIncrement ? <div
+                onClick={this.cb.onIncrementUp}
+                onKeyPress={this.cb.onIncrementDown}
+            >&gt;</div>: null}
         </div>;
     }
 

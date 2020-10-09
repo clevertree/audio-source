@@ -2,9 +2,10 @@ import {ASUIInputRange, ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMen
 import PromptManager from "../../common/prompt/PromptManager";
 import React from "react";
 
+let FREQ_A4 = 440;
+
 class Values {
     static UUID_FORMAT = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
-    static FREQ_A4 = 432;
     static instance = new Values();
     static lastModeKey = 'fraction';
 
@@ -18,6 +19,13 @@ class Values {
 
 
     /** Values **/
+
+    setFrequencyA4(frequency=440) {
+        FREQ_A4 = frequency;
+        console.log(`Frequency calculation changed: A4=${FREQ_A4}`);
+    }
+
+    getFrequencyA4() { return FREQ_A4; }
 
     /** UUID **/
     generateUUID(uuidFormat = Values.UUID_FORMAT) {
@@ -149,7 +157,7 @@ class Values {
 
     parseFrequencyString(noteString) {
         const {keyNumber} = this.parseFrequencyParts(noteString);
-        return Values.FREQ_A4 * Math.pow(2, (keyNumber - 98) / 24);
+        return FREQ_A4 * Math.pow(2, (keyNumber - 98) / 24);
         // TODO: tune A4 to 440/432hz
     }
 

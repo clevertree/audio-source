@@ -16,7 +16,6 @@ export default class OscillatorInstrument {
     }
 
     static defaultEnvelope = ['envelope', {}];
-    static defaultRootFrequency = 220;
     static sampleFileRegex = /\.json$/i;
 
     /** Parameters **/
@@ -284,7 +283,7 @@ export default class OscillatorInstrument {
         // Playback Rate
         if(config.keyRoot) {
             const keyRoot = Values.instance.parseFrequencyString(config.keyRoot);
-            frequency *= keyRoot / OscillatorInstrument.defaultRootFrequency;
+            frequency *= keyRoot / Values.instance.getFrequencyA4();
         }
         source.frequency.value = frequency;    // set Frequency (hz)
 

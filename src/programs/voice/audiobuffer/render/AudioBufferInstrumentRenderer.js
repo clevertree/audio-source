@@ -31,7 +31,7 @@ export default class AudioBufferInstrumentRenderer extends AudioBufferInstrument
                 {this.getParameters().map((props, i) => (
                     <div key={i}>
                         {props.label ? <div className="label">{props.label}</div> : null}
-                        {props.children}
+                        <div>{props.children}</div>
                     </div>
                 ))}
             </div>)

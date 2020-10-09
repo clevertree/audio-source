@@ -1,10 +1,14 @@
 
 div.asui-input-range {
-  position: relative;
   margin: 0 3px;
+  display: flex;
 }
 
-div.asui-input-range > input[type='range'] {
+div.asui-input-range > div {
+  position: relative;
+}
+
+div.asui-input-range > div > input[type='range'] {
   position: relative;
   -webkit-appearance: none;
   background-color: #9999;
@@ -16,7 +20,7 @@ div.asui-input-range > input[type='range'] {
   height: 15px;
 }
 
-div.asui-input-range > input[type='range']::-moz-range-thumb {
+div.asui-input-range > div > input[type='range']::-moz-range-thumb {
   vertical-align: middle;
   -webkit-appearance: none;
   background-color: #444;
@@ -26,7 +30,7 @@ div.asui-input-range > input[type='range']::-moz-range-thumb {
 }
 
 
-div.asui-input-range > input[type='range']::-webkit-slider-thumb {
+div.asui-input-range > div > input[type='range']::-webkit-slider-thumb {
   vertical-align: middle;
   -webkit-appearance: none;
   background-color: #444;
@@ -36,20 +40,21 @@ div.asui-input-range > input[type='range']::-webkit-slider-thumb {
 }
 
 /** Size **/
-div.asui-input-range.small > input[type='range'] {
+div.asui-input-range.small > div > input[type='range'] {
   width: 100px;
 }
 
 
 /** Value **/
 
-div.asui-input-range > div.value {
+div.asui-input-range > div  > div.value {
   font-size: small;
   position: absolute;
   padding: 4px 6px;
   z-index: 1;
+  /*left: 4px;*/
 }
 
-div.asui-input-range.value-right > div.value {
+div.asui-input-range.value-right > div > div.value {
   right: 2px;
 }

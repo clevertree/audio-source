@@ -16,7 +16,6 @@ export default class AudioBufferInstrument {
     }
 
     static defaultEnvelope = ['envelope', {}];
-    static defaultRootFrequency = 220;
     static sampleFileRegex = /\.wav$/i;
 
     /** Parameters **/
@@ -56,6 +55,15 @@ export default class AudioBufferInstrument {
         keyRoot: {
             label: "Root",
             title: "Key Root",
+        },
+        transpose: {
+            label: "Transp",
+            title: "Transpose",
+            default: 0,
+            min: -48,
+            max: 48,
+            step: 1,
+            format: value => `${value} st`
         },
         keyRange: {
             label: "Range",
@@ -255,10 +263,14 @@ export default class AudioBufferInstrument {
             source.detune.value = config.detune;
 
         // Playback Rate
-        let freqRoot = AudioBufferInstrument.defaultRootFrequency;
-        if(config.keyRoot) {
-            const keyRoot = Values.instance.parseFrequencyString(config.keyRoot);
-            frequency *= keyRoot / AudioBufferInstrument.defaultRootFrequency;
+        let freqRoot = Values.instance.getFrequencyA4();
+        // if(config.keyRoot) {
+        //     const keyRoot = Values.instance.parseFrequencyString(config.keyRoot);
+        //     frequency *= keyRoot / freqRoot;
+        // }
+        if(config.transpose) {
+            var transposeAmount = 1.0 * Math.pow(2, config.transpose/12);
+            frequency *= transposeAmount;
         }
         source.playbackRate.value = frequency / freqRoot;
         // TODO: fine tune
