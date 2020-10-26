@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/audio-source-composer.iml" filepath="$PROJECT_DIR$/.idea/audio-source-composer.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../audio-source-files/.idea/audio-source-files.iml" filepath="$PROJECT_DIR$/../audio-source-files/.idea/audio-source-files.iml" />
     </modules>
   </component>
 </project>

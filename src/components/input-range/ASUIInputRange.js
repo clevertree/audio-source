@@ -91,7 +91,7 @@ export default class ASUIInputRange extends React.Component {
             {this.props.buttonIncrement ? <div
                 onClick={this.cb.onIncrementDown}
                 onKeyPress={this.cb.onIncrementDown}
-            >&lt;</div>: null}
+            >-</div>: null}
             <div>
                 <div
                     className="value"
@@ -115,7 +115,7 @@ export default class ASUIInputRange extends React.Component {
             {this.props.buttonIncrement ? <div
                 onClick={this.cb.onIncrementUp}
                 onKeyPress={this.cb.onIncrementDown}
-            >&gt;</div>: null}
+            >+</div>: null}
         </div>;
     }
 
