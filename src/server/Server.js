@@ -47,9 +47,9 @@ export default class Server {
         new ServerUserAPI(app, this);
         new ServerSongAPI(app, this);
 
-        const publicPath = this.getPublicPath();
-        console.log("Adding public directory path: ", publicPath);
-        app.use(express.static(publicPath));
+        // const publicPath = this.getPublicPath();
+        // console.log("Adding public directory path: ", publicPath);
+        // app.use(express.static(publicPath));
 
         const buildPath = this.getBuildPath();
         console.log("Adding build directory path: ", buildPath);
